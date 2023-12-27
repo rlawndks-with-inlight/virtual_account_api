@@ -2,15 +2,16 @@ import express from 'express';
 import { trxCtrl } from '../controllers/index.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
+//뱅크너스
 router
-    .route('/push/deposit')
-    .post(trxCtrl.push.deposit);
+    .route('/t1/push/deposit')
+    .post(trxCtrl.t1.push.deposit);
 router
-    .route('/push/withdraw')
-    .post(trxCtrl.push.withdraw);
+    .route('/t1/push/withdraw')
+    .post(trxCtrl.t1.push.withdraw);
 router
-    .route('/push/withdraw-fail')
-    .post(trxCtrl.push.withdrawFail);
+    .route('/t1/push/withdraw-fail')
+    .post(trxCtrl.t1.push.withdrawFail);
 
 
 export default router;
