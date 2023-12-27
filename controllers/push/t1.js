@@ -1,7 +1,6 @@
 'use strict';
 import { response } from '../../utils.js/util.js';
 import 'dotenv/config';
-import t1TrxCtrl from "./push/t1.js";
 //뱅크너스
 
 const t1TrxCtrl = {
