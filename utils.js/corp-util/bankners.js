@@ -243,16 +243,84 @@ export const banknersApi = {
                     guid: guid
                 }
                 query = new URLSearchParams(query).toString();
-                let { data: result } = await axios.get(`https://${API_URL}/api/bank/list`, {
-                    headers: makeHeaderData(dns_data, pay_type, decode_user)
-                })
-                if (result?.code != '0000') {
-                    return {
-                        code: -100,
-                        message: result?.message,
-                        data: {},
-                    };
+                // let { data: result } = await axios.get(`https://${API_URL}/api/bank/list`, {
+                //     headers: makeHeaderData(dns_data, pay_type, decode_user)
+                // })
+                // if (result?.code != '0000') {
+                //     return {
+                //         code: -100,
+                //         message: result?.message,
+                //         data: {},
+                //     };
+                // }
+                const bank_list = [
+                    {
+                        bank_id: '039',
+                        bank_nm: '경남은행',
+                        bank_en_nm: 'Kyongnam Bank',
+                        swift_cd: 'KYNAKR22'
+                    },
+                    {
+                        bank_id: '003',
+                        bank_nm: 'IBK기업은행',
+                        bank_en_nm: '',
+                        swift_cd: 'IBKOKRSE'
+                    },
+                    {
+                        bank_id: '088',
+                        bank_nm: '신한은행',
+                        bank_en_nm: 'SHINHAN BANK',
+                        swift_cd: 'SHBKKRSE'
+                    },
+                    {
+                        bank_id: '004',
+                        bank_nm: 'KB국민은행',
+                        bank_en_nm: '',
+                        swift_cd: 'CZNBKRSE'
+                    },
+                    {
+                        bank_id: '081',
+                        bank_nm: 'KEB하나은행',
+                        bank_en_nm: 'KEB Hana Bank',
+                        swift_cd: 'KOEXKRSE'
+                    },
+                    {
+                        bank_id: '090',
+                        bank_nm: '카카오뱅크',
+                        bank_en_nm: 'KAKAO BANK',
+                        swift_cd: 'CITIKRSXKA'
+                    },
+                    {
+                        bank_id: '089',
+                        bank_nm: '케이뱅크',
+                        bank_en_nm: 'K BANK',
+                        swift_cd: ''
+                    },
+                    {
+                        bank_id: '071',
+                        bank_nm: '우체국',
+                        bank_en_nm: '',
+                        swift_cd: 'SHBKKRSEKP'
+                    },
+                    {
+                        bank_id: '007',
+                        bank_nm: 'Sh수협은행',
+                        bank_en_nm: '',
+                        swift_cd: 'NFFCKRSE'
+                    },
+                    {
+                        bank_id: '020',
+                        bank_nm: '우리은행',
+                        bank_en_nm: '',
+                        swift_cd: 'HVBKKRSE'
+                    },
+                ]
+                let result = {
+                    code: 100,
+                    message: 'success',
+                    data: bank_list
                 }
+
                 for (var i = 0; i < result.data.length; i++) {
                     result.data[i].label = result.data[i]?.bank_nm;
                     result.data[i].value = result.data[i]?.bank_id;
@@ -266,7 +334,7 @@ export const banknersApi = {
                 console.log(err);
                 return {
                     code: -100,
-                    message: result?.message,
+                    message: '',
                     data: {},
                 };
             }
@@ -280,7 +348,8 @@ export const banknersApi = {
             } = data;
             let query = {
                 guid,
-                bank_id: virtual_bank_code
+                bank_id: virtual_bank_code,
+                version: 2,
             }
             query = makeBody(query, dns_data, pay_type)
             let result = await postRequest('/api/vaccount', query, makeHeaderData(dns_data, pay_type, decode_user));
@@ -291,12 +360,14 @@ export const banknersApi = {
                     data: {},
                 };
             }
+            console.log(result)
             return {
                 code: 100,
                 message: '',
                 data: {
                     virtual_acct_num: result?.data?.vacnt_no,
                     tid: result?.data?.tid,
+                    virtual_acct_name: result?.data?.vacnt_nm,
                 },
             };
         } catch (err) {

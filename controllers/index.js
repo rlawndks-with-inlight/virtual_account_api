@@ -1,7 +1,9 @@
 'use strict';
 
-import trxCtrl from './trx.controller.js';
+import pushCtrl from './push.controller.js';
+import virtualAccountCtrl from './virtual_account.controller.js';
 
 export {
-    trxCtrl,
+    pushCtrl,
+    virtualAccountCtrl,
 };
