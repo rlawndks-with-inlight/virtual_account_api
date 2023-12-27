@@ -3,7 +3,7 @@ import { response } from '../../utils.js/util.js';
 import 'dotenv/config';
 //뱅크너스
 
-const t1TrxCtrl = {
+const t1TrxCtrl = {//노티
     t1: {
         push: {
             deposit: async (req, res, next) => {
