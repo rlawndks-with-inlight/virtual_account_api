@@ -75,8 +75,6 @@ const pushCtrl = {
                 if (mcht[`sales${dns_data?.operator_list[i]?.num}_id`] > 0) {
                     is_use_sales = true;
                     if (is_first) {
-                        console.log(mcht[`sales${dns_data?.operator_list[i]?.num}_fee`]);
-                        console.log(minus_fee);
                         obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
                     }
                     is_first = false;
