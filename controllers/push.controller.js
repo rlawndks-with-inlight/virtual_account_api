@@ -48,7 +48,7 @@ const pushCtrl = {
 
 
             let trx_id = tid;
-            let amount = trx_amt;
+            let amount = parseInt(trx_amt);
             let deposit_bank_code = virtual_account?.deposit_bank_code
             let deposit_acct_num = virtual_account?.deposit_acct_num
             let deposit_acct_name = virtual_account?.deposit_acct_name
@@ -75,6 +75,8 @@ const pushCtrl = {
                 if (mcht[`sales${dns_data?.operator_list[i]?.num}_id`] > 0) {
                     is_use_sales = true;
                     if (is_first) {
+                        console.log(mcht[`sales${dns_data?.operator_list[i]?.num}_fee`]);
+                        console.log(minus_fee);
                         obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
                     }
                     is_first = false;
