@@ -91,14 +91,15 @@ const pushCtrl = {
                 sales_depth_num = dns_data?.operator_list[i]?.num;
             }
             if (!is_use_sales) {
-                return res.send('0000');
+                obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
+            } else {
+                obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
             }
             obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
             obj[`mcht_fee`] = mcht[`mcht_fee`];
             obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
 
             let result = await insertQuery(`deposits`, obj);
-
             return res.send('0000');
         } catch (err) {
             console.log(err)
