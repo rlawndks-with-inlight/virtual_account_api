@@ -24,7 +24,6 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            console.log(req.body)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 guid,
             ]);
@@ -85,9 +84,8 @@ const pushCtrl = {
                 minus_fee = obj[`sales${dns_data?.operator_list[i]?.num}_fee`];
                 sales_depth_num = dns_data?.operator_list[i]?.num;
             }
-            console.log(is_use_sales)
             if (!is_use_sales) {
-                return response(req, res, -100, "사용하지 않는 가맹점 입니다.", false)
+                return res.send('0000');
             }
             obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
             obj[`mcht_fee`] = mcht[`mcht_fee`];
@@ -98,7 +96,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return response(req, res, -200, "서버 에러 발생", false)
+            return res.send('0000');
         } finally {
 
         }
