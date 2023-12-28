@@ -1,6 +1,7 @@
 'use strict';
 import { pool } from "../config/db.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
+import { insertQuery } from "../utils.js/query-util.js";
 import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
@@ -32,7 +33,6 @@ const pushCtrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-            console.log(dns_data)
             let mcht_columns = [
                 `users.*`,
                 `merchandise_columns.mcht_fee`
