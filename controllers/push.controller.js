@@ -46,12 +46,20 @@ const pushCtrl = {
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
             let mcht = await pool.query(mcht_sql);
             let trx_id = tid;
-
+            let amount = trx_amt;
+            let deposit_bank_code = virtual_account?.deposit_bank_code
+            let deposit_acct_num = virtual_account?.deposit_acct_num
+            let deposit_acct_name = virtual_account?.deposit_acct_name
+            let pay_type = 0
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
                 virtual_account_id: virtual_account?.id,
-                amount, deposit_bank_code, deposit_acct_num, deposit_acct_name, pay_type,
+                amount,
+                deposit_bank_code,
+                deposit_acct_num,
+                deposit_acct_name,
+                pay_type,
                 trx_id: trx_id,
                 head_office_fee: dns_data?.head_office_fee,
                 deposit_fee: mcht?.deposit_fee ?? 0
