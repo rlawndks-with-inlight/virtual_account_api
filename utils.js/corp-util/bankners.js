@@ -58,7 +58,6 @@ const postRequest = async (uri, query, headers_data, method = 'POST') => {
             });
 
             res.on('end', () => {
-                console.log(typeof data)
                 resolve(JSON.parse(data));
             });
         });
@@ -115,6 +114,7 @@ export const banknersApi = {
                     dns_data, pay_type, decode_user,
                     email, name, phone_num, birth,
                 } = data;
+                console.log(data)
                 let query = {
                     mem_nm: name,
                     mem_email: email,
@@ -125,6 +125,8 @@ export const banknersApi = {
                 }
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user', query, makeHeaderData(dns_data, pay_type, decode_user));
+                console.log(result)
+
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -155,21 +157,18 @@ export const banknersApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    settle_bank_code, settle_acct_num, settle_acct_name, guid,
+                    deposit_bank_code, deposit_acct_num, deposit_acct_name, guid,
                     birth
                 } = data;
                 let query = {
                     guid: guid,
-                    bank_id: settle_bank_code,
-                    acnt_no: settle_acct_num,
-                    acnt_holder: settle_acct_name,
+                    bank_id: deposit_bank_code,
+                    acnt_no: deposit_acct_num,
                     real_auth_no: birth,
+                    acnt_holder: deposit_acct_name
                 }
-                console.log(query)
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user/account', query, makeHeaderData(dns_data, pay_type, decode_user));
-                console.log(result);
-
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -200,11 +199,11 @@ export const banknersApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    tid, vrf_bank_code,
+                    tid, vrf_word,
                 } = data;
                 let query = {
                     tid: tid,
-                    vrf_word: vrf_bank_code,
+                    vrf_word: vrf_word,
                 }
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user/account/verify', query, makeHeaderData(dns_data, pay_type, decode_user));
@@ -344,11 +343,11 @@ export const banknersApi = {
         try {
             let {
                 dns_data, pay_type, decode_user,
-                guid, virtual_bank_code
+                guid
             } = data;
             let query = {
                 guid,
-                bank_id: virtual_bank_code,
+                bank_id: '007',
                 version: 2,
             }
             query = makeBody(query, dns_data, pay_type)
@@ -365,6 +364,7 @@ export const banknersApi = {
                 code: 100,
                 message: '',
                 data: {
+                    bank_id: '007',
                     virtual_acct_num: result?.data?.vacnt_no,
                     tid: result?.data?.tid,
                     virtual_acct_name: result?.data?.vacnt_nm,

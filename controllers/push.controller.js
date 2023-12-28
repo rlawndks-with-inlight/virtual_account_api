@@ -16,7 +16,7 @@ const pushCtrl = {
                 mid,
                 bankCd,
                 account,
-                holder,
+                name,
                 phoneNo,
             } = req.body;
             console.log(req.body)
@@ -45,7 +45,7 @@ const pushCtrl = {
                 mid,
                 bankCd,
                 account,
-                holder,
+                name,
                 phoneNo,
             } = req.body;
             console.log(req.body)
@@ -74,7 +74,7 @@ const pushCtrl = {
                 mid,
                 bankCd,
                 account,
-                holder,
+                name,
                 phoneNo,
             } = req.body;
             console.log(req.body)

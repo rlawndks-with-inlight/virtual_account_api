@@ -7,7 +7,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 
 router.use('/push', pushRoutes);
-router.use('/virtual-account', virtualAccountRoutes);
+router.use('/acct', virtualAccountRoutes);
 
 
 
