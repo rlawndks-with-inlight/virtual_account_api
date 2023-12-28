@@ -68,14 +68,20 @@ const pushCtrl = {
             };
 
             let is_use_sales = false;
+            let is_first = true;
             let sales_depth_num = -1;
             let minus_fee = dns_data?.head_office_fee;
             for (var i = 0; i < dns_data?.operator_list.length; i++) {
                 if (mcht[`sales${dns_data?.operator_list[i]?.num}_id`] > 0) {
                     is_use_sales = true;
+                    if (is_first) {
+                        obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
+                    }
+                    is_first = false;
                 } else {
                     continue;
                 }
+
                 if (sales_depth_num >= 0) {
                     obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
                 }
