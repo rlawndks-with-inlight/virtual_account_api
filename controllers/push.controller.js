@@ -32,7 +32,7 @@ const pushCtrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-
+            console.log(dns_data)
             let mcht_columns = [
                 `users.*`,
                 `merchandise_columns.mcht_fee`
