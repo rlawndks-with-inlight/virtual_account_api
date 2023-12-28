@@ -26,7 +26,6 @@ const pushCtrl = {
             };
             obj = { ...obj, ...files };
 
-            let result = await insertQuery(`${table_name}`, obj);
 
             return response(req, res, 100, "success", {})
         } catch (err) {
@@ -55,7 +54,6 @@ const pushCtrl = {
             };
             obj = { ...obj, ...files };
 
-            let result = await insertQuery(`${table_name}`, obj);
 
             return response(req, res, 100, "success", {})
         } catch (err) {
@@ -84,7 +82,6 @@ const pushCtrl = {
             };
             obj = { ...obj, ...files };
 
-            let result = await insertQuery(`${table_name}`, obj);
 
             return response(req, res, 100, "success", {})
         } catch (err) {
