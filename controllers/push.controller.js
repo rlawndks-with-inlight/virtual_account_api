@@ -82,6 +82,7 @@ const pushCtrl = {
                 minus_fee = obj[`sales${dns_data?.operator_list[i]?.num}_fee`];
                 sales_depth_num = dns_data?.operator_list[i]?.num;
             }
+            console.log(is_use_sales)
             if (!is_use_sales) {
                 return response(req, res, -100, "사용하지 않는 가맹점 입니다.", false)
             }
