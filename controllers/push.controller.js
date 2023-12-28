@@ -1,7 +1,7 @@
 'use strict';
 import { pool } from "../config/db.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
-import { checkDns, checkLevel, getOperatorList, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
