@@ -45,6 +45,9 @@ const pushCtrl = {
             mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
             let mcht = await pool.query(mcht_sql);
+            mcht = mcht?.result[0];
+
+
             let trx_id = tid;
             let amount = trx_amt;
             let deposit_bank_code = virtual_account?.deposit_bank_code
