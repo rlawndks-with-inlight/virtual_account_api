@@ -31,6 +31,7 @@ export const sendToMother = async () => {
             }
         }
     } catch (err) {
+        console.log(456)
         console.log(err)
     }
 }
