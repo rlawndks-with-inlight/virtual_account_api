@@ -8,7 +8,7 @@ export const sendToMother = async () => {
         virtual_accounts = virtual_accounts?.result;
         let brands = await pool.query(`SELECT * FROM brands `);
         brands = brands?.result;
-        console.log(123)
+        console.log(virtual_accounts)
         for (var i = 0; i < virtual_accounts.length; i++) {
             let amount_info = await corpApi.balance.info({
                 pay_type: 'deposit',
