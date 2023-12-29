@@ -205,7 +205,6 @@ export const makeUserTree = (user_list_ = [], decode_user) => {// 유저트리�
     let user_list = user_list_;
     let user_parent_obj = makeObjByList('parent_id', user_list);
     let result = [...user_parent_obj[decode_user?.parent_id ?? '-1'] ?? []];
-    console.log(result)
     for (var i = 0; i < result.length; i++) {
         result[i] = makeChildren(result[i], user_parent_obj);
     }

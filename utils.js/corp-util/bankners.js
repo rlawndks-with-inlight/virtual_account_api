@@ -123,10 +123,8 @@ export const banknersApi = {
                     user_tp: 'PERSON',
                     auth_tp: 'PASS',
                 }
-                console.log(query)
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user', query, makeHeaderData(dns_data, pay_type, decode_user));
-                console.log(result)
 
                 if (result?.code != '0000') {
                     return {

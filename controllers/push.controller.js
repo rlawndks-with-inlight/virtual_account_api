@@ -24,7 +24,6 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            console.log(req.body)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 guid,
             ]);

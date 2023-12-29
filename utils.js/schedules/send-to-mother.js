@@ -16,6 +16,7 @@ export const sendToMother = async () => {
                 guid: virtual_accounts[i]?.guid,
             })
             if (amount_info.code > 0) {
+                console.log(123)
                 if (amount_info.data?.amount > 0) {
                     let mother_to_result = await corpApi.mother.to({
                         pay_type: 'deposit',
