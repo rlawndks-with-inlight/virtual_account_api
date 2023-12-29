@@ -8,7 +8,6 @@ export const sendToMother = async () => {
         virtual_accounts = virtual_accounts?.result;
         let brands = await pool.query(`SELECT * FROM brands `);
         brands = brands?.result;
-        console.log(virtual_accounts)
         for (var i = 0; i < virtual_accounts.length; i++) {
             let amount_info = await corpApi.balance.info({
                 pay_type: 'deposit',
@@ -16,7 +15,6 @@ export const sendToMother = async () => {
                 decode_user: {},
                 guid: virtual_accounts[i]?.guid,
             })
-            console.log(amount_info)
             if (amount_info.code > 0) {
                 if (amount_info.data?.amount > 0) {
                     let mother_to_result = await corpApi.mother.to({
@@ -26,12 +24,11 @@ export const sendToMother = async () => {
                         guid: virtual_accounts[i]?.guid,
                         amount: amount_info.data?.amount
                     })
-                    console.log(mother_to_result);
                 }
             }
         }
     } catch (err) {
-        console.log(456)
         console.log(err)
     }
 }
+sendToMother();
