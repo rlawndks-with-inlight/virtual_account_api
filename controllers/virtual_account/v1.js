@@ -124,7 +124,6 @@ const virtualAccountV1Ctrl = {
             if (!mcht) {
                 return response(req, res, -100, "가맹점을 찾을 수 없습니다.", false)
             }
-
             let brand = await pool.query(`SELECT * FROM brands WHERE id=${mcht?.brand_id}`);
             brand = brand?.result[0];
 

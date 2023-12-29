@@ -59,6 +59,18 @@ const corpApi = {
             return result;
         },
     },
+    balance: {
+        info: async (data_) => {//유저정보 출력
+            let data = data_;
+            let { dns_data } = data;
+            data = await getDnsData(data, dns_data);
+            let result = default_result;
+            if (dns_data?.deposit_corp_type == 1) {
+                result = await banknersApi.balance.info(data);
+            }
+            return result;
+        },
+    },
     bank: {
         list: async (data_) => {//은행정보 출력
             let data = data_;
@@ -99,6 +111,18 @@ const corpApi = {
             let result = default_result;
             if (dns_data?.deposit_corp_type == 1) {
                 result = await banknersApi.push.update(data);
+            }
+            return result;
+        },
+    },
+    mother: {
+        to: async (data_) => {//은행정보 출력
+            let data = data_;
+            let { dns_data } = data;
+            data = await getDnsData(data, dns_data);
+            let result = default_result;
+            if (dns_data?.deposit_corp_type == 1) {
+                result = await banknersApi.mother.to(data);
             }
             return result;
         },
