@@ -58,6 +58,7 @@ const pushCtrl = {
                 mcht_id: mcht?.id,
                 virtual_account_id: virtual_account?.id,
                 amount,
+                expect_amount: amount,
                 deposit_bank_code,
                 deposit_acct_num,
                 deposit_acct_name,
