@@ -245,6 +245,7 @@ export const banknersApi = {
                 let { data: result } = await axios.get(`https://${API_URL}/api/balance/info?${query}`, {
                     headers: makeHeaderData(dns_data, pay_type, decode_user)
                 })
+                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,
