@@ -131,22 +131,32 @@ const pushCtrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const {
-                mid,
-                bankCd,
-                account,
-                name,
-                phoneNo,
+                trx_tp,
+                trx_amt,
+                api_sign_val,
+                guid,
+                trx_stat,
+                tid,
             } = req.body;
-            console.log(req.body)
             let obj = {
 
             };
+            let amount = parseInt(trx_amt);
 
+            let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+                tid,
+            ])
+            trx = trx?.result[0];
 
-            return response(req, res, 100, "success", {})
+            let update_trx = await updateQuery(`deposits`, {
+                withdraw_status: 0,
+                amount: (-1) * (amount + trx?.withdraw_fee),
+            }, trx?.id);
+
+            return res.send('0000');
         } catch (err) {
             console.log(err)
-            return response(req, res, -200, "서버 에러 발생", false)
+            return res.send(-100);
         } finally {
 
         }

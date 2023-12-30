@@ -176,8 +176,6 @@ const virtualAccountV1Ctrl = {
                 mid,
                 guid,
             } = req.body;
-            console.log(mid)
-            console.log(guid)
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
