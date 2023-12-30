@@ -120,7 +120,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send('0000');
+            return res.send(-100);
         } finally {
 
         }
