@@ -107,7 +107,7 @@ const pushCtrl = {
                 pay_type: 'deposit',
                 dns_data,
                 decode_user: mcht,
-                guid: mcht?.guid,
+                guid: virtual_account?.guid,
                 amount: amount,
             })
             console.log(mother_to_result)
