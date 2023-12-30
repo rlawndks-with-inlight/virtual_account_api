@@ -103,11 +103,12 @@ const pushCtrl = {
 
             let result = await insertQuery(`deposits`, obj);
 
-            let mother_to_result = await corpApi.mother.to({
+            let mother_to_result = await corpApi.transfer.pass({
                 pay_type: 'deposit',
                 dns_data,
                 decode_user: mcht,
-                guid: virtual_account?.guid,
+                from_guid: virtual_account?.guid,
+                to_guid: dns_data[`deposit_guid`],
                 amount: amount,
             })
             console.log(mother_to_result)
@@ -116,7 +117,6 @@ const pushCtrl = {
                     is_move_mother: 1,
                 }, result?.result?.insertId);
             }
-
             return res.send('0000');
         } catch (err) {
             console.log(err)

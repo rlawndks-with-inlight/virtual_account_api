@@ -237,6 +237,50 @@ export const banknersApi = {
             }
         }
     },
+    transfer: {
+        pass: async (data) => {//이체
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    from_guid, to_guid,
+                    amount,
+                } = data;
+                console.log(data)
+                let query = {
+                    from_guid: from_guid,
+                    to_guid: to_guid,
+                    trx_amt: amount,
+                    trx_curr: 'KRW'
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/transfer/auth/pass', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        tid: result?.data?.tid,
+                        uniq_no: result?.data?.req_uniq_no,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
     balance: {
         info: async (data) => {
             try {
