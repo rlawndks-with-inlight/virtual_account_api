@@ -1,7 +1,8 @@
 'use strict';
 import { pool } from "../config/db.js";
+import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
-import { insertQuery } from "../utils.js/query-util.js";
+import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
@@ -101,6 +102,20 @@ const pushCtrl = {
             obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
 
             let result = await insertQuery(`deposits`, obj);
+
+            let mother_to_result = await corpApi.to({
+                pay_type: 'deposit',
+                dns_data,
+                decode_user: mcht,
+                guid: mcht?.guid,
+                amount: amount,
+            })
+            if (mother_to_result.code == 100) {
+                let update_mother_to_result = await updateQuery('deposits', {
+                    is_move_mother: 1,
+                }, result?.result?.insertId);
+            }
+
             return res.send('0000');
         } catch (err) {
             console.log(err)

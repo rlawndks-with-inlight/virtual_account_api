@@ -37,7 +37,7 @@ const virtualAccountV1Ctrl = {
             const {
                 guid
             } = req.body;
-
+            
         } catch (err) {
             console.log(err)
             return response(req, res, -200, "서버 에러 발생", {})
