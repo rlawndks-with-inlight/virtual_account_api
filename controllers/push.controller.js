@@ -103,6 +103,7 @@ const pushCtrl = {
 
             let result = await insertQuery(`deposits`, obj);
 
+            console.log(123)
             let mother_to_result = await corpApi.mother.to({
                 pay_type: 'deposit',
                 dns_data,
