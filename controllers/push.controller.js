@@ -102,6 +102,7 @@ const pushCtrl = {
             obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
 
             let result = await insertQuery(`deposits`, obj);
+            console.log(result)
 
             console.log(123)
             let mother_to_result = await corpApi.mother.to({
@@ -111,7 +112,6 @@ const pushCtrl = {
                 guid: mcht?.guid,
                 amount: amount,
             })
-            console.log(result)
             if (mother_to_result.code == 100) {
                 let update_mother_to_result = await updateQuery('deposits', {
                     is_move_mother: 1,
