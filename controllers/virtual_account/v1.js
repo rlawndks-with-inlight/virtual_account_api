@@ -9,42 +9,6 @@ import 'dotenv/config';
 const table_name = 'virtual_accounts';
 
 const virtualAccountV1Ctrl = {
-    guid: async (req, res, next) => {//회원 생년월일 및 휴대폰 번호 및 이름으로 guid 출력
-        try {
-            const {
-                birth,
-                phone_num,
-            } = req.body;
-
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} FROM birth=? AND phone_num=?`, [
-                birth,
-                phone_num
-            ])
-            virtual_account = virtual_account?.result[0];
-
-            return response(req, res, 100, "success", {
-                guid: virtual_account?.guid
-            })
-        } catch (err) {
-            console.log(err)
-            return response(req, res, -200, "서버 에러 발생", {})
-        } finally {
-
-        }
-    },
-    info: async (req, res, next) => {//guid를 통해 해당 유저의 출금계좌 및 가상계좌 정보출력
-        try {
-            const {
-                guid
-            } = req.body;
-            
-        } catch (err) {
-            console.log(err)
-            return response(req, res, -200, "서버 에러 발생", {})
-        } finally {
-
-        }
-    },
     request: async (req, res, next) => {//발급요청
         try {
             let is_manager = await checkIsManagerUrl(req);
@@ -57,7 +21,6 @@ const virtualAccountV1Ctrl = {
                 name,
                 birth,
                 phone_num,
-                guid,//필수아님
             } = req.body;
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
 
@@ -71,38 +34,20 @@ const virtualAccountV1Ctrl = {
 
             await db.beginTransaction();
             let data = {
-                guid: guid,
+                guid: '',
                 tid: '',
             };
-            let user = {};
             let virtual_account_id = 0;
-            if (guid) {
-                let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE guid=? AND brand_id=?`, [
-                    guid,
-                    brand?.id,
-                ])
-                virtual_account = virtual_account?.result[0];
+            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=?`, [
+                phone_num,
+                birth,
+                mcht?.id,
+            ])
+            virtual_account = virtual_account?.result[0];
+            if (virtual_account) {
                 virtual_account_id = virtual_account?.id;
-                if (!virtual_account) {
-                    await db.rollback();
-                    return response(req, res, -100, "유저를 찾을 수 없습니다.", data)
-                }
-
-                if (virtual_account?.deposit_acct_check == 1) {
-                    await db.rollback();
-                    return response(req, res, -100, "이미 인증완료된 계좌입니다.", data)
-                }
+                data.guid = virtual_account?.guid;
             } else {
-                let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND brand_id=?`, [
-                    phone_num,
-                    birth,
-                    brand?.id,
-                ])
-                virtual_account = virtual_account?.result[0];
-                if (virtual_account) {
-                    await db.rollback();
-                    return response(req, res, -100, "이미 등록된 유저입니다.", data)
-                }
                 let api_result = await corpApi.user.create({
                     pay_type: 'deposit',
                     dns_data: brand,
@@ -112,11 +57,10 @@ const virtualAccountV1Ctrl = {
                     phone_num: phone_num,
                     birth: birth,
                 })
-                if (api_result.code != 100) {
+                if (api_result?.code != 100) {
                     await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), data)
                 }
-                data['guid'] = api_result.data?.guid;
                 let insert_virtual_account = await insertQuery(`${table_name}`, {
                     brand_id: brand?.id,
                     mcht_id: mcht?.id,
@@ -125,10 +69,14 @@ const virtualAccountV1Ctrl = {
                     birth: birth,
                     email: email,
                     status: 5,
-                    guid: data.guid,
+                    guid: api_result.data?.guid,
+                    ci: api_result.data?.ci,
                 })
                 virtual_account_id = insert_virtual_account?.result?.insertId;
+                data.guid = api_result.data?.guid;
             }
+
+
             let api_result2 = await corpApi.user.account({
                 pay_type: 'deposit',
                 dns_data: brand,
@@ -139,22 +87,22 @@ const virtualAccountV1Ctrl = {
                 guid: data.guid,
                 birth: birth,
             })
-
-            if (api_result2.code != 100) {
-                if (api_result2.message == '이미 등록된 계좌가 있습니다.') {
-
-                }
+            if (api_result2?.code != 100) {
+                await db.commit();
                 return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), data)
+            } else {
+                data.tid = api_result2.data?.tid;
             }
-            data.tid = api_result2.data?.tid;
             let update_virtual_account = await updateQuery(`${table_name}`, {
                 deposit_bank_code: bank_code,
                 deposit_acct_num: account,
                 deposit_acct_name: name,
                 deposit_tid: data.tid,
             }, virtual_account_id)
+
             await db.commit();
             return response(req, res, 100, "success", data)
+
         } catch (err) {
             console.log(err)
             await db.rollback();

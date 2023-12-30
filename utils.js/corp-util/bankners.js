@@ -114,12 +114,13 @@ export const banknersApi = {
                     dns_data, pay_type, decode_user,
                     email, name, phone_num, birth,
                 } = data;
+                let ci = `${new Date().getTime()}` + phone_num + birth;
                 let query = {
                     mem_nm: name,
                     mem_email: email,
                     sms_recv_cp: phone_num,
                     birth_ymd: birth,
-                    ci: phone_num + birth,
+                    ci: ci,
                     user_tp: 'PERSON',
                     auth_tp: 'PASS',
                 }
@@ -130,7 +131,9 @@ export const banknersApi = {
                     return {
                         code: -100,
                         message: result?.message,
-                        data: {},
+                        data: {
+                            ci,
+                        },
                     };
                 }
                 return {
@@ -139,6 +142,7 @@ export const banknersApi = {
                     data: {
                         guid: result?.data?.user_guid,
                         uniq_no: result?.data?.req_uniq_no,
+                        ci: ci,
                     },
                 };
             } catch (err) {
