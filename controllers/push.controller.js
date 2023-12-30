@@ -115,6 +115,7 @@ const pushCtrl = {
             if (mother_to_result.code == 100) {
                 let update_mother_to_result = await updateQuery('deposits', {
                     is_move_mother: 1,
+                    move_mother_tid: mother_to_result.data?.tid,
                 }, result?.result?.insertId);
             }
             return res.send('0000');
