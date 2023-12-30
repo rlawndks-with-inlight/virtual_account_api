@@ -102,9 +102,7 @@ const pushCtrl = {
             obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
 
             let result = await insertQuery(`deposits`, obj);
-            console.log(result)
 
-            console.log(123)
             let mother_to_result = await corpApi.mother.to({
                 pay_type: 'deposit',
                 dns_data,
