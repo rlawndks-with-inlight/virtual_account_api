@@ -138,11 +138,7 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let obj = {
-
-            };
             let amount = parseInt(trx_amt);
-
             let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 tid,
             ])

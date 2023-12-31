@@ -15,6 +15,7 @@ const virtualAccountV1Ctrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const {
+                api_key,
                 mid,
                 bank_code,
                 account,
@@ -22,15 +23,26 @@ const virtualAccountV1Ctrl = {
                 birth,
                 phone_num,
             } = req.body;
+            if (!api_key) {
+                return response(req, res, -100, "api key를 입력해주세요.", {});
+            }
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
+
+
+            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand?.result[0];
+
+            if (!brand) {
+                return response(req, res, -100, "api key가 잘못되었습니다.", {});
+            }
 
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                return response(req, res, -100, "가맹점을 찾을 수 없습니다.", false)
+                mcht = {
+                    id: 0,
+                }
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE id=${mcht?.brand_id}`);
-            brand = brand?.result[0];
 
             await db.beginTransaction();
             let data = {
@@ -117,19 +129,30 @@ const virtualAccountV1Ctrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const {
+                api_key,
                 mid,
                 tid,
                 vrf_word,
                 guid,
             } = req.body;
+
+            if (!api_key) {
+                return response(req, res, -100, "api key를 입력해주세요.", {});
+            }
+            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand?.result[0];
+            if (!brand) {
+                return response(req, res, -100, "api key가 잘못되었습니다.", {});
+            }
+
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                return response(req, res, -100, "가맹점을 찾을 수 없습니다.", false)
+                mcht = {
+                    id: 0,
+                }
             }
 
-            let brand = await pool.query(`SELECT * FROM brands WHERE id=${mcht?.brand_id}`);
-            brand = brand?.result[0];
 
             let data = {};
 
@@ -173,17 +196,27 @@ const virtualAccountV1Ctrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const {
+                api_key,
                 mid,
                 guid,
             } = req.body;
+            if (!api_key) {
+                return response(req, res, -100, "api key를 입력해주세요.", {});
+            }
+            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand?.result[0];
+
+            if (!brand) {
+                return response(req, res, -100, "api key가 잘못되었습니다.", {});
+            }
+
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                return response(req, res, -100, "가맹점을 찾을 수 없습니다.", {})
+                mcht = {
+                    id: 0,
+                }
             }
-
-            let brand = await pool.query(`SELECT * FROM brands WHERE id=${mcht?.brand_id}`);
-            brand = brand?.result[0];
 
             let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=?`, [
                 brand?.id,
