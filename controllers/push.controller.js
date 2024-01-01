@@ -121,8 +121,6 @@ const pushCtrl = {
         } catch (err) {
             console.log(err)
             return res.send(-100);
-        } finally {
-
         }
     },
     withdraw: async (req, res, next) => {

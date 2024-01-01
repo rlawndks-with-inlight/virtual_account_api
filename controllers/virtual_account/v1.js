@@ -50,7 +50,7 @@ const virtualAccountV1Ctrl = {
                 tid: '',
             };
             let virtual_account_id = 0;
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=?`, [
+            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=? AND is_delete=0`, [
                 phone_num,
                 birth,
                 mcht?.id,
@@ -156,7 +156,7 @@ const virtualAccountV1Ctrl = {
 
             let data = {};
 
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=?`, [
+            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
                 brand?.id,
                 guid,
             ]);
@@ -218,7 +218,7 @@ const virtualAccountV1Ctrl = {
                 }
             }
 
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=?`, [
+            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
                 brand?.id,
                 guid,
             ]);
