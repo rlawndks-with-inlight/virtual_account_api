@@ -245,6 +245,7 @@ const virtualAccountV1Ctrl = {
                 virtual_acct_num: api_result2.data?.virtual_acct_num,
                 virtual_acct_name: api_result2.data?.virtual_acct_name,
                 tid: api_result2.data?.tid,
+                ci: virtual_account?.ci,
             }
 
             let result = await updateQuery(`${table_name}`, {
