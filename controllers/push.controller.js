@@ -173,8 +173,6 @@ const pushCtrl = {
             let obj = {
 
             };
-
-
             return response(req, res, 100, "success", {})
         } catch (err) {
             console.log(err)
