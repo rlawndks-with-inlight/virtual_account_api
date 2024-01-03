@@ -110,7 +110,6 @@ const pushCtrl = {
                 to_guid: dns_data[`deposit_guid`],
                 amount: amount,
             })
-            console.log(mother_to_result)
             if (mother_to_result.code == 100) {
                 let update_mother_to_result = await updateQuery('deposits', {
                     is_move_mother: 1,

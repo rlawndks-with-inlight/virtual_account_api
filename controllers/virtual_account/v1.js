@@ -22,6 +22,7 @@ const virtualAccountV1Ctrl = {
                 name,
                 birth,
                 phone_num,
+                user_id = 0,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -83,6 +84,7 @@ const virtualAccountV1Ctrl = {
                     status: 5,
                     guid: api_result.data?.guid,
                     ci: api_result.data?.ci,
+                    user_id: user_id,
                 })
                 virtual_account_id = insert_virtual_account?.result?.insertId;
                 data.guid = api_result.data?.guid;
