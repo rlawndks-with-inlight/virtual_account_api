@@ -83,7 +83,6 @@ const pushCtrl = {
                 } else {
                     continue;
                 }
-
                 if (sales_depth_num >= 0) {
                     obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
                 }

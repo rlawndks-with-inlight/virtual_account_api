@@ -15,14 +15,9 @@ router
     .post(pushCtrl.withdrawFail);
 //
 router
-    .route('/dozn/deposit')
+    .route('/dozn')
     .post(pushDoznCtrl.deposit);
-router
-    .route('/dozn/withdraw')
-    .post(pushDoznCtrl.withdraw);
-router
-    .route('/dozn/withdraw-fail')
-    .post(pushDoznCtrl.withdrawFail);
+
 
 
 export default router;
