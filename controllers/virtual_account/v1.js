@@ -14,7 +14,7 @@ const virtualAccountV1Ctrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
-            const {
+            let {
                 api_key,
                 mid,
                 bank_code,
@@ -23,6 +23,11 @@ const virtualAccountV1Ctrl = {
                 birth,
                 phone_num,
                 user_id = 0,
+                user_type = 0,
+                business_num,
+                company_name,
+                ceo_name,
+                company_phone_num,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -44,7 +49,6 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
-
             await db.beginTransaction();
             let data = {
                 guid: '',
@@ -57,11 +61,13 @@ const virtualAccountV1Ctrl = {
                 mcht?.id,
             ])
             virtual_account = virtual_account?.result[0];
+
             if (virtual_account) {
                 virtual_account_id = virtual_account?.id;
                 data.guid = virtual_account?.guid;
             } else {
-                let api_result = await corpApi.user.create({
+
+                let create_user_obj = {
                     pay_type: 'deposit',
                     dns_data: brand,
                     decode_user: mcht,
@@ -69,11 +75,36 @@ const virtualAccountV1Ctrl = {
                     name: name,
                     phone_num: phone_num,
                     birth: birth,
-                })
+                    user_type,
+                }
+                if (user_type == 0 || user_type == 1) {
+                    if (!business_num) {
+                        return response(req, res, -100, "사업자등록번호는 필수입니다.", {})
+                    }
+                    if (!company_name) {
+                        return response(req, res, -100, "회사명(상호)는 필수입니다.", {})
+                    }
+                    if (!ceo_name) {
+                        return response(req, res, -100, "대표자명은 필수입니다.", {})
+                    }
+                    if (!company_phone_num) {
+                        return response(req, res, -100, "회사 전화번호는 필수입니다.", {})
+                    }
+                    create_user_obj = {
+                        ...create_user_obj,
+                        business_num,
+                        company_name,
+                        ceo_name,
+                        company_phone_num,
+                    }
+                }
+
+                let api_result = await corpApi.user.create(create_user_obj);
                 if (api_result?.code != 100) {
                     await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), data)
                 }
+
                 let insert_virtual_account = await insertQuery(`${table_name}`, {
                     brand_id: brand?.id,
                     mcht_id: mcht?.id,
@@ -85,7 +116,12 @@ const virtualAccountV1Ctrl = {
                     guid: api_result.data?.guid,
                     ci: api_result.data?.ci,
                     user_id: user_id,
-                })
+                    user_type,
+                    business_num,
+                    company_name,
+                    ceo_name,
+                    company_phone_num,
+                });
                 virtual_account_id = insert_virtual_account?.result?.insertId;
                 data.guid = api_result.data?.guid;
             }

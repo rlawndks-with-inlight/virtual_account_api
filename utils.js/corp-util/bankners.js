@@ -113,16 +113,34 @@ export const banknersApi = {
                 let {
                     dns_data, pay_type, decode_user,
                     email, name, phone_num, birth,
+                    user_type,
+                    business_num, company_name, ceo_name, company_phone_num,
                 } = data;
                 let ci = `${new Date().getTime()}` + phone_num + birth;
+                if (user_type == 0) {
+                    user_type = 'PERSON';
+                } else if (user_type == 1) {
+                    user_type = 'CORP_BIZ';
+                } else if (user_type == 2) {
+                    user_type = 'PERSONAL_BIZ';
+                }
                 let query = {
                     mem_nm: name,
                     mem_email: email,
                     sms_recv_cp: phone_num,
                     birth_ymd: birth,
                     ci: ci,
-                    user_tp: 'PERSON',
+                    user_tp: user_type,
                     auth_tp: 'PASS',
+                }
+                if (user_type == 'CORP_BIZ' || user_type == 'PERSONAL_BIZ') {
+                    query = {
+                        ...query,
+                        biz_no: business_num,
+                        biz_nm: company_name,
+                        ceo_nm: ceo_name,
+                        tel: company_phone_num,
+                    }
                 }
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user', query, makeHeaderData(dns_data, pay_type, decode_user));
