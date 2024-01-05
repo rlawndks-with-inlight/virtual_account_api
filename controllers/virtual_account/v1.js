@@ -77,7 +77,7 @@ const virtualAccountV1Ctrl = {
                     birth: birth,
                     user_type,
                 }
-                if (user_type == 0 || user_type == 1) {
+                if (user_type == 1 || user_type == 2) {
                     if (!business_num) {
                         return response(req, res, -100, "사업자등록번호는 필수입니다.", {})
                     }
