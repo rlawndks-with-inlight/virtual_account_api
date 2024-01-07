@@ -22,7 +22,7 @@ export const cooconApi = {
                     guid, amount,
                 } = data;
                 let query = {
-                    KEY: 6140,
+                    KEY: '6140',
                 }
                 console.log(12321321321)
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
@@ -30,6 +30,17 @@ export const cooconApi = {
                     ...query,
                 })
                 console.log(response)
+                response.data = {
+                    BAL_AMT: 10000000,
+                    WDRW_CAN_AMT: 10000000,
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        amount: response.data?.WDRW_CAN_AMT,
+                    },
+                };
             } catch (err) {
                 console.log(err?.response?.data)
                 return {
@@ -130,18 +141,102 @@ export const cooconApi = {
             }
         },
     },
+    account: {
+        info: async (data) => {//예금주명조회
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    bank_code, acct_num
+                } = data;
+                let query = {
+                    KEY: '6110',
+                    RCV_BNK_CD: bank_code,
+                    RCV_ACCT_NO: acct_num,
+                }
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
+                    ...getDefaultBody(dns_data, pay_type),
+                    ...query,
+                })
+                response.data = {
+                    RESP_CD: '0000',
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        result: response.data?.RESP_CD
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
     withdraw: {
         request: async (data) => {//출금요청
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    guid, amount,
+                    bank_code, acct_num
                 } = data;
                 let query = {
-                    guid: guid,
-                    trx_amt: amount,
-                    trx_curr: 'KRW'
+                    KEY: '6120',
+                    RCV_BNK_CD: bank_code,
+                    RCV_ACCT_NO: acct_num,
                 }
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
+                    ...getDefaultBody(dns_data, pay_type),
+                    ...query,
+                })
+                response.data = {
+
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: response.data,
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        request_check: async (data) => {//출금요청
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    bank_code, acct_num
+                } = data;
+                let query = {
+                    KEY: '6170',
+                    RCV_BNK_CD: bank_code,
+                    RCV_ACCT_NO: acct_num,
+                }
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
+                    ...getDefaultBody(dns_data, pay_type),
+                    ...query,
+                })
+                response.data = {
+
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: response.data,
+                };
             } catch (err) {
                 console.log(err)
                 console.log(err?.response?.data)
