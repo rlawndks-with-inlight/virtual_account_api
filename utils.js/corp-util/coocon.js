@@ -7,7 +7,7 @@ const API_URL = process.env.NODE_ENV == 'production' ? "https://apigw.coocon.co.
 
 const getDefaultBody = (dns_data, pay_type) => {
     return {
-        "SECR_KEY": dns_data[`${pay_type}_sign_key`],
+        "SECR_KEY": 'dns_data[`${pay_type}_sign_key`]',
         "TRT_INST_CD": '08945816',
         "BANK_CD": '089',
         "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
@@ -22,14 +22,12 @@ export const cooconApi = {
                     guid, amount,
                 } = data;
                 let query = {
-                    guid: guid,
-                    trx_amt: amount,
-                    trx_curr: 'KRW'
+                    KEY: 6140,
                 }
                 console.log(12321321321)
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
-                    KEY: 6140,
+                    ...query,
                 })
                 console.log(response)
             } catch (err) {
