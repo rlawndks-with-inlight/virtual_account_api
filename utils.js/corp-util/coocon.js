@@ -3,7 +3,7 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
 
-const API_URL = process.env.NODE_ENV == 'production' ? "https://dev2.coocon.co.kr:8443" : "https://dev2.coocon.co.kr:8443";
+const API_URL = process.env.NODE_ENV == 'production' ? "https://apigw.coocon.co.kr" : "https://dev2.coocon.co.kr:8443";
 
 const getDefaultBody = (dns_data, pay_type) => {
     return {
@@ -25,10 +25,10 @@ export const cooconApi = {
                     KEY: 6140,
                 }
                 console.log(12321321321)
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, JSON.stringify({
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
-                })
+                }))
                 console.log(response)
             } catch (err) {
                 console.log(err?.response?.data)
