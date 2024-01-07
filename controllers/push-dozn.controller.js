@@ -14,6 +14,7 @@ const pushDoznCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
+            const { brand_id } = req.params;
             const {
                 acctNo,
                 finCode,
@@ -31,64 +32,15 @@ const pushDoznCtrl = {
                 crnCd,
             } = req.body;
 
-            return res.send('0000');
-        } catch (err) {
-            console.log(err)
-            return res.send(-100);
-        } finally {
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+            dns_data = dns_data?.result[0];
 
-        }
-    },
-    withdraw: async (req, res, next) => {
-        try {
-            let is_manager = await checkIsManagerUrl(req);
-            const decode_user = checkLevel(req.cookies.token, 0);
-            const decode_dns = checkDns(req.cookies.dns);
-            const {
-                acctNo,
-                finCode,
-                tranNum,
-                tranDate,
-                tranTime,
-                depositAmnt,
-                withdrawAmnt,
-                balance,
-                tranName,
-                tranDetail,
-                tranBranch,
-                recvAccntNo,
-                memo,
-                crnCd,
-            } = req.body;
+
 
             return res.send('0000');
         } catch (err) {
             console.log(err)
             return res.send(-100);
-        } finally {
-
-        }
-    },
-    withdrawFail: async (req, res, next) => {
-        try {
-            let is_manager = await checkIsManagerUrl(req);
-            const decode_user = checkLevel(req.cookies.token, 0);
-            const decode_dns = checkDns(req.cookies.dns);
-            const {
-                mid,
-                bankCd,
-                account,
-                name,
-                phoneNo,
-            } = req.body;
-            console.log(req.body)
-            let obj = {
-
-            };
-            return response(req, res, 100, "success", {})
-        } catch (err) {
-            console.log(err)
-            return response(req, res, -200, "서버 에러 발생", false)
         } finally {
 
         }

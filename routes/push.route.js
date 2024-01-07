@@ -15,7 +15,7 @@ router
     .post(pushCtrl.withdrawFail);
 //
 router
-    .route('/dozn')
+    .route('/dozn/:brand_id')
     .post(pushDoznCtrl.deposit);
 
 
