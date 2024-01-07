@@ -7,7 +7,7 @@ const API_URL = process.env.NODE_ENV == 'production' ? "https://dev2.coocon.co.k
 
 const getDefaultBody = (dns_data, pay_type) => {
     return {
-        "SECR_KEY": 'dns_data[`${pay_type}_sign_key`]',
+        "SECR_KEY": dns_data[`${pay_type}_sign_key`],
         "TRT_INST_CD": '08945816',
         "BANK_CD": '089',
         "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
