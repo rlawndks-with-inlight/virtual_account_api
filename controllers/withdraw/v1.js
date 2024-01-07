@@ -61,7 +61,6 @@ const withdrawV1Ctrl = {
             let settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${user?.id}`;
             let settle_amount = await pool.query(settle_amount_sql);
             settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
-            console.log(settle_amount)
             if (amount > settle_amount) {
                 return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
             }
@@ -79,6 +78,7 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
+
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
             }
