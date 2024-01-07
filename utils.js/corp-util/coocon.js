@@ -3,7 +3,7 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
 
-const API_URL = process.env.NODE_ENV == 'production' ? "https://dev2.coocon.co.kr:8443" : "https://dev2.coocon.co.kr:8443";
+const API_URL = process.env.NODE_ENV == 'production' ? "https://apigw.coocon.co.kr" : "https://dev2.coocon.co.kr:8443";
 
 const getDefaultBody = (dns_data, pay_type) => {
     return {
