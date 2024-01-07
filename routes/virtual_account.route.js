@@ -4,7 +4,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 //v1
 router
-    .route('/v1/')
+    .route('/v1')
     .post(virtualAccountV1Ctrl.request)
 router
     .route('/v1/check')
