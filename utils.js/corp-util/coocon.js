@@ -6,7 +6,6 @@ import https from 'https';
 const API_URL = process.env.NODE_ENV == 'production' ? "https://apigw.coocon.co.kr" : "https://dev2.coocon.co.kr:8443";
 
 const getDefaultBody = (dns_data, pay_type) => {
-    console.log(new Date().getTime())
     return {
         "SECR_KEY": dns_data[`${pay_type}_sign_key`],
         "TRT_INST_CD": '08945816',
