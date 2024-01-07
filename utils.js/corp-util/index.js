@@ -258,7 +258,6 @@ const corpApi = {
         request: async (data_) => {//출금요청
             let data = data_;
             let { dns_data, pay_type } = data;
-            console.log(dns_data)
             data = await getDnsData(data, dns_data);
             dns_data = data?.dns_data;
 
