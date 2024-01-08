@@ -100,8 +100,24 @@ const pushCtrl = {
             obj[`mcht_fee`] = mcht[`mcht_fee`];
             obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
 
-            let result = await insertQuery(`deposits`, obj);
+            let deposit_id = 0;
 
+            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                trx_id,
+                mcht?.brand_id
+            ])
+            exist_deposit = exist_deposit?.result[0];
+            if (exist_deposit) {
+                deposit_id = exist_deposit?.id;
+            } else {
+                exist_deposit = {};
+                let result = await insertQuery(`deposits`, obj);
+                deposit_id = result?.result?.insertId;
+            }
+
+            if (exist_deposit?.is_move_mother == 1) {
+                return res.send('0000');
+            }
             let mother_to_result = await corpApi.transfer.pass({
                 pay_type: 'deposit',
                 dns_data,
@@ -114,7 +130,7 @@ const pushCtrl = {
                 let update_mother_to_result = await updateQuery('deposits', {
                     is_move_mother: 1,
                     move_mother_tid: mother_to_result.data?.tid,
-                }, result?.result?.insertId);
+                }, deposit_id);
             }
             sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             return res.send('0000');
