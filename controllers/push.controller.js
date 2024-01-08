@@ -65,7 +65,7 @@ const pushCtrl = {
                 deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
-                deposit_head_office_fee: dns_data?.deposit_head_office_fee,
+                head_office_fee: dns_data?.deposit_head_office_fee,
                 deposit_fee: mcht?.deposit_fee ?? 0
             };
 
