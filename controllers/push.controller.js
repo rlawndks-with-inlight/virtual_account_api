@@ -118,7 +118,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send(-100);
+            return res.send('9999');
         }
     },
     withdraw: async (req, res, next) => {
@@ -139,16 +139,16 @@ const pushCtrl = {
                 tid,
             ])
             trx = trx?.result[0];
-
+            let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
             let update_trx = await updateQuery(`deposits`, {
-                withdraw_status: 0,
+                withdraw_status,
                 amount: (-1) * (amount + trx?.withdraw_fee),
             }, trx?.id);
 
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send(-100);
+            return res.send('9999');
         } finally {
 
         }
@@ -159,20 +159,28 @@ const pushCtrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const {
-                mid,
-                bankCd,
-                account,
-                name,
-                phoneNo,
+                trx_tp,
+                trx_amt,
+                api_sign_val,
+                guid,
+                trx_stat,
+                tid,
             } = req.body;
-            console.log(req.body)
-            let obj = {
+            let amount = parseInt(trx_amt);
+            let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+                tid,
+            ])
+            trx = trx?.result[0];
+            let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
+            let update_trx = await updateQuery(`deposits`, {
+                withdraw_status,
+                amount: (-1) * (amount + trx?.withdraw_fee),
+            }, trx?.id);
 
-            };
-            return response(req, res, 100, "success", {})
+            return res.send('0000');
         } catch (err) {
             console.log(err)
-            return response(req, res, -200, "서버 에러 발생", false)
+            return res.send('9999');
         } finally {
 
         }
