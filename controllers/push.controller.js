@@ -3,7 +3,7 @@ import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
-import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
@@ -115,6 +115,7 @@ const pushCtrl = {
                     move_mother_tid: mother_to_result.data?.tid,
                 }, result?.result?.insertId);
             }
+            sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             return res.send('0000');
         } catch (err) {
             console.log(err)
