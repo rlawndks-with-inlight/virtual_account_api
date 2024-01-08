@@ -120,7 +120,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send('9999');
+            return res.send('0000');
         }
     },
     withdraw: async (req, res, next) => {
@@ -150,7 +150,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send('9999');
+            return res.send('0000');
         } finally {
 
         }
@@ -182,7 +182,7 @@ const pushCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send('9999');
+            return res.send('0000');
         } finally {
 
         }
