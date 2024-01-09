@@ -78,6 +78,7 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
+            console.log(get_balance)
 
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
@@ -89,6 +90,7 @@ const withdrawV1Ctrl = {
                 bank_code: user?.withdraw_bank_code,
                 acct_num: user?.withdraw_acct_num,
             })
+            console.log(account_info)
             if (account_info.data?.result != '0000') {
                 return response(req, res, -100, "예금주를 찾을 수 없습니다.", false)
             }
@@ -97,12 +99,14 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user
             })
+            console.log(api_result)
 
             let api_result2 = await corpApi.withdraw.request_check({
                 pay_type: 'withdraw',
                 dns_data: brand,
                 decode_user: user
             })
+            console.log(api_result2)
 
             return response(req, res, 100, "success", {})
 
