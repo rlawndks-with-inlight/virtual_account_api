@@ -16,7 +16,6 @@ const getDefaultBody = (dns_data, pay_type) => {
 
 const getDefaultHeader = () => {
     return {
-        "Accept": undefined,
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 }
