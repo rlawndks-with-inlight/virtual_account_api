@@ -181,6 +181,13 @@ export const banknersApi = {
                     deposit_bank_code, deposit_acct_num, deposit_acct_name, guid,
                     birth, business_num, user_type
                 } = data;
+                if (user_type == 0) {
+                    user_type = 'PERSON';
+                } else if (user_type == 1) {
+                    user_type = 'CORP_BIZ';
+                } else if (user_type == 2) {
+                    user_type = 'PERSONAL_BIZ';
+                }
                 let query = {
                     guid: guid,
                     bank_id: deposit_bank_code,
