@@ -73,7 +73,6 @@ const withdrawV1Ctrl = {
             if (settle_amount - amount < user?.min_withdraw_hold_price) {
                 return response(req, res, -100, `최소 ${pay_type_name} 보류금액은 ${commarNumber(user?.min_withdraw_hold_price)}원 입니다.`, false)
             }
-            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@')
             let get_balance = await corpApi.balance.info({
                 pay_type: 'withdraw',
                 dns_data: brand,
