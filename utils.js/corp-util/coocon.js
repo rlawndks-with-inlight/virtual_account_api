@@ -13,11 +13,28 @@ const getDefaultBody = (dns_data, pay_type) => {
         "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
     }
 }
+
 const getDefaultHeader = () => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 }
+const axiosIns = () => {
+    let dns_info = {
+        // You can add your headers here
+        // ================================
+        timeout: 10000,
+        headers: {
+            "Accept": undefined,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    }
+
+    const axiosIns = axios.create(dns_info)
+
+    return axiosIns;
+}
+
 export const cooconApi = {
     balance: {
         info: async (data) => {//잔액
@@ -26,14 +43,13 @@ export const cooconApi = {
                     dns_data, pay_type, decode_user,
                     guid, amount,
                 } = data;
-                let query = {
-                    KEY: '6140',
-                }
 
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
+                let query = new URLSearchParams()
+                query.append('JSONData', JSON.stringify({
                     ...getDefaultBody(dns_data, pay_type),
-                    ...query,
-                });
+                    KEY: '6140',
+                }))
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
@@ -157,16 +173,16 @@ export const cooconApi = {
                     dns_data, pay_type, decode_user,
                     bank_code, acct_num, amount
                 } = data;
-                let query = {
+
+                let query = new URLSearchParams()
+                query.append('JSONData', JSON.stringify({
+                    ...getDefaultBody(dns_data, pay_type),
                     KEY: '6110',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
                     TRSC_AMT: amount,
-                }
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
-                    ...getDefaultBody(dns_data, pay_type),
-                    ...query,
-                });
+                }))
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
 
                 if (response?.RESP_CD == '0000') {
                     return {
@@ -201,18 +217,18 @@ export const cooconApi = {
                     dns_data, pay_type, decode_user,
                     bank_code, acct_num, amount
                 } = data;
-                let query = {
+
+                let query = new URLSearchParams()
+                query.append('JSONData', JSON.stringify({
+                    ...getDefaultBody(dns_data, pay_type),
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
                     WDRW_ACCT_NO: '70029000000141',
                     TRSC_AMT: amount,
-                }
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
-                    ...getDefaultBody(dns_data, pay_type),
-                    ...query,
-                });
-                console.log(response)
+                }))
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
@@ -246,15 +262,15 @@ export const cooconApi = {
                     dns_data, pay_type, decode_user,
                     date, tid
                 } = data;
-                let query = {
+                let query = new URLSearchParams()
+                query.append('JSONData', JSON.stringify({
+                    ...getDefaultBody(dns_data, pay_type),
                     KEY: '6170',
                     RQRE_TMSG_NO: tid,
                     REQ_TRSC_DT: date
-                }
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
-                    ...getDefaultBody(dns_data, pay_type),
-                    ...query,
-                });
+                }))
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
