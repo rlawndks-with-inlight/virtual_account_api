@@ -13,6 +13,11 @@ const getDefaultBody = (dns_data, pay_type) => {
         "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
     }
 }
+const getDefaultHeader = () => {
+    return {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+}
 export const cooconApi = {
     balance: {
         info: async (data) => {//잔액
@@ -27,6 +32,8 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
+                }, {
+                    headers: getDefaultHeader()
                 })
                 console.log(response)
                 response.data = {
@@ -155,6 +162,8 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
+                }, {
+                    headers: getDefaultHeader()
                 })
                 response.data = {
                     RESP_CD: '0000',
@@ -193,6 +202,8 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
+                }, {
+                    headers: getDefaultHeader()
                 })
                 response.data = {
 
@@ -227,6 +238,8 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
+                }, {
+                    headers: getDefaultHeader()
                 })
                 response.data = {
 
