@@ -49,7 +49,9 @@ export const cooconApi = {
                     ...getDefaultBody(dns_data, pay_type),
                     KEY: '6140',
                 }))
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
+                    headers: getDefaultHeader(),
+                });
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
@@ -182,7 +184,9 @@ export const cooconApi = {
                     RCV_ACCT_NO: acct_num,
                     TRSC_AMT: amount,
                 }))
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
+                    headers: getDefaultHeader(),
+                });
 
                 if (response?.RESP_CD == '0000') {
                     return {
@@ -227,7 +231,9 @@ export const cooconApi = {
                     WDRW_ACCT_NO: '70029000000141',
                     TRSC_AMT: amount,
                 }))
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
+                    headers: getDefaultHeader(),
+                });
 
                 if (response?.RESP_CD == '0000') {
                     return {
@@ -269,7 +275,9 @@ export const cooconApi = {
                     RQRE_TMSG_NO: tid,
                     REQ_TRSC_DT: date
                 }))
-                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query);
+                let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
+                    headers: getDefaultHeader(),
+                });
 
                 if (response?.RESP_CD == '0000') {
                     return {
