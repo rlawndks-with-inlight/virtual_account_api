@@ -66,7 +66,6 @@ const virtualAccountV1Ctrl = {
                 virtual_account_id = virtual_account?.id;
                 data.guid = virtual_account?.guid;
             } else {
-
                 let create_user_obj = {
                     pay_type: 'deposit',
                     dns_data: brand,
@@ -136,6 +135,8 @@ const virtualAccountV1Ctrl = {
                 deposit_acct_name: name,
                 guid: data.guid,
                 birth: birth,
+                business_num: business_num,
+                user_type: user_type,
             })
             if (api_result2?.code != 100) {
                 await db.commit();

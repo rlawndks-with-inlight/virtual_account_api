@@ -179,13 +179,13 @@ export const banknersApi = {
                 let {
                     dns_data, pay_type, decode_user,
                     deposit_bank_code, deposit_acct_num, deposit_acct_name, guid,
-                    birth
+                    birth, business_num, user_type
                 } = data;
                 let query = {
                     guid: guid,
                     bank_id: deposit_bank_code,
                     acnt_no: deposit_acct_num,
-                    real_auth_no: birth,
+                    real_auth_no: user_type == 'PERSON' ? birth : business_num,
                     acnt_holder: deposit_acct_name
                 }
                 query = makeBody(query, dns_data, pay_type)
