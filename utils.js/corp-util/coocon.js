@@ -49,6 +49,8 @@ export const cooconApi = {
                     ...getDefaultBody(dns_data, pay_type),
                     KEY: '6140',
                 }))
+                console.log(`${API_URL}/sol/gateway/vapg_wapi.jsp`);
+                console.log(query);
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
