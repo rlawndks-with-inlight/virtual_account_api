@@ -41,7 +41,7 @@ export const cooconApi = {
                     },
                 };
             } catch (err) {
-                console.log(err?.response?.data)
+                console.log(err)
                 return {
                     code: -100,
                     message: '',
