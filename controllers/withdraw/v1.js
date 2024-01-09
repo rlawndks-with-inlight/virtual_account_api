@@ -78,7 +78,7 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
-
+            console.log(get_balance)
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
             }
@@ -90,6 +90,7 @@ const withdrawV1Ctrl = {
                 acct_num: user?.withdraw_acct_num,
                 amount: withdraw_amount,
             })
+            console.log(get_balance)
             if (account_info?.code != 100) {
                 return response(req, res, -100, "예금주를 찾을 수 없습니다.", false)
             }
