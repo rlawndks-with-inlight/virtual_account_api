@@ -29,24 +29,27 @@ export const cooconApi = {
                 let query = {
                     KEY: '6140',
                 }
+
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
-                }, {
-                    headers: getDefaultHeader()
-                })
-                console.log(response)
-                response.data = {
-                    BAL_AMT: 10000000,
-                    WDRW_CAN_AMT: 10000000,
+                });
+                if (response?.RESP_CD == '0000') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.WDRW_CAN_AMT,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.RESP_MSG,
+                        data: {},
+                    };
                 }
-                return {
-                    code: 100,
-                    message: '',
-                    data: {
-                        amount: response.data?.WDRW_CAN_AMT,
-                    },
-                };
+
             } catch (err) {
                 console.log(err)
                 return {
@@ -152,29 +155,33 @@ export const cooconApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    bank_code, acct_num
+                    bank_code, acct_num, amount
                 } = data;
                 let query = {
                     KEY: '6110',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
+                    TRSC_AMT: amount,
                 }
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
-                }, {
-                    headers: getDefaultHeader()
-                })
-                response.data = {
-                    RESP_CD: '0000',
+                });
+
+                if (response?.RESP_CD == '0000') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.RESP_MSG,
+                        data: {},
+                    };
                 }
-                return {
-                    code: 100,
-                    message: '',
-                    data: {
-                        result: response.data?.RESP_CD
-                    },
-                };
             } catch (err) {
                 console.log(err)
                 console.log(err?.response?.data)
@@ -192,27 +199,36 @@ export const cooconApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    bank_code, acct_num
+                    bank_code, acct_num, amount
                 } = data;
                 let query = {
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
+                    WDRW_ACCT_NO: '70029000000141',
+                    TRSC_AMT: amount,
                 }
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
-                }, {
-                    headers: getDefaultHeader()
-                })
-                response.data = {
-
+                });
+                console.log(response)
+                if (response?.RESP_CD == '0000') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.WDRW_CAN_AMT,
+                            tid: response?.WDRW_CAN_AMT,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.RESP_MSG,
+                        data: {},
+                    };
                 }
-                return {
-                    code: 100,
-                    message: '',
-                    data: response.data,
-                };
             } catch (err) {
                 console.log(err)
                 console.log(err?.response?.data)
@@ -228,27 +244,32 @@ export const cooconApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    bank_code, acct_num
+                    date, tid
                 } = data;
                 let query = {
                     KEY: '6170',
-                    RCV_BNK_CD: bank_code,
-                    RCV_ACCT_NO: acct_num,
+                    RQRE_TMSG_NO: tid,
+                    REQ_TRSC_DT: date
                 }
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, {
                     ...getDefaultBody(dns_data, pay_type),
                     ...query,
-                }, {
-                    headers: getDefaultHeader()
-                })
-                response.data = {
-
+                });
+                if (response?.RESP_CD == '0000') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.WDRW_CAN_AMT,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.RESP_MSG,
+                        data: {},
+                    };
                 }
-                return {
-                    code: 100,
-                    message: '',
-                    data: response.data,
-                };
             } catch (err) {
                 console.log(err)
                 console.log(err?.response?.data)

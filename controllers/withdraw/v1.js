@@ -1,7 +1,7 @@
 'use strict';
 import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
-import { checkIsManagerUrl } from "../../utils.js/function.js";
+import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
@@ -78,7 +78,6 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
-            console.log(get_balance)
 
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
@@ -89,25 +88,35 @@ const withdrawV1Ctrl = {
                 decode_user: user,
                 bank_code: user?.withdraw_bank_code,
                 acct_num: user?.withdraw_acct_num,
+                amount: withdraw_amount,
             })
-            console.log(account_info)
-            if (account_info.data?.result != '0000') {
+            if (account_info?.code != 100) {
                 return response(req, res, -100, "예금주를 찾을 수 없습니다.", false)
             }
+
+            let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
                 dns_data: brand,
-                decode_user: user
+                decode_user: user,
+                bank_code: user?.withdraw_bank_code,
+                acct_num: user?.withdraw_acct_num,
+                amount: withdraw_amount,
             })
             console.log(api_result)
+            if (api_result?.code != 100) {
+                //   return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+            }
+            let tid = account_info.data?.tid;
 
             let api_result2 = await corpApi.withdraw.request_check({
                 pay_type: 'withdraw',
                 dns_data: brand,
-                decode_user: user
+                decode_user: user,
+                date,
+                tid,
             })
             console.log(api_result2)
-
             return response(req, res, 100, "success", {})
 
         } catch (err) {
