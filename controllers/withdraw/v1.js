@@ -108,17 +108,7 @@ const withdrawV1Ctrl = {
             }
             let tid = api_result.data?.tid;
             let obj = {
-                brand_id: mcht?.brand_id,
-                mcht_id: mcht?.id,
-                amount,
-                expect_amount: amount,
-                deposit_bank_code,
-                deposit_acct_num,
-                deposit_acct_name,
-                pay_type,
-                trx_id: trx_id,
-                head_office_fee: dns_data?.deposit_head_office_fee,
-                deposit_fee: mcht?.deposit_fee ?? 0
+
             };
             let result = insertQuery(`deposits`, obj);
             for (var i = 0; i < 3; i++) {
