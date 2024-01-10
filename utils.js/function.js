@@ -34,3 +34,28 @@ export const differenceTwoDate = (f_d_, s_d_) => {//두날짜의 시간차
     let day = (f_d - s_d) / (1000 * 3600 * 24);
     return day;
 }
+export const getUserWithDrawFee = (item, user_level, operator_list = [], withdraw_head_office_fee) => {
+    let top_fee = withdraw_head_office_fee;
+
+    let level = 40;
+    let result = 0;
+
+    for (var i = 0; i < operator_list.length; i++) {
+        if (item[`sales${operator_list[i].num}_id`] > 0) {
+            if (user_level == level) {
+                return (parseFloat(item[`sales${operator_list[i].num}_withdraw_fee`] ?? 0) - parseFloat(top_fee)).toFixed(3);
+            }
+            top_fee = item[`sales${operator_list[i].num}_withdraw_fee`];
+            level = operator_list[i].value;
+        }
+    }
+    if (user_level == level) {
+        console.log(item[`withdraw_fee`])
+        console.log(top_fee)
+        return (parseFloat(item[`withdraw_fee`] ?? 0) - parseFloat(top_fee)).toFixed(3);
+    }
+    // if (user_level == 10) {
+    //   return (100 - parseFloat(item[`withdraw_fee`] ?? 0)).toFixed(3);
+    // }
+    return result;
+}
