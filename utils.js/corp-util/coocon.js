@@ -8,8 +8,8 @@ const API_URL = process.env.NODE_ENV == 'production' ? "https://apigw.coocon.co.
 const getDefaultBody = (dns_data, pay_type) => {
     return {
         "SECR_KEY": dns_data[`${pay_type}_sign_key`],
-        "TRT_INST_CD": '08945816',
-        "BANK_CD": '089',
+        "TRT_INST_CD": dns_data[`${pay_type}_trt_inst_code`],
+        "BANK_CD": dns_data[`${pay_type}_virtual_bank_code`],
         "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
     }
 }
@@ -49,8 +49,6 @@ export const cooconApi = {
                     ...getDefaultBody(dns_data, pay_type),
                     KEY: '6140',
                 }))
-                console.log(`${API_URL}/sol/gateway/vapg_wapi.jsp`);
-                console.log(query);
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
@@ -230,20 +228,19 @@ export const cooconApi = {
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
-                    WDRW_ACCT_NO: '70029000000141',
+                    WDRW_ACCT_NO: dns_data[`${pay_type}_virtual_acct_num`],
                     TRSC_AMT: amount,
                 }))
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
-
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
-                            tid: response?.WDRW_CAN_AMT,
+                            amount: response?.TRSC_AMT,
+                            tid: response?.TRSC_SEQ_NO,
                         },
                     };
                 } else {
@@ -280,7 +277,7 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
-
+                console.log(response)
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,

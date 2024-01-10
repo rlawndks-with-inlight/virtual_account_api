@@ -45,10 +45,10 @@ const withdrawV1Ctrl = {
             }
             mcht_sql += ` WHERE users.mid=? AND users.brand_id=? `;
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
-            let user = await pool.query(mcht_sql, [mid, brand?.id]);
-            user = user?.result[0];
+            let mcht = await pool.query(mcht_sql, [mid, brand?.id]);
+            mcht = mcht?.result[0];
 
-            let amount = parseInt(withdraw_amount) + user?.withdraw_fee;
+            let amount = parseInt(withdraw_amount) + mcht?.withdraw_fee;
             let pay_type_name = '';
             let pay_type = 5;
             if (pay_type == 5) {
@@ -58,36 +58,35 @@ const withdrawV1Ctrl = {
             } else {
                 return response(req, res, -100, "결제타입에러", false)
             }
-            let settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${user?.id}`;
+            let settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${mcht?.id}`;
             let settle_amount = await pool.query(settle_amount_sql);
             settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
             if (amount > settle_amount) {
                 return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
             }
-            if (settle_amount < user?.min_withdraw_remain_price) {
-                return response(req, res, -100, `최소 ${pay_type_name}잔액은 ${commarNumber(user?.min_withdraw_remain_price)}원 입니다.`, false)
+            if (settle_amount < mcht?.min_withdraw_remain_price) {
+                return response(req, res, -100, `최소 ${pay_type_name}잔액은 ${commarNumber(mcht?.min_withdraw_remain_price)}원 입니다.`, false)
             }
-            if (parseInt(withdraw_amount) < user?.min_withdraw_price) {
-                return response(req, res, -100, `최소 ${pay_type_name}액은 ${commarNumber(user?.min_withdraw_price)}원 입니다.`, false)
+            if (parseInt(withdraw_amount) < mcht?.min_withdraw_price) {
+                return response(req, res, -100, `최소 ${pay_type_name}액은 ${commarNumber(mcht?.min_withdraw_price)}원 입니다.`, false)
             }
-            if (settle_amount - amount < user?.min_withdraw_hold_price) {
-                return response(req, res, -100, `최소 ${pay_type_name} 보류금액은 ${commarNumber(user?.min_withdraw_hold_price)}원 입니다.`, false)
+            if (settle_amount - amount < mcht?.min_withdraw_hold_price) {
+                return response(req, res, -100, `최소 ${pay_type_name} 보류금액은 ${commarNumber(mcht?.min_withdraw_hold_price)}원 입니다.`, false)
             }
             let get_balance = await corpApi.balance.info({
                 pay_type: 'withdraw',
                 dns_data: brand,
-                decode_user: user,
+                decode_user: mcht,
             })
-            console.log(get_balance)
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
             }
             let account_info = await corpApi.account.info({
                 pay_type: 'withdraw',
                 dns_data: brand,
-                decode_user: user,
-                bank_code: user?.withdraw_bank_code,
-                acct_num: user?.withdraw_acct_num,
+                decode_user: mcht,
+                bank_code: mcht?.withdraw_bank_code,
+                acct_num: mcht?.withdraw_acct_num,
                 amount: withdraw_amount,
             })
             console.log(get_balance)
@@ -99,25 +98,40 @@ const withdrawV1Ctrl = {
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
                 dns_data: brand,
-                decode_user: user,
-                bank_code: user?.withdraw_bank_code,
-                acct_num: user?.withdraw_acct_num,
+                decode_user: mcht,
+                bank_code: mcht?.withdraw_bank_code,
+                acct_num: mcht?.withdraw_acct_num,
                 amount: withdraw_amount,
             })
-            console.log(api_result)
             if (api_result?.code != 100) {
-                //   return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
-            let tid = account_info.data?.tid;
+            let tid = api_result.data?.tid;
+            let obj = {
+                brand_id: mcht?.brand_id,
+                mcht_id: mcht?.id,
+                amount,
+                expect_amount: amount,
+                deposit_bank_code,
+                deposit_acct_num,
+                deposit_acct_name,
+                pay_type,
+                trx_id: trx_id,
+                head_office_fee: dns_data?.deposit_head_office_fee,
+                deposit_fee: mcht?.deposit_fee ?? 0
+            };
+            let result = insertQuery(`deposits`, obj);
+            for (var i = 0; i < 3; i++) {
+                let api_result2 = await corpApi.withdraw.request_check({
+                    pay_type: 'withdraw',
+                    dns_data: brand,
+                    decode_user: user,
+                    date,
+                    tid,
+                })
+                console.log(api_result2);
+            }
 
-            let api_result2 = await corpApi.withdraw.request_check({
-                pay_type: 'withdraw',
-                dns_data: brand,
-                decode_user: user,
-                date,
-                tid,
-            })
-            console.log(api_result2)
             return response(req, res, 100, "success", {})
 
         } catch (err) {
