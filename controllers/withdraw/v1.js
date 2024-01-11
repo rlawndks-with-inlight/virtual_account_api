@@ -30,6 +30,18 @@ const withdrawV1Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
+            brand['setting_obj'] = JSON.parse(brand?.setting_obj ?? '{}');
+            let return_time = returnMoment().substring(11, 16);
+            if (brand?.setting_obj?.not_withdraw_s_time >= brand?.setting_obj?.not_withdraw_e_time) {
+                if (return_time >= brand?.setting_obj?.not_withdraw_s_time || return_time <= brand?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `풀금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+                }
+            } else {
+                if (return_time >= brand?.setting_obj?.not_withdraw_s_time && return_time <= brand?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `풀금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+                }
+            }
+
             let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
             mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
             mcht_sql += ` LEFT JOIN virtual_accounts ON users.virtual_account_id=virtual_accounts.id `;
@@ -75,6 +87,7 @@ const withdrawV1Ctrl = {
             if (settle_amount - amount < user?.min_withdraw_hold_price) {
                 return response(req, res, -100, `최소 ${pay_type_name} 보류금액은 ${commarNumber(user?.min_withdraw_hold_price)}원 입니다.`, false)
             }
+
             let get_balance = await corpApi.balance.info({
                 pay_type: 'withdraw',
                 dns_data: brand,

@@ -54,7 +54,7 @@ if (process.env.NODE_ENV == 'development') {
   const options = { // letsencrypt로 받은 인증서 경로를 입력해 줍니다.
     ca: fs.readFileSync("/etc/letsencrypt/live/api.tikitaka.kr/fullchain.pem"),
     key: fs.readFileSync("/etc/letsencrypt/live/api.tikitaka.kr/privkey.pem"),
-    cert: fs.readFileSync("/etc/letsencrypt/live/api.tikitaka.kr/cert.pem")
+    cert: fs.readFileSync("/etc/letsencrypt/live/api.tikitaka.kr/cert.pem"),
   };
   server = https.createServer(options, app).listen(HTTPS_PORT, function () {
     console.log("**-------------------------------------**");
