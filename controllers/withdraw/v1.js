@@ -93,7 +93,6 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
-            console.log(get_balance)
 
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
@@ -106,7 +105,6 @@ const withdrawV1Ctrl = {
                 acct_num: user?.withdraw_acct_num,
                 amount: withdraw_amount,
             })
-            console.log(account_info)
 
             if (account_info?.code != 100) {
                 return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
@@ -121,7 +119,6 @@ const withdrawV1Ctrl = {
                 acct_num: user?.withdraw_acct_num,
                 amount: withdraw_amount,
             })
-            console.log(api_result)
             if (api_result?.code != 100) {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
@@ -137,6 +134,7 @@ const withdrawV1Ctrl = {
                 user_id: user?.id,
                 withdraw_status: 5,
                 note: note,
+                trx_id: tid,
             };
             if (user?.level == 10) {
                 obj['mcht_amount'] = (-1) * (user?.withdraw_fee + withdraw_amount);
@@ -164,7 +162,6 @@ const withdrawV1Ctrl = {
                     date,
                     tid,
                 })
-                console.log(api_result2)
                 if (api_result2.code == 100) {
                     let result = await updateQuery(`deposits`, {
                         withdraw_status: 0,
