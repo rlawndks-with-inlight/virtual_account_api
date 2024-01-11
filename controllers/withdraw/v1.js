@@ -34,11 +34,11 @@ const withdrawV1Ctrl = {
             let return_time = returnMoment().substring(11, 16);
             if (brand?.setting_obj?.not_withdraw_s_time >= brand?.setting_obj?.not_withdraw_e_time) {
                 if (return_time >= brand?.setting_obj?.not_withdraw_s_time || return_time <= brand?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `풀금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+                    return response(req, res, -100, `출금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
                 }
             } else {
                 if (return_time >= brand?.setting_obj?.not_withdraw_s_time && return_time <= brand?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `풀금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+                    return response(req, res, -100, `출금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
                 }
             }
 
@@ -107,6 +107,7 @@ const withdrawV1Ctrl = {
             if (account_info?.code != 100) {
                 return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             }
+
             let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
