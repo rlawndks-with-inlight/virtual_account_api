@@ -138,16 +138,19 @@ const withdrawV1Ctrl = {
             };
             if (user?.level == 10) {
                 obj['mcht_amount'] = (-1) * (user?.withdraw_fee + withdraw_amount);
+                obj['mcht_id'] = user?.id;
                 for (var i = 0; i < operator_list.length; i++) {
                     obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, brand?.withdraw_head_office_fee));
                     if (user[`sales${operator_list[i].num}_id`] > 0) {
                         obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, brand?.withdraw_head_office_fee));
+                        obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
                     }
                 }
-            } else if (mcht?.level < 40 && mcht?.level > 10) {
+            } else if (user?.level < 40 && user?.level > 10) {
                 for (var i = 0; i < operator_list.length; i++) {
                     if (operator_list[i]?.value == user?.level) {
-                        obj[`sales${operator_list[i].num}_amount`] = (-1) * (mcht?.withdraw_fee + withdraw_amount);
+                        obj[`sales${operator_list[i].num}_id`] = user?.id;
+                        obj[`sales${operator_list[i].num}_amount`] = (-1) * (user?.withdraw_fee + withdraw_amount);
                         break;
                     }
                 }
