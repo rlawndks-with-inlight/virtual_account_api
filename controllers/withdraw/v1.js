@@ -154,7 +154,7 @@ const withdrawV1Ctrl = {
                     }
                 }
             }
-            let result = insertQuery(`deposits`, obj);
+            let result = await insertQuery(`deposits`, obj);
             let withdraw_id = result?.result?.insertId;
             for (var i = 0; i < 3; i++) {
                 let api_result2 = await corpApi.withdraw.request_check({
