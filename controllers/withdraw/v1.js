@@ -19,6 +19,9 @@ const withdrawV1Ctrl = {
                 mid,
                 withdraw_amount,
                 note,
+                withdraw_bank_code,
+                withdraw_acct_num,
+                withdraw_acct_name,
             } = req.body;
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
@@ -101,8 +104,8 @@ const withdrawV1Ctrl = {
                 pay_type: 'withdraw',
                 dns_data: brand,
                 decode_user: user,
-                bank_code: user?.withdraw_bank_code,
-                acct_num: user?.withdraw_acct_num,
+                bank_code: withdraw_bank_code,
+                acct_num: withdraw_acct_num,
                 amount: withdraw_amount,
             })
 
@@ -115,8 +118,8 @@ const withdrawV1Ctrl = {
                 pay_type: 'withdraw',
                 dns_data: brand,
                 decode_user: user,
-                bank_code: user?.withdraw_bank_code,
-                acct_num: user?.withdraw_acct_num,
+                bank_code: withdraw_bank_code,
+                acct_num: withdraw_acct_num,
                 amount: withdraw_amount,
             })
             if (api_result?.code != 100) {
@@ -127,9 +130,9 @@ const withdrawV1Ctrl = {
                 brand_id: brand?.id,
                 pay_type: 5,
                 expect_amount: (-1) * amount,
-                settle_bank_code: user?.withdraw_bank_code,
-                settle_acct_num: user?.withdraw_acct_num,
-                settle_acct_name: user?.withdraw_acct_name,
+                settle_bank_code: withdraw_bank_code,
+                settle_acct_num: withdraw_acct_num,
+                settle_acct_name: withdraw_acct_name,
                 withdraw_fee: user?.withdraw_fee,
                 user_id: user?.id,
                 withdraw_status: 5,
