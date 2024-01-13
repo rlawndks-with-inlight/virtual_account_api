@@ -23,6 +23,7 @@ const withdrawV1Ctrl = {
                 withdraw_acct_num,
                 withdraw_acct_name,
             } = req.body;
+            console.log(req.body)
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
