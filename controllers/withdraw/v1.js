@@ -23,7 +23,6 @@ const withdrawV1Ctrl = {
                 withdraw_acct_num,
                 withdraw_acct_name,
             } = req.body;
-            console.log(req.body)
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -97,7 +96,6 @@ const withdrawV1Ctrl = {
                 dns_data: brand,
                 decode_user: user,
             })
-            console.log(get_balance)
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
             }
@@ -109,7 +107,6 @@ const withdrawV1Ctrl = {
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount,
             })
-            console.log(account_info)
             if (account_info?.code != 100) {
                 return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             }
@@ -123,7 +120,6 @@ const withdrawV1Ctrl = {
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount,
             })
-            console.log(api_result)
             if (api_result?.code != 100) {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
