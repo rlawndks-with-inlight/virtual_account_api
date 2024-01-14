@@ -99,6 +99,7 @@ const withdrawV1Ctrl = {
                 dns_data: dns_data,
                 decode_user: user,
             })
+            console.log(get_balance)
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
             }
@@ -110,6 +111,7 @@ const withdrawV1Ctrl = {
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
             })
+            console.log(account_info)
             if (account_info?.code != 100) {
                 return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             }
@@ -123,6 +125,7 @@ const withdrawV1Ctrl = {
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
             })
+            console.log(api_result)
             if (api_result?.code != 100) {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
