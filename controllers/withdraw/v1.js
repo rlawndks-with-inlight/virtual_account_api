@@ -5,7 +5,7 @@ import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
-
+import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
 
 const withdrawV1Ctrl = {
@@ -23,19 +23,32 @@ const withdrawV1Ctrl = {
                 withdraw_acct_num,
                 withdraw_acct_name,
                 pay_type = 'withdraw',
+                otp_num,
             } = req.body;
 
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
-                return response(req, res, -100, "api key를 입력해주세요.", {});
+                return response(req, res, -100, "api key를 입력해주세요.", false);
             }
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
             let operator_list = getOperatorList(dns_data);
             if (!dns_data) {
-                return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                return response(req, res, -100, "api key가 잘못되었습니다.", false);
             }
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
+
+            if (dns_data?.is_use_otp == 1) {
+                var verified = speakeasy.totp.verify({
+                    secret: dns_data?.otp_token,
+                    encoding: 'base32',
+                    token: otp_num
+                });
+                if (!verified) {
+                    return response(req, res, -100, "OTP번호가 잘못되었습니다.", false);
+                }
+            }
+
             let return_time = returnMoment().substring(11, 16);
             if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
                 if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
