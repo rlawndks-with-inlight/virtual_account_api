@@ -29,21 +29,21 @@ const withdrawV1Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
-            let operator_list = getOperatorList(brand);
-            if (!brand) {
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            dns_data = dns_data?.result[0];
+            let operator_list = getOperatorList(dns_data);
+            if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-            brand['setting_obj'] = JSON.parse(brand?.setting_obj ?? '{}');
+            dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
             let return_time = returnMoment().substring(11, 16);
-            if (brand?.setting_obj?.not_withdraw_s_time >= brand?.setting_obj?.not_withdraw_e_time) {
-                if (return_time >= brand?.setting_obj?.not_withdraw_s_time || return_time <= brand?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `출금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+            if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
+                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
                 }
             } else {
-                if (return_time >= brand?.setting_obj?.not_withdraw_s_time && return_time <= brand?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `출금 불가 시간입니다. ${brand?.setting_obj?.not_withdraw_s_time} ~ ${brand?.setting_obj?.not_withdraw_e_time}`, false);
+                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time && return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
                 }
             }
 
@@ -64,10 +64,10 @@ const withdrawV1Ctrl = {
             }
             mcht_sql += ` WHERE users.mid=? AND users.brand_id=? `;
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
-            let user = await pool.query(mcht_sql, [mid, brand?.id]);
+            let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
 
-            let amount = parseInt(withdraw_amount) + user?.withdraw_fee;
+            let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
                 pay_type_name = '출금';
@@ -96,7 +96,7 @@ const withdrawV1Ctrl = {
 
             let get_balance = await corpApi.balance.info({
                 pay_type: 'withdraw',
-                dns_data: brand,
+                dns_data: dns_data,
                 decode_user: user,
             })
             if (get_balance.data?.amount < withdraw_amount) {
@@ -104,11 +104,11 @@ const withdrawV1Ctrl = {
             }
             let account_info = await corpApi.account.info({
                 pay_type: 'withdraw',
-                dns_data: brand,
+                dns_data: dns_data,
                 decode_user: user,
                 bank_code: withdraw_bank_code,
                 acct_num: withdraw_acct_num,
-                amount: withdraw_amount,
+                amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
             })
             if (account_info?.code != 100) {
                 return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
@@ -117,18 +117,18 @@ const withdrawV1Ctrl = {
             let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
-                dns_data: brand,
+                dns_data: dns_data,
                 decode_user: user,
                 bank_code: withdraw_bank_code,
                 acct_num: withdraw_acct_num,
-                amount: withdraw_amount,
+                amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
             })
             if (api_result?.code != 100) {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
             let tid = api_result.data?.tid;
             let obj = {
-                brand_id: brand?.id,
+                brand_id: dns_data?.id,
                 pay_type: pay_type,
                 expect_amount: (-1) * amount,
                 settle_bank_code: withdraw_bank_code,
@@ -141,12 +141,12 @@ const withdrawV1Ctrl = {
                 trx_id: tid,
             };
             if (user?.level == 10) {
-                obj['mcht_amount'] = (-1) * (user?.withdraw_fee + withdraw_amount);
+                obj['mcht_amount'] = (-1) * amount;
                 obj['mcht_id'] = user?.id;
                 for (var i = 0; i < operator_list.length; i++) {
-                    obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, brand?.withdraw_head_office_fee));
+                    obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
                     if (user[`sales${operator_list[i].num}_id`] > 0) {
-                        obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, brand?.withdraw_head_office_fee));
+                        obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
                         obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
                     }
                 }
@@ -154,7 +154,7 @@ const withdrawV1Ctrl = {
                 for (var i = 0; i < operator_list.length; i++) {
                     if (operator_list[i]?.value == user?.level) {
                         obj[`sales${operator_list[i].num}_id`] = user?.id;
-                        obj[`sales${operator_list[i].num}_amount`] = (-1) * (user?.withdraw_fee + withdraw_amount);
+                        obj[`sales${operator_list[i].num}_amount`] = (-1) * amount;
                         break;
                     }
                 }
@@ -164,7 +164,7 @@ const withdrawV1Ctrl = {
             for (var i = 0; i < 3; i++) {
                 let api_result2 = await corpApi.withdraw.request_check({
                     pay_type: 'withdraw',
-                    dns_data: brand,
+                    dns_data: dns_data,
                     decode_user: user,
                     date,
                     tid,
