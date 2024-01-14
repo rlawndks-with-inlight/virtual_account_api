@@ -22,7 +22,9 @@ const withdrawV1Ctrl = {
                 withdraw_bank_code,
                 withdraw_acct_num,
                 withdraw_acct_name,
+                pay_type = 'withdraw',
             } = req.body;
+
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -67,11 +69,12 @@ const withdrawV1Ctrl = {
 
             let amount = parseInt(withdraw_amount) + user?.withdraw_fee;
             let pay_type_name = '';
-            let pay_type = 5;
-            if (pay_type == 5) {
+            if (pay_type == 'withdraw') {
                 pay_type_name = '출금';
-            } else if (pay_type == 20) {
+                pay_type = 5;
+            } else if (pay_type == 'return') {
                 pay_type_name = '반환';
+                pay_type = 20;
             } else {
                 return response(req, res, -100, "결제타입에러", false)
             }
@@ -126,7 +129,7 @@ const withdrawV1Ctrl = {
             let tid = api_result.data?.tid;
             let obj = {
                 brand_id: brand?.id,
-                pay_type: 5,
+                pay_type: pay_type,
                 expect_amount: (-1) * amount,
                 settle_bank_code: withdraw_bank_code,
                 settle_acct_num: withdraw_acct_num,
@@ -166,7 +169,6 @@ const withdrawV1Ctrl = {
                     date,
                     tid,
                 })
-                console.log(api_result2)
                 if (api_result2.code == 100) {
                     let result = await updateQuery(`deposits`, {
                         withdraw_status: 0,
