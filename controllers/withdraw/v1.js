@@ -9,6 +9,58 @@ import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
 
 const withdrawV1Ctrl = {
+    check: async (req, res, next) => {
+        try {
+            let {
+                api_key,
+                mid,
+                withdraw_bank_code,
+                withdraw_acct_num,
+            } = req.body;
+
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            dns_data = dns_data?.result[0];
+            let operator_list = getOperatorList(dns_data);
+            let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
+            mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
+            mcht_sql += ` LEFT JOIN virtual_accounts ON users.virtual_account_id=virtual_accounts.id `;
+            let mcht_columns = [
+                `users.*`,
+                `merchandise_columns.mcht_fee`,
+            ]
+            for (var i = 0; i < operator_list.length; i++) {
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_id`);
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_fee`);
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_withdraw_fee`);
+                mcht_columns.push(`sales${operator_list[i]?.num}.user_name AS sales${operator_list[i]?.num}_user_name`);
+                mcht_columns.push(`sales${operator_list[i]?.num}.nickname AS sales${operator_list[i]?.num}_nickname`);
+                mcht_sql += ` LEFT JOIN users AS sales${operator_list[i]?.num} ON sales${operator_list[i]?.num}.id=merchandise_columns.sales${operator_list[i]?.num}_id `;
+            }
+            mcht_sql += ` WHERE users.mid=? AND users.brand_id=? `;
+            mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
+            let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
+            user = user?.result[0];
+            let account_info = await corpApi.account.info({
+                pay_type: 'withdraw',
+                dns_data: dns_data,
+                decode_user: user,
+                bank_code: withdraw_bank_code,
+                acct_num: withdraw_acct_num,
+                amount: 1000,
+            })
+            if (account_info.code == 100) {
+                return response(req, res, 100, "success", account_info.data)
+            } else {
+                return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
+            }
+
+        } catch (err) {
+            console.log(err)
+            return response(req, res, -200, "서버 에러 발생", false)
+        } finally {
+
+        }
+    },
     request: async (req, res, next) => {//발급요청
         try {
             let is_manager = await checkIsManagerUrl(req);

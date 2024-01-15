@@ -187,12 +187,12 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
-
                 if (response?.RESP_CD == '0000') {
                     return {
                         code: 100,
                         message: '',
                         data: {
+                            withdraw_acct_name: response?.RCV_ACCT_NM
                         },
                     };
                 } else {
