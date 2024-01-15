@@ -38,16 +38,7 @@ const withdrawV1Ctrl = {
             }
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
 
-            if (dns_data?.is_use_otp == 1) {
-                var verified = speakeasy.totp.verify({
-                    secret: dns_data?.otp_token,
-                    encoding: 'base32',
-                    token: otp_num
-                });
-                if (!verified) {
-                    return response(req, res, -100, "OTP번호가 잘못되었습니다.", false);
-                }
-            }
+
 
             let return_time = returnMoment().substring(11, 16);
             if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
@@ -79,7 +70,16 @@ const withdrawV1Ctrl = {
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
             let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
-
+            if (dns_data?.is_use_otp == 1) {
+                var verified = speakeasy.totp.verify({
+                    secret: user?.otp_token,
+                    encoding: 'base32',
+                    token: otp_num
+                });
+                if (!verified) {
+                    return response(req, res, -100, "OTP번호가 잘못되었습니다.", false);
+                }
+            }
             let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
