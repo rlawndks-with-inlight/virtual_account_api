@@ -6,7 +6,7 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
-const table_name = 'virtual_accounts';
+const table_name = 'deposits';
 
 const depositV1Ctrl = {
     create: async (req, res, next) => {
@@ -21,7 +21,6 @@ const depositV1Ctrl = {
             dns_data['operator_list'] = getOperatorList(dns_data);
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
-
             let obj = {
                 brand_id: dns_data?.id,
                 expect_amount: amount,
