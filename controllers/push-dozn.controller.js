@@ -31,9 +31,74 @@ const pushDoznCtrl = {
                 memo,
                 crnCd,
             } = req.body;
-
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
             dns_data = dns_data?.result[0];
+
+            let operator_list = getOperatorList(dns_data);
+
+            if (depositAmnt > 0) {
+                let amount = parseInt(depositAmnt);
+
+                let obj = {
+                    amount: amount,
+                    head_office_fee: dns_data?.deposit_head_office_fee,
+                    corp_account_balance: balance,
+                };
+                let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_num=?`, [
+                    amount,
+                    acctNo
+                ])
+                deposit = deposit?.result[0];
+                if (deposit) {
+                    let mcht_columns = [
+                        `users.*`,
+                        `merchandise_columns.mcht_fee`,
+                    ]
+                    for (var i = 0; i < operator_list.length; i++) {
+                        mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_id`);
+                        mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_fee`);
+                        mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_withdraw_fee`);
+                    }
+                    let sql = `SELECT ${mcht_columns.join()} FROM users `;
+                    sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
+                    sql += ` WHERE users.id=${deposit?.mcht_id} `;
+                    let mcht = await pool.query(sql);
+                    mcht = mcht?.result[0];
+                    let is_use_sales = false;
+                    let is_first = true;
+                    let sales_depth_num = -1;
+                    let minus_fee = dns_data?.deposit_head_office_fee;
+                    for (var i = 0; i < operator_list.length; i++) {
+                        if (mcht[`sales${operator_list[i]?.num}_id`] > 0) {
+                            is_use_sales = true;
+                            if (is_first) {
+                                obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`sales${operator_list[i]?.num}_fee`] - minus_fee)
+                            }
+                            is_first = false;
+                        } else {
+                            continue;
+                        }
+                        if (sales_depth_num >= 0) {
+                            obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`sales${operator_list[i]?.num}_fee`] - minus_fee)
+                        }
+                        obj[`sales${operator_list[i]?.num}_id`] = mcht[`sales${operator_list[i]?.num}_id`];
+                        obj[`sales${operator_list[i]?.num}_fee`] = mcht[`sales${operator_list[i]?.num}_fee`];
+                        minus_fee = obj[`sales${operator_list[i]?.num}_fee`];
+                        sales_depth_num = operator_list[i]?.num;
+                    }
+                    if (!is_use_sales) {
+                        obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
+                    } else {
+                        obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
+                    }
+                    obj[`mcht_fee`] = mcht[`mcht_fee`];
+                    obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
+                    let result = await updateQuery(`deposits`, obj, deposit?.id);
+
+                }
+            } else if (withdrawAmnt > 0) {
+
+            }
 
 
 

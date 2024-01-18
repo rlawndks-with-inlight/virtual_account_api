@@ -13,5 +13,4 @@ router
     .route('/v1/issuance')
     .post(virtualAccountV1Ctrl.issuance)
 
-
 export default router;
