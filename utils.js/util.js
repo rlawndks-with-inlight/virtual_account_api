@@ -6,6 +6,8 @@ import 'dotenv/config';
 import { readSync } from 'fs';
 import when from 'when';
 import _ from 'lodash';
+import axios from 'axios';
+import { updateQuery } from './query-util.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
 const pbkdf2Promise = util.promisify(crypto.pbkdf2);
@@ -348,4 +350,19 @@ export const getOperatorList = (brand_) => {
         }
     }
     return operator_list;
+}
+
+export const sendNotiPush = async (user = {}, pay_type, data, id) => {
+    if (user[`${pay_type}_noti_url`]) {
+        for (var i = 0; i < 5; i++) {
+            let { data: result } = await axios.post(user[`${pay_type}_noti_url`], data);
+            if (result == '0000') {
+                await updateQuery(`deposits`, {
+                    [`${pay_type}_noti_status`]: 0,
+                }, id)
+                break;
+            }
+            await new Promise((r) => setTimeout(r, 10000));
+        }
+    }
 }

@@ -43,7 +43,7 @@ const pushCooconCtrl = {
             return res.send('0000');
         } catch (err) {
             console.log(err)
-            return res.send(-100);
+            return res.send('9999');
         } finally {
 
         }

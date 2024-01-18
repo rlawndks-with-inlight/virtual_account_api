@@ -3,7 +3,7 @@ import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
-import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response, sendNotiPush } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
@@ -94,6 +94,15 @@ const pushDoznCtrl = {
                     }
                     obj[`mcht_fee`] = mcht[`mcht_fee`];
                     obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
+                    if (mcht[`deposit_noti_url`]) {
+                        obj[`deposit_noti_status`] = 5;
+                        obj[`deposit_noti_obj`] = JSON.stringify({
+                            amount,
+                            bank_code: deposit?.deposit_bank_code,
+                            acct_num: deposit?.deposit_acct_num,
+                            acct_name: deposit?.deposit_acct_name,
+                        });
+                    }
                     let result = await updateQuery(`deposits`, obj, deposit?.id);
 
                 }
@@ -101,12 +110,11 @@ const pushDoznCtrl = {
 
             }
 
-
-
             return res.send('0000');
+
         } catch (err) {
             console.log(err)
-            return res.send(-100);
+            return res.send('9999');
         } finally {
 
         }
