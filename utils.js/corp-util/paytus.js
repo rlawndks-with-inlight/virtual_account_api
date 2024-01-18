@@ -2,6 +2,12 @@ import axios from "axios";
 
 const API_URL = `https://api.cashes.co.kr`;
 
+const getDefaultBody = (dns_data, pay_type) => {
+
+    return {
+        compUuid: dns_data[`${pay_type}_guid`],
+    }
+}
 export const paytusApi = {
     user: {
         account: async (data) => {
@@ -10,7 +16,7 @@ export const paytusApi = {
                     deposit_bank_code, deposit_acct_num, deposit_acct_name,
                 } = data;
                 let query = {
-                    compUuid: 'HSTUWO',
+                    ...getDefaultBody(dns_data, pay_type),
                     bankCode: deposit_bank_code,
                     acctNo: deposit_acct_num,
                     custNm: deposit_acct_name,
@@ -46,7 +52,7 @@ export const paytusApi = {
                     vrf_word,
                 } = data;
                 let query = {
-                    compUuid: 'HSTUWO',
+                    ...getDefaultBody(dns_data, pay_type),
                     verifyTrDt: verify_tr_dt,
                     verifyTrNo: verify_tr_no,
                     verifyVal: vrf_word,
@@ -80,7 +86,7 @@ export const paytusApi = {
                     deposit_bank_code, deposit_acct_num, deposit_acct_name, auth_num
                 } = data;
                 let query = {
-                    compUuid: 'HSTUWO',
+                    ...getDefaultBody(dns_data, pay_type),
                     bankCode: deposit_bank_code,
                     acctNo: deposit_acct_num,
                     custNm: deposit_acct_name,
@@ -118,7 +124,7 @@ export const paytusApi = {
                     gender, ntv_frnr, tel_com, phone_num
                 } = data;
                 let query = {
-                    compUuid: 'HSTUWO',
+                    ...getDefaultBody(dns_data, pay_type),
                     custNm: deposit_acct_name,
                     custBirth: auth_num,
                     sexCd: gender,
@@ -159,7 +165,7 @@ export const paytusApi = {
                     tx_seq_no, phone_num, vrf_word,
                 } = data;
                 let query = {
-                    compUuid: 'HSTUWO',
+                    ...getDefaultBody(dns_data, pay_type),
                     txSeqNo: tx_seq_no,
                     telNo: phone_num,
                     otpNo: vrf_word,
