@@ -29,6 +29,7 @@ const depositV1Ctrl = {
                 deposit_acct_name,
                 mcht_id: mcht?.id,
                 deposit_fee: mcht?.deposit_fee,
+                deposit_status: 5,
             };
 
             let result = await insertQuery(table_name, obj);
