@@ -111,6 +111,11 @@ const pushDoznCtrl = {
                         }
                         let result = await updateQuery(`deposits`, obj, deposit?.id);
 
+                    } else {
+                        obj['expect_amount'] = amount;
+                        obj['deposit_status'] = 10;
+                        obj['brand_id'] = dns_data?.id;
+                        let result = await insertQuery(`deposits`, obj);
                     }
                 } else if (withdrawAmnt > 0) {
 
