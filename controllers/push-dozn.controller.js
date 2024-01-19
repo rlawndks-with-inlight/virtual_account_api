@@ -50,6 +50,7 @@ const pushDoznCtrl = {
                         head_office_fee: dns_data?.deposit_head_office_fee,
                         corp_account_balance: balance,
                         deposit_status: 0,
+                        trx_id: tranNum,
                     };
                     let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_name=? AND deposit_status=5 `, [
                         amount,
