@@ -45,9 +45,9 @@ const pushDoznCtrl = {
                     corp_account_balance: balance,
                     deposit_status: 0,
                 };
-                let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_num=? AND deposit_status=5 `, [
+                let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_name=? AND deposit_status=5 `, [
                     amount,
-                    acctNo
+                    tranName
                 ])
                 deposit = deposit?.result[0];
                 if (deposit) {
