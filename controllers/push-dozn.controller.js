@@ -114,6 +114,8 @@ const pushDoznCtrl = {
                     } else {
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
+                        obj['deposit_acct_num'] = recvAccntNo;
+                        obj['deposit_acct_name'] = tranName;
                         obj['deposit_status'] = 10;
                         obj['brand_id'] = dns_data?.id;
                         let result = await insertQuery(`deposits`, obj);
