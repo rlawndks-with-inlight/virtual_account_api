@@ -112,6 +112,7 @@ const pushDoznCtrl = {
                         let result = await updateQuery(`deposits`, obj, deposit?.id);
 
                     } else {
+                        delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
                         obj['deposit_status'] = 10;
                         obj['brand_id'] = dns_data?.id;
