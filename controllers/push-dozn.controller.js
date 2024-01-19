@@ -31,6 +31,7 @@ const pushDoznCtrl = {
                 memo,
                 crnCd,
             } = req.body;
+            console.log(req.body)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
             dns_data = dns_data?.result[0];
 
