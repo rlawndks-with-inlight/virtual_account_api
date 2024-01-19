@@ -36,12 +36,17 @@ const pushDoznCtrl = {
                     memo,
                     crnCd,
                 } = list[i];
-                console.log(req.body)
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
                 dns_data = dns_data?.result[0];
 
                 let operator_list = getOperatorList(dns_data);
-
+                let corp_account = await pool.query(`SELECT * FROM corp_accounts WHERE acct_num=? AND brand_id=${dns_data?.id}`, [
+                    acctNo
+                ])
+                corp_account = corp_account?.result[0];
+                if (!corp_account) {
+                    return res.send('9999');
+                }
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
 
@@ -51,6 +56,7 @@ const pushDoznCtrl = {
                         corp_account_balance: balance,
                         deposit_status: 0,
                         trx_id: tranNum,
+                        corp_account_id: corp_account?.id,
                     };
                     let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_name=? AND deposit_status=5 `, [
                         amount,
