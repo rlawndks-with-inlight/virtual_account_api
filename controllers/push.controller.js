@@ -3,6 +3,7 @@ import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
+import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
@@ -133,6 +134,17 @@ const pushCtrl = {
                 }, deposit_id);
             }
             sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+            let bell_data = {
+                amount,
+                user_id: mcht?.id,
+                deposit_acct_name,
+                nickname: mcht?.nickname,
+            }
+            emitSocket({
+                method: 'deposit',
+                brand_id: dns_data?.id,
+                data: bell_data
+            })
             return res.send('0000');
         } catch (err) {
             console.log(err)

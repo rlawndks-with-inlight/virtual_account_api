@@ -3,6 +3,7 @@ import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
+import { emitSocket } from "../utils.js/socket/index.js";
 import { checkDns, checkLevel, getNumberByPercent, getOperatorList, response, sendNotiPush } from "../utils.js/util.js";
 import 'dotenv/config';
 
@@ -47,6 +48,7 @@ const pushDoznCtrl = {
                 if (!corp_account) {
                     return res.send('9999');
                 }
+
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
 
@@ -58,11 +60,22 @@ const pushDoznCtrl = {
                         trx_id: tranNum,
                         corp_account_id: corp_account?.id,
                     };
-                    let deposit = await pool.query(`SELECT * FROM deposits WHERE pay_type=0 AND brand_id=${dns_data?.id} AND expect_amount=? AND deposit_acct_name=? AND deposit_status=5 `, [
+                    let deposit_columns = [
+                        `deposits.*`,
+                        `users.nickname`
+                    ]
+                    let deposit_sql = `SELECT ${deposit_columns.join()} FROM deposits`;
+                    deposit_sql += ` LEFT JOIN users ON deposits.mcht_id=users.id `
+                    deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.expect_amount=? AND deposits.deposit_acct_name=? AND deposits.deposit_status=5  `;
+                    let deposit = await pool.query(deposit_sql, [
                         amount,
                         tranName
                     ])
                     deposit = deposit?.result[0];
+                    let bell_data = {
+                        amount,
+                        user_id: deposit?.mcht_id,
+                    }
                     if (deposit) {
                         let mcht_columns = [
                             `users.*`,
@@ -116,8 +129,9 @@ const pushDoznCtrl = {
                                 acct_name: deposit?.deposit_acct_name,
                             });
                         }
+                        bell_data['deposit_acct_name'] = deposit?.deposit_acct_name;
+                        bell_data['nickname'] = deposit?.deposit_acct_name;
                         let result = await updateQuery(`deposits`, obj, deposit?.id);
-
                     } else {
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
@@ -125,8 +139,14 @@ const pushDoznCtrl = {
                         obj['deposit_acct_name'] = tranName;
                         obj['deposit_status'] = 10;
                         obj['brand_id'] = dns_data?.id;
+                        bell_data['deposit_acct_name'] = tranName;
                         let result = await insertQuery(`deposits`, obj);
                     }
+                    emitSocket({
+                        method: 'deposit',
+                        brand_id: dns_data?.id,
+                        data: bell_data
+                    })
                 } else if (withdrawAmnt > 0) {
 
                 }
