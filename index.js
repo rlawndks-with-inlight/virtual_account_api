@@ -14,10 +14,12 @@ import upload from "./config/multerConfig.js";
 import { imageFieldList } from "./utils.js/util.js";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import io from "socket.io-client";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+const socket = io.connect(process.env.SOCKET_URL);
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
