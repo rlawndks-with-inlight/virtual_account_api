@@ -61,6 +61,7 @@ const virtualAccountV2Ctrl = {
                             deposit_acct_check: 0,
                             verify_tr_no: api_result.data?.verify_tr_no,
                             verify_tr_dt: api_result.data?.verify_tr_dt,
+                            ci: `${api_result.data?.verify_tr_no}${new Date().getTime()}`,
                         })
                     }
                     data['verify_tr_no'] = api_result.data?.verify_tr_no;
@@ -354,6 +355,7 @@ const virtualAccountV2Ctrl = {
             data['is_issuance'] = 1;
             data['bank_code'] = api_result.data?.bank_code;
             data['virtual_acct_num'] = api_result.data?.acct_num;
+            data['ci'] = virtual_account?.ci;
             return response(req, res, 100, "success", data)
         } catch (err) {
             console.log(err)
