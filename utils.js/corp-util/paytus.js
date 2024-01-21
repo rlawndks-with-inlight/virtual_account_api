@@ -1,4 +1,5 @@
 import axios from "axios";
+import { returnMoment } from "../function.js";
 
 const API_URL = `https://api.cashes.co.kr`;
 
@@ -22,7 +23,6 @@ export const paytusApi = {
                     custNm: deposit_acct_name,
                 }
                 let { data: result } = await axios.post(`${API_URL}/api/v1/viss/acct`, query);
-
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -33,7 +33,10 @@ export const paytusApi = {
                 return {
                     code: 100,
                     message: result?.message,
-                    data: result?.response,
+                    data: {
+                        verify_tr_no: result?.response?.verifyTrNo,
+                        verify_tr_dt: result?.response?.verifyTrDt,
+                    },
                 };
             } catch (err) {
                 console.log(err);
@@ -58,7 +61,7 @@ export const paytusApi = {
                     verifyVal: vrf_word,
                 }
                 let { data: result } = await axios.post(`${API_URL}/api/v1/viss/confirm`, query);
-
+                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -116,6 +119,47 @@ export const paytusApi = {
             }
         },
     },
+    vaccount: async (data) => {
+        try {
+            let { dns_data, pay_type, decode_user,
+                deposit_bank_code, deposit_acct_num, deposit_acct_name,
+                birth, phone_num
+            } = data;
+            let query = {
+                ...getDefaultBody(dns_data, pay_type),
+                custNm: deposit_acct_name,
+                custTermDttm: returnMoment().replaceAll('-', '').replaceAll(':', '').replaceAll(' ', ''),
+                custBankCode: deposit_bank_code,
+                custBankAcct: deposit_acct_num,
+                custPhoneNo: phone_num,
+                custBirth: birth,
+            }
+            let { data: result } = await axios.post(`${API_URL}/api/v1/vips/request`, query);
+
+            if (result?.code != '0000') {
+                return {
+                    code: -100,
+                    message: result?.message,
+                    data: {},
+                };
+            }
+            return {
+                code: 100,
+                message: result?.message,
+                data: {
+                    bank_code: result?.response?.bankCode,
+                    acct_num: result?.response?.bankAcctNo,
+                },
+            };
+        } catch (err) {
+            console.log(err);
+            return {
+                code: -100,
+                message: '',
+                data: {},
+            };
+        }
+    },
     sms: {
         push: async (data) => {
             try {
@@ -148,7 +192,9 @@ export const paytusApi = {
                 return {
                     code: 100,
                     message: result?.message,
-                    data: result?.response,
+                    data: {
+                        tx_seq_no: result?.response?.txSeqNo,
+                    },
                 };
             } catch (err) {
                 console.log(err);
@@ -170,8 +216,9 @@ export const paytusApi = {
                     telNo: phone_num,
                     otpNo: vrf_word,
                 }
+                console.log(query)
                 let { data: result } = await axios.post(`${API_URL}/api/v1/viss/smsResult`, query);
-
+                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,

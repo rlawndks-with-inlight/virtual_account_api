@@ -1,6 +1,7 @@
 import { selectQuerySimple } from "../query-util.js";
 import { banknersApi } from "./bankners.js";
 import { cooconApi } from "./coocon.js";
+import { paytusApi } from "./paytus.js";
 
 const getDnsData = async (data_, dns_data_) => {
     let dns_data = await selectQuerySimple('brands', dns_data_?.id);
@@ -76,6 +77,9 @@ const corpApi = {
             if (corp_type == 1) {
                 result = await banknersApi.user.account(data);
             }
+            if (corp_type == 3) {
+                result = await paytusApi.user.account(data);
+            }
             return result;
         },
         account_verify: async (data_) => {//출금계좌등록
@@ -96,6 +100,74 @@ const corpApi = {
 
             if (corp_type == 1) {
                 result = await banknersApi.user.account_verify(data);
+            }
+            if (corp_type == 3) {
+                result = await paytusApi.user.account_verify(data);
+            }
+            return result;
+        },
+        check_real_name: async (data_) => {//실명인증
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+
+            if (corp_type == 3) {
+                result = await paytusApi.user.check_real_name(data);
+            }
+            return result;
+        },
+    },
+    sms: {
+        push: async (data_) => {//이체
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+
+            if (corp_type == 3) {
+                result = await paytusApi.sms.push(data);
+            }
+            return result;
+        },
+        check: async (data_) => {//이체
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+
+            if (corp_type == 3) {
+                result = await paytusApi.sms.check(data);
             }
             return result;
         },
@@ -210,6 +282,9 @@ const corpApi = {
         }
         if (corp_type == 1) {
             result = await banknersApi.vaccount(data);
+        }
+        if (corp_type == 3) {
+            result = await paytusApi.vaccount(data);
         }
         return result;
     },
