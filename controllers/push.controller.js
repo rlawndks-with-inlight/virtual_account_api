@@ -128,10 +128,21 @@ const pushCtrl = {
                 amount: amount,
             })
             if (mother_to_result.code == 100) {
-                let update_mother_to_result = await updateQuery('deposits', {
+                let obj = {
                     is_move_mother: 1,
                     move_mother_tid: mother_to_result.data?.tid,
-                }, deposit_id);
+                }
+                if (mcht?.deposit_noti_url) {
+                    obj[`deposit_noti_status`] = 5;
+                    obj[`deposit_noti_obj`] = JSON.stringify({
+                        amount,
+                        bank_code: deposit?.deposit_bank_code,
+                        acct_num: deposit?.deposit_acct_num,
+                        acct_name: deposit?.deposit_acct_name,
+                        tid: tid,
+                    });
+                }
+                let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
             }
             sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             let bell_data = {
