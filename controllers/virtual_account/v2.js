@@ -352,6 +352,8 @@ const virtualAccountV2Ctrl = {
                 status: 0,
             }, virtual_account?.id);
             data['is_issuance'] = 1;
+            data['bank_code'] = api_result.data?.bank_code;
+            data['virtual_acct_num'] = api_result.data?.acct_num;
             return response(req, res, 100, "success", data)
         } catch (err) {
             console.log(err)
