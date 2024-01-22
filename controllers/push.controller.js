@@ -136,9 +136,9 @@ const pushCtrl = {
                     obj[`deposit_noti_status`] = 5;
                     obj[`deposit_noti_obj`] = JSON.stringify({
                         amount,
-                        bank_code: deposit?.deposit_bank_code,
-                        acct_num: deposit?.deposit_acct_num,
-                        acct_name: deposit?.deposit_acct_name,
+                        bank_code: deposit_bank_code,
+                        acct_num: deposit_acct_num,
+                        acct_name: deposit_acct_name,
                         tid: tid,
                     });
                 }

@@ -11,7 +11,7 @@ import http from 'http';
 import https from 'https';
 import scheduleIndex from "./utils.js/schedules/index.js";
 import upload from "./config/multerConfig.js";
-import { imageFieldList } from "./utils.js/util.js";
+import { getReqIp, imageFieldList } from "./utils.js/util.js";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import io from "socket.io-client";
@@ -33,6 +33,8 @@ app.use('/files', express.static(__dirname + '/files'));
 app.use('/api', upload.fields(imageFieldList), routes);
 
 app.get('/', (req, res) => {
+  let ip = getReqIp(req);
+  console.log(ip)
   console.log("back-end initialized")
   res.send('back-end initialized')
 });
