@@ -3,7 +3,7 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
 
-const API_URL = process.env.NODE_ENV == 'production' ? "api.bankners.com" : "stgapi.bankners.com";
+const API_URL = process.env.API_ENV == 'production' ? "api.bankners.com" : "stgapi.bankners.com";
 
 const makeHeaderData = (dns_data, pay_type, decode_user) => {
     let cur_time = new Date().getTime();
