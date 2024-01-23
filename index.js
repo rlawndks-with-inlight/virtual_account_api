@@ -35,8 +35,8 @@ app.use('/api', upload.fields(imageFieldList), routes);
 app.get('/', (req, res) => {
   let ip = getReqIp(req);
   console.log(ip)
-  console.log("back-end initialized")
-  res.send('back-end initialized')
+  console.log("api initialized")
+  res.send('api initialized')
 });
 
 app.use((req, res, next) => {
