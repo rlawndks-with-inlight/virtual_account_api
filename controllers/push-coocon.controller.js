@@ -53,15 +53,12 @@ const pushCooconCtrl = {
                     trx_id: date + time + amount + `${Math.random().toString(16).substring(2, 8)}`,
                     is_type_withdraw_acct: 1,
                 }
-                let account_info = await corpApi.account.info({
+                let get_balance = await corpApi.balance.info({
                     pay_type: 'withdraw',
                     dns_data: dns_data,
-                    decode_user: {},
-                    bank_code: virtual_bank_code,
-                    acct_num: virtual_acct_num,
-                    amount: 1000,
+                    decode_user: user,
                 })
-                console.log(account_info)
+                console.log(get_balance)
                 let result = await insertQuery(`deposits`, insert_obj);
 
             }
