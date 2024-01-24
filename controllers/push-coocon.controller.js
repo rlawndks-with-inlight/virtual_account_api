@@ -41,7 +41,7 @@ const pushCooconCtrl = {
                     amount: amount,
                     expect_amount: amount,
                     pay_type: 0,
-                    expect_amount: expect_amount,
+                    expect_amount: amount,
                     deposit_bank_code: deposit_bank_code,
                     deposit_acct_num: deposit_acct_num,
                     deposit_acct_name: sender,
