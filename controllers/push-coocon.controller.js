@@ -56,7 +56,7 @@ const pushCooconCtrl = {
                 let get_balance = await corpApi.balance.info({
                     pay_type: 'withdraw',
                     dns_data: dns_data,
-                    decode_user: user,
+                    decode_user: {},
                 })
                 console.log(get_balance)
                 let result = await insertQuery(`deposits`, insert_obj);
