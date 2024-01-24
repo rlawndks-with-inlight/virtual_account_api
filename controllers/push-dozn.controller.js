@@ -54,7 +54,7 @@ const pushDoznCtrl = {
 
                     let obj = {
                         amount: amount,
-                        head_office_fee: dns_data?.deposit_head_office_fee,
+                        head_office_fee: dns_data?.head_office_fee,
                         corp_account_balance: balance,
                         deposit_status: 0,
                         trx_id: tranNum,
@@ -94,7 +94,7 @@ const pushDoznCtrl = {
                         let is_use_sales = false;
                         let is_first = true;
                         let sales_depth_num = -1;
-                        let minus_fee = dns_data?.deposit_head_office_fee;
+                        let minus_fee = dns_data?.head_office_fee;
                         for (var i = 0; i < operator_list.length; i++) {
                             if (mcht[`sales${operator_list[i]?.num}_id`] > 0) {
                                 is_use_sales = true;
