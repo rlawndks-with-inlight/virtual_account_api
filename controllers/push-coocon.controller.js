@@ -58,7 +58,7 @@ const pushCooconCtrl = {
                     dns_data: dns_data,
                     decode_user: {},
                 })
-                console.log(get_balance)
+                insert_obj['virtual_acct_balance'] = get_balance.data?.amount ?? 0;
                 let result = await insertQuery(`deposits`, insert_obj);
 
             }
