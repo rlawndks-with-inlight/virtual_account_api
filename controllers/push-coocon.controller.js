@@ -20,7 +20,7 @@ const pushCooconCtrl = {
                 trx_code,
                 corp_code,
                 bank_code,
-                connect_bank_code,
+                virtual_bank_code,
                 virtual_acct_num,
                 receiver,
                 sender,
@@ -46,10 +46,14 @@ const pushCooconCtrl = {
                     deposit_bank_code: deposit_bank_code,
                     deposit_acct_num: deposit_acct_num,
                     deposit_acct_name: sender,
+                    virtual_bank_code: virtual_bank_code,
+                    virtual_acct_num: virtual_acct_num,
+                    virtual_acct_name: receiver,
+                    trx_id: date + time + amount,
                 }
                 let result = await insertQuery(`deposits`, insert_obj);
-                return res.send('0000');
             }
+            return res.send('0000');
 
         } catch (err) {
             console.log(err)
@@ -59,6 +63,7 @@ const pushCooconCtrl = {
         }
     },
 };
+
 const makeDataObj = (text_) => {
     let sub_string_list = [
         { s: 0, e: 4, key_name: 'length', },
@@ -68,14 +73,16 @@ const makeDataObj = (text_) => {
         { s: 34, e: 4, key_name: 'trx_code', },
         { s: 42, e: 8, key_name: 'corp_code', },
         { s: 55, e: 2, key_name: 'bank_code', },
-        { s: 63, e: 3, key_name: 'connect_bank_code', },
+        { s: 63, e: 3, key_name: 'virtual_bank_code', },
         { s: 100, e: 16, key_name: 'virtual_acct_num', },
         { s: 116, e: 30, key_name: 'receiver', },
         { s: 146, e: 30, key_name: 'sender', },
         { s: 218, e: 12, key_name: 'amount', },
+        { s: 327, e: 12, key_name: 'num', },
         { s: 339, e: 1, key_name: 'func_type', },
         { s: 340, e: 3, key_name: 'deposit_bank_code', },
         { s: 343, e: 16, key_name: 'deposit_acct_num', },
+        { s: 375, e: 20, key_name: 'customer_num', },
     ]
     let text = text_;
     const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
