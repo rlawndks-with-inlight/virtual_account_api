@@ -31,7 +31,6 @@ const pushCooconCtrl = {
             } = data;
             console.log(data);
             if (trx_code == '1300') {
-                console.log(data_obj)
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
                     corp_code,
                     virtual_acct_num
