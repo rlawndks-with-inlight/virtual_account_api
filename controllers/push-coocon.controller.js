@@ -2,6 +2,7 @@
 import { pool } from "../config/db.js";
 import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
+import corpApi from "../utils.js/corp-util/index.js";
 //노티 받기
 const pushCooconCtrl = {
     deposit: async (req, res, next) => {
@@ -49,11 +50,22 @@ const pushCooconCtrl = {
                     virtual_bank_code: virtual_bank_code,
                     virtual_acct_num: virtual_acct_num,
                     virtual_acct_name: receiver,
-                    trx_id: date + time + amount,
+                    trx_id: date + time + amount + `${Math.random().toString(16).substring(2, 8)}`,
                     is_type_withdraw_acct: 1,
                 }
+                let account_info = await corpApi.account.info({
+                    pay_type: 'withdraw',
+                    dns_data: dns_data,
+                    decode_user: {},
+                    bank_code: virtual_bank_code,
+                    acct_num: virtual_acct_num,
+                    amount: 1000,
+                })
+                console.log(account_info)
                 let result = await insertQuery(`deposits`, insert_obj);
+
             }
+
             return res.send('0000');
 
         } catch (err) {
