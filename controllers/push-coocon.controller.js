@@ -50,6 +50,7 @@ const pushCooconCtrl = {
                     virtual_acct_num: virtual_acct_num,
                     virtual_acct_name: receiver,
                     trx_id: date + time + amount,
+                    is_type_withdraw_acct: 1,
                 }
                 let result = await insertQuery(`deposits`, insert_obj);
             }
