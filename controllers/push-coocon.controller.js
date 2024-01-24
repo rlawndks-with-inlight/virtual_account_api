@@ -11,6 +11,7 @@ const pushCooconCtrl = {
                 plain_text
             } = req.body;
             let text = Buffer.from(plain_text, "base64").toString('utf8');
+            console.log(text)
             let data = makeDataObj(text);
             let {
                 length,
