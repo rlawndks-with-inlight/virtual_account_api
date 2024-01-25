@@ -39,6 +39,7 @@ const pushCooconCtrl = {
                     virtual_acct_num
                 ]);
                 dns_data = dns_data?.result[0];
+                trx_id = date + time + trx_id;
                 let insert_obj = {
                     brand_id: dns_data?.id,
                     amount: amount,
@@ -51,20 +52,27 @@ const pushCooconCtrl = {
                     virtual_bank_code: virtual_bank_code,
                     virtual_acct_num: virtual_acct_num,
                     virtual_acct_name: receiver,
-                    trx_id: date + time + amount + `${Math.random().toString(16).substring(2, 8)}`,
+                    trx_id: trx_id,
                     is_type_withdraw_acct: 1,
                 }
+                let deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
+                deposit = deposit?.result[0];
+                if (deposit) {
+                    return res.send('0000');
+                }
+
                 let get_balance = await corpApi.balance.info({
                     pay_type: 'withdraw',
                     dns_data: dns_data,
                     decode_user: {},
                 })
                 insert_obj['virtual_acct_balance'] = get_balance.data?.amount ?? 0;
+
                 let result = await insertQuery(`deposits`, insert_obj);
                 let bell_data = {
-                    amount,
+                    amount: parseInt(amount),
                     user_id: 0,
-                    sender,
+                    deposit_acct_name: sender,
                     nickname: '',
                 }
                 emitSocket({
