@@ -15,7 +15,7 @@ export const emitSocket = async (item) => {
                 brand_id,
                 user_id: data?.user_id ?? 0,
                 title,
-                message: `${data?.nickname ?? ""} ${data?.deposit_acct_name}님이 ${commarNumber(data?.amount)} 원이 입금하였습니다.`,
+                message: `${data?.nickname ?? ""} ${data?.deposit_acct_name}님이 ${commarNumber(data?.amount)} 원을 입금하였습니다.`,
                 link: `/manager/deposit/list`,
             })
         }
