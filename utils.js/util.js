@@ -379,6 +379,21 @@ export const getDailyWithdrawAmount = async (user) => {
     result = result?.result[0];
     return result;
 }
+export function findChildIds(data, id) {
+    const children = data.filter(item => item.parent_id == id).map(item => item.id);
+    children.forEach(child => {
+        children.push(...findChildIds(data, child));
+    });
+    return children;
+}
+export function findParents(data, item) {
+    if (!(item?.parent_id > 0)) {
+        return [];
+    } else {
+        const parent = data.filter(itm => itm.id == item.parent_id);
+        return [...findParents(data, parent[0]), ...parent]
+    }
+}
 export const getDnsData = async (dns_data_) => {
     let dns_data = await selectQuerySimple('brands', dns_data_?.id);
     dns_data = dns_data?.result[0];
@@ -386,6 +401,7 @@ export const getDnsData = async (dns_data_) => {
     dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
     dns_data['level_obj'] = JSON.parse(dns_data?.level_obj ?? '{}');
     dns_data['bizppurio_obj'] = JSON.parse(dns_data?.bizppurio_obj ?? '{}');
+    dns_data['operator_list'] = getOperatorList(dns_data);
 
     let brands = await pool.query(`SELECT id, parent_id FROM brands `);
     brands = brands?.result;
