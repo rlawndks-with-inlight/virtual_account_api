@@ -293,6 +293,10 @@ const virtualAccountV1Ctrl = {
                 tid: api_result2.data?.tid,
                 status: 0,
             }, virtual_account?.id)
+
+
+
+
             return response(req, res, 100, "success", data)
         } catch (err) {
             console.log(err)
