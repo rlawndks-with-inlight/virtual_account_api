@@ -3,11 +3,11 @@ import { pool } from "../config/db.js";
 import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
+import { emitSocket } from "../utils.js/socket/index.js";
 //노티 받기
 const pushCooconCtrl = {
     deposit: async (req, res, next) => {
         try {
-            const { brand_id } = req.params;
             const {
                 plain_text
             } = req.body;
@@ -60,7 +60,17 @@ const pushCooconCtrl = {
                 })
                 insert_obj['virtual_acct_balance'] = get_balance.data?.amount ?? 0;
                 let result = await insertQuery(`deposits`, insert_obj);
-
+                let bell_data = {
+                    amount,
+                    user_id: 0,
+                    sender,
+                    nickname: '',
+                }
+                emitSocket({
+                    method: 'deposit',
+                    brand_id: dns_data?.id,
+                    data: bell_data
+                })
             }
 
             return res.send('0000');
