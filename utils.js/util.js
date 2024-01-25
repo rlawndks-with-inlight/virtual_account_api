@@ -379,3 +379,24 @@ export const getDailyWithdrawAmount = async (user) => {
     result = result?.result[0];
     return result;
 }
+
+const asd = async () => {
+    let result = await pool.query(`SELECT * FROM deposits`);
+    result = result?.result;
+
+    let obj = {};
+
+    for (var i = 0; i < result.length; i++) {
+        if (!obj[`${result?.tid}${result?.brand_id}`]) {
+            obj[`${result?.tid}${result?.brand_id}`] = 0;
+        }
+        obj[`${result?.tid}${result?.brand_id}`]++;
+    }
+    for (var i = 0; i < Object.keys(obj).length; i++) {
+        let key = Object.keys(obj)[i];
+        if (obj[key] > 1) {
+            console.log(key)
+        }
+    }
+}
+asd();
