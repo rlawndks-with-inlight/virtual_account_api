@@ -90,8 +90,15 @@ const withdrawV1Ctrl = {
             }
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
 
-
-
+            if (!withdraw_bank_code) {
+                return response(req, res, -100, "은행을 선택해 주세요.", false)
+            }
+            if (!withdraw_acct_num) {
+                return response(req, res, -100, "계좌번호를 입력해 주세요.", false)
+            }
+            if (!withdraw_acct_name) {
+                return response(req, res, -100, "예금주명을 입력해 주세요.", false)
+            }
             let return_time = returnMoment().substring(11, 16);
             if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
                 if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
