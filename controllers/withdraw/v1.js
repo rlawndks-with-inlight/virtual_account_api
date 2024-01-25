@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
@@ -140,6 +140,13 @@ const withdrawV1Ctrl = {
                 }
             }
             let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
+            if (user?.level == 10 && dns_data?.setting_obj?.is_use_daily_withdraw == 1) {
+                let daliy_withdraw_amount = await getDailyWithdrawAmount(user);
+                daliy_withdraw_amount = (daliy_withdraw_amount?.withdraw_amount ?? 0) * (-1);
+                if (daliy_withdraw_amount + amount > user?.daily_withdraw_amount) {
+                    return response(req, res, -100, `일일 출금금액을 넘었습니다.\n일일 출금금액:${commarNumber(user?.daily_withdraw_amount)}`, false);
+                }
+            }
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
                 pay_type_name = '출금';

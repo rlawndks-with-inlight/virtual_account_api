@@ -50,8 +50,6 @@ export const getUserWithDrawFee = (item, user_level, operator_list = [], withdra
         }
     }
     if (user_level == level) {
-        console.log(item[`withdraw_fee`])
-        console.log(top_fee)
         return (parseFloat(item[`withdraw_fee`] ?? 0) - parseFloat(top_fee)).toFixed(3);
     }
     // if (user_level == 10) {

@@ -8,6 +8,7 @@ import when from 'when';
 import _ from 'lodash';
 import axios from 'axios';
 import { updateQuery } from './query-util.js';
+import { returnMoment } from './function.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
 const pbkdf2Promise = util.promisify(crypto.pbkdf2);
@@ -365,4 +366,16 @@ export const sendNotiPush = async (user = {}, pay_type, data, id) => {
             await new Promise((r) => setTimeout(r, 10000));
         }
     }
+}
+export const getDailyWithdrawAmount = async (user) => {
+    let return_moment = returnMoment().substring(0, 10);
+    let s_dt = return_moment + ` 00:00:00`;
+    let e_dt = return_moment + ` 23:59:59`;
+    let sql = `SELECT SUM(mcht_amount) AS withdraw_amount FROM deposits `;
+    sql += ` WHERE mcht_id=${user?.id} `;
+    sql += ` AND pay_type IN (5, 20) `;
+    sql += ` AND created_at >='${s_dt}' AND created_at <='${e_dt}' `;
+    let result = await pool.query(sql);
+    result = result?.result[0];
+    return result;
 }
