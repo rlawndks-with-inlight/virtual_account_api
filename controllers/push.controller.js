@@ -5,7 +5,7 @@ import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
-import { checkDns, checkLevel, commarNumber, getDnsData, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
@@ -27,7 +27,7 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-
+            console.log(req.body)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 guid,
             ]);
@@ -36,8 +36,6 @@ const pushCtrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-            dns_data = getDnsData(dns_data);
-
             let mcht_columns = [
                 `users.*`,
                 `merchandise_columns.mcht_fee`
