@@ -7,7 +7,7 @@ import { readSync } from 'fs';
 import when from 'when';
 import _ from 'lodash';
 import axios from 'axios';
-import { updateQuery } from './query-util.js';
+import { selectQuerySimple, updateQuery } from './query-util.js';
 import { returnMoment } from './function.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
@@ -378,4 +378,21 @@ export const getDailyWithdrawAmount = async (user) => {
     let result = await pool.query(sql);
     result = result?.result[0];
     return result;
+}
+export const getDnsData = async (dns_data_) => {
+    let dns_data = await selectQuerySimple('brands', dns_data_?.id);
+    dns_data = dns_data?.result[0];
+    dns_data['theme_css'] = JSON.parse(dns_data?.theme_css ?? '{}');
+    dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
+    dns_data['level_obj'] = JSON.parse(dns_data?.level_obj ?? '{}');
+    dns_data['bizppurio_obj'] = JSON.parse(dns_data?.bizppurio_obj ?? '{}');
+
+    let brands = await pool.query(`SELECT id, parent_id FROM brands `);
+    brands = brands?.result;
+    let childrens = findChildIds(brands, dns_data?.id);
+    childrens.push(dns_data?.id)
+    let parents = findParents(brands, dns_data)
+    dns_data['childrens'] = childrens;
+    dns_data['parents'] = parents;
+    return dns_data;
 }

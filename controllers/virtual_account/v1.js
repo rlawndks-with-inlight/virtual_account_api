@@ -41,8 +41,7 @@ const virtualAccountV1Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
                 mcht = {
@@ -184,7 +183,7 @@ const virtualAccountV1Ctrl = {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
 
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
                 mcht = {
@@ -249,7 +248,7 @@ const virtualAccountV1Ctrl = {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
 
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
                 mcht = {
