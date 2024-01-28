@@ -4,7 +4,7 @@ import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
 import { emitSocket } from "../utils.js/socket/index.js";
-import { insertLog, insertResponseLog } from "../utils.js/util.js";
+import { insertLog } from "../utils.js/util.js";
 //노티 받기
 const pushCooconCtrl = {
     deposit: async (req, res, next) => {

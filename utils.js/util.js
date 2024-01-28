@@ -354,19 +354,24 @@ export const getOperatorList = (brand_) => {
     return operator_list;
 }
 
-export const sendNotiPush = async (user = {}, pay_type, data, id) => {
-    if (user[`${pay_type}_noti_url`]) {
-        for (var i = 0; i < 5; i++) {
-            let { data: result } = await axios.post(user[`${pay_type}_noti_url`], data);
-            if (result == '0000') {
-                await updateQuery(`deposits`, {
-                    [`${pay_type}_noti_status`]: 0,
-                }, id)
-                break;
+export const sendNotiPush = async (user = {}, pay_type, data = {}, id) => {
+    try {
+        if (user[`${pay_type}_noti_url`]) {
+            for (var i = 0; i < 5; i++) {
+                let { data: result } = await axios.post(user[`${pay_type}_noti_url`], data);
+                if (result == '0000') {
+                    await updateQuery(`deposits`, {
+                        [`${pay_type}_noti_status`]: 0,
+                    }, id)
+                    break;
+                }
+                await new Promise((r) => setTimeout(r, 10000));
             }
-            await new Promise((r) => setTimeout(r, 10000));
         }
+    } catch (err) {
+        console.log(err);
     }
+
 }
 export const getDailyWithdrawAmount = async (user) => {
     let return_moment = returnMoment().substring(0, 10);
@@ -414,17 +419,26 @@ export const getDnsData = async (dns_data_) => {
     return dns_data;
 }
 export const insertResponseLog = (req, res) => {
-    logger.info(JSON.stringify({
-        uri: req.originalUrl,
-        body: req.body,
-        query: req.query,
-        params: req.params,
-        res,
-    }));
+    try {
+        logger.info(JSON.stringify({
+            uri: req?.originalUrl,
+            body: req?.body,
+            query: req?.query,
+            params: req?.params,
+            res,
+        }));
+    } catch (err) {
+        console.log(err);
+    }
+
 }
 export const insertLog = (data, res) => {
-    logger.info(JSON.stringify({
-        ...data,
-        res,
-    }));
+    try {
+        logger.info(JSON.stringify({
+            ...data,
+            res,
+        }));
+    } catch (err) {
+        console.log(err);
+    }
 }
