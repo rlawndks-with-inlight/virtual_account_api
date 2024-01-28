@@ -5,7 +5,7 @@ import { checkIsManagerUrl } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
-
+import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
 
 const virtualAccountV1Ctrl = {

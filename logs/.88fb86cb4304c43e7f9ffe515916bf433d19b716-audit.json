@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\.88fb86cb4304c43e7f9ffe515916bf433d19b716-audit.json",
+    "files": [
+        {
+            "date": 1706452961150,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-01-28.log",
+            "hash": "bd82e6dc5ced2f4ed1d4be30dd72756df1b1f61fe77bd6f05802095c237ae399"
+        },
+        {
+            "date": 1706454022189,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-01-29.log",
+            "hash": "56c27ed5d2d6505512f1390c7843abde2fe58261fad86114a9a91ba43bec5884"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -5,7 +5,7 @@ import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
-import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
@@ -27,7 +27,6 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 guid,
             ]);
@@ -157,9 +156,12 @@ const pushCtrl = {
                 brand_id: dns_data?.id,
                 data: bell_data
             })
+
+            insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {
             console.log(err)
+            insertResponseLog(req, '9999');
             return res.send('9999');
         }
     },
@@ -186,10 +188,11 @@ const pushCtrl = {
                 withdraw_status,
                 amount: (-1) * (amount + trx?.withdraw_fee),
             }, trx?.id);
-
+            insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {
             console.log(err)
+            insertResponseLog(req, '9999');
             return res.send('9999');
         } finally {
 
@@ -218,10 +221,11 @@ const pushCtrl = {
                 withdraw_status,
                 amount: (-1) * (amount + trx?.withdraw_fee),
             }, trx?.id);
-
+            insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {
             console.log(err)
+            insertResponseLog(req, '9999');
             return res.send('9999');
         } finally {
 

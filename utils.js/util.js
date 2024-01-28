@@ -9,6 +9,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import { selectQuerySimple, updateQuery } from './query-util.js';
 import { returnMoment } from './function.js';
+import logger from './winston/index.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
 const pbkdf2Promise = util.promisify(crypto.pbkdf2);
@@ -411,4 +412,19 @@ export const getDnsData = async (dns_data_) => {
     dns_data['childrens'] = childrens;
     dns_data['parents'] = parents;
     return dns_data;
+}
+export const insertResponseLog = (req, res) => {
+    logger.info(JSON.stringify({
+        uri: req.originalUrl,
+        body: req.body,
+        query: req.query,
+        params: req.params,
+        res,
+    }));
+}
+export const insertLog = (data, res) => {
+    logger.info(JSON.stringify({
+        ...data,
+        res,
+    }));
 }

@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
 import { emitSocket } from "../utils.js/socket/index.js";
+import { insertLog, insertResponseLog } from "../utils.js/util.js";
 //노티 받기
 const pushCooconCtrl = {
     deposit: async (req, res, next) => {
@@ -32,7 +33,6 @@ const pushCooconCtrl = {
                 deposit_bank_code,
                 deposit_acct_num,
             } = data;
-            console.log(data);
             if (trx_code == '1300') {
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
                     corp_code,
@@ -81,11 +81,13 @@ const pushCooconCtrl = {
                     data: bell_data
                 })
             }
+            insertLog(data, '0000');
 
             return res.send('0000');
 
         } catch (err) {
             console.log(err)
+            insertLog(data, '9999');
             return res.send('9999');
         } finally {
 

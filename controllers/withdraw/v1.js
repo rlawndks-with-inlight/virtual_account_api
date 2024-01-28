@@ -99,6 +99,7 @@ const withdrawV1Ctrl = {
             if (!withdraw_acct_name) {
                 return response(req, res, -100, "예금주명을 입력해 주세요.", false)
             }
+
             let return_time = returnMoment().substring(11, 16);
             if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
                 if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
