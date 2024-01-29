@@ -19,7 +19,6 @@ const withdrawV2Ctrl = {
                 pay_type = 'withdraw',
                 note = "",
             } = req.body;
-            console.log(req.body)
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
@@ -48,13 +47,13 @@ const withdrawV2Ctrl = {
             let user_column = [
                 `users.*`,
             ]
-            let user = await pool.query(`SELECT ${user_column.join()} FROM users WHERE mid=? AND brand_id=${dns_data?.id}`, [
+            let user = await pool.query(`SELECT ${user_column.join()} FROM users WHERE mid=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
                 mid
             ]);
             user = user?.result[0];
 
 
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0`, [
                 guid
             ]);
             virtual_account = virtual_account?.result[0];
