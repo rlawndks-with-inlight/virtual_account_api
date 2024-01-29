@@ -271,7 +271,7 @@ const withdrawV1Ctrl = {
             let {
                 api_key,
                 mid,
-                tid,
+                tid = '',
             } = req.body;
 
             if (!api_key) {
@@ -304,7 +304,7 @@ const withdrawV1Ctrl = {
             let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
 
-            let trx = await pool.query(`SELECT * FROM deposits WHERE brand_id=? AND tid=? AND `, [
+            let trx = await pool.query(`SELECT * FROM deposits WHERE brand_id=? AND trx_id=? `, [
                 dns_data?.id,
                 tid,
             ])
@@ -317,8 +317,16 @@ const withdrawV1Ctrl = {
                 date: trx?.created_at.substring(0, 10),
                 tid,
             })
-            console.log(api_result);
-            return response(req, res, 100, "success", {})
+            if (api_result.code == 100) {
+                let result = await updateQuery(`deposits`, {
+                    withdraw_status: 0,
+                    amount: trx?.expect_amount,
+                }, trx?.id)
+                return response(req, res, 100, "success", {})
+
+            } else {
+                return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+            }
         } catch (err) {
             console.log(err)
             return response(req, res, -200, "서버 에러 발생", false)
