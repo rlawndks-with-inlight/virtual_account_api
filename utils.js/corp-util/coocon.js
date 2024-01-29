@@ -261,7 +261,7 @@ export const cooconApi = {
 
             }
         },
-        request_check: async (data) => {//출금요청
+        request_check: async (data) => {//출금확인
             try {
                 let {
                     dns_data, pay_type, decode_user,
@@ -277,15 +277,24 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
-                console.log(response)
                 if (response?.RESP_CD == '0000') {
-                    return {
-                        code: 100,
-                        message: '',
-                        data: {
-                            amount: response?.WDRW_CAN_AMT,
-                        },
-                    };
+                    if (response?.TRSC_AMT > 0) {
+                        return {
+                            code: 100,
+                            message: '',
+                            data: {
+                                amount: response?.TRSC_AMT,
+                            },
+                        };
+                    } else {
+                        return {
+                            code: -100,
+                            message: response?.RCV_ACCT_NM,
+                            data: {
+                                amount: response?.TRSC_AMT,
+                            },
+                        };
+                    }
                 } else {
                     return {
                         code: -100,

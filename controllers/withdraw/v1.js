@@ -309,7 +309,6 @@ const withdrawV1Ctrl = {
                 tid,
             ])
             trx = trx?.result[0];
-            console.log(trx)
             let api_result = await corpApi.withdraw.request_check({
                 pay_type: 'withdraw',
                 dns_data: dns_data,
@@ -317,7 +316,6 @@ const withdrawV1Ctrl = {
                 date: trx?.created_at.substring(0, 10).replaceAll('-', ''),
                 tid,
             })
-            console.log(api_result)
             if (api_result.code == 100) {
                 let result = await updateQuery(`deposits`, {
                     withdraw_status: 0,
