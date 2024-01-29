@@ -34,8 +34,6 @@ const pushPaytusCtrl = {
                 serverType,
                 realCompId,
             } = req.body;
-            console.log(req.body)
-            return;
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
             dns_data = dns_data?.result[0];
             insertResponseLog(req, '0000');
