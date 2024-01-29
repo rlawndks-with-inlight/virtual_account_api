@@ -256,6 +256,7 @@ const withdrawV1Ctrl = {
                     }, withdraw_id)
                     break;
                 }
+                await new Promise((r) => setTimeout(r, 1000));
             }
             return response(req, res, 100, "success", {})
 
