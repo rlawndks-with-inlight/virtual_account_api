@@ -20,7 +20,6 @@ const withdrawV2Ctrl = {
                 pay_type = 'withdraw',
                 note = "",
             } = req.body;
-            console.log(req.body)
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
