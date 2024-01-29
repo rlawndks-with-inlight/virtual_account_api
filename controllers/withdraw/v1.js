@@ -241,8 +241,7 @@ const withdrawV1Ctrl = {
             }
             let result = await insertQuery(`deposits`, obj);
             let withdraw_id = result?.result?.insertId;
-            let i = 0;
-            for (i = 0; i < 3; i++) {
+            for (var i = 0; i < 3; i++) {
                 let api_result2 = await corpApi.withdraw.request_check({
                     pay_type: 'withdraw',
                     dns_data: dns_data,
@@ -257,7 +256,6 @@ const withdrawV1Ctrl = {
                     }, withdraw_id)
                     break;
                 }
-                await new Promise((r) => setTimeout(r, 300));
             }
             return response(req, res, 100, "success", {})
 
@@ -324,6 +322,7 @@ const withdrawV1Ctrl = {
                     amount: trx?.expect_amount,
                 }, trx?.id)
                 return response(req, res, 100, "success", {})
+
             } else {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
