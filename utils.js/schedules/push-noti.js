@@ -12,6 +12,7 @@ export const pushDepositNoti = async () => {
         sql += ` WHERE deposits.deposit_noti_status=5 `;
         let data = await pool.query(sql);
         data = data?.result;
+        console.log(data);
         for (var i = 0; i < data.length; i++) {
             sendNotiPush(data[i], 'deposit', JSON.parse(data[i]?.deposit_noti_obj ?? '{}'), data[i]?.id);
         }
