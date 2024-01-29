@@ -7,7 +7,7 @@ import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperator
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
-
+//쿠콘활용api
 const withdrawV1Ctrl = {
     check: async (req, res, next) => {
         try {

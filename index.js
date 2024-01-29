@@ -52,7 +52,6 @@ if (process.env.NODE_ENV == 'development') {
     console.log("**-------------------------------------**");
     console.log(`====      Server is On ${HTTP_PORT}...!!!    ====`);
     console.log("**-------------------------------------**");
-    scheduleIndex();
   });
 } else {
   const options = { // letsencrypt로 받은 인증서 경로를 입력해 줍니다.

@@ -3,7 +3,7 @@ import corpApi from "../../utils.js/corp-util/index.js";
 import { insertQuery, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, response } from "../../utils.js/util.js";
 
-//
+//페이투스활용api
 const virtualAccountV2Ctrl = {
     account: {
         request: async (req, res, next) => {// 1원인증

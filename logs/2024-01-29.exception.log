@@ -1,3 +1,13 @@
 2024-01-29 00:23:44 [로그] error: uncaughtException: read ECONNRESET
 Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
+2024-01-29 19:25:05 [로그] error: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
+Error: Route.post() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as post] (C:\Users\pc\Desktop\project\virtual-account\api-server\node_modules\express\lib\router\route.js:211:15)
+    at file:///C:/Users/pc/Desktop/project/virtual-account/api-server/routes/virtual_account.route.js:18:6
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25)
+2024-01-29 19:25:33 [로그] error: uncaughtException: Route.post() requires a callback function but got a [object Undefined]
+Error: Route.post() requires a callback function but got a [object Undefined]
+    at Route.<computed> [as post] (C:\Users\pc\Desktop\project\virtual-account\api-server\node_modules\express\lib\router\route.js:211:15)
+    at file:///C:/Users/pc/Desktop/project/virtual-account/api-server/routes/virtual_account.route.js:18:6
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25)

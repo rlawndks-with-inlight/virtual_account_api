@@ -369,7 +369,9 @@ const corpApi = {
             if (pay_type) {
                 corp_type = dns_data[`${pay_type}_corp_type`];
             }
-
+            if (corp_type == 1) {
+                result = await banknersApi.withdraw.request(data);
+            }
             if (corp_type == 2) {
                 result = await cooconApi.withdraw.request(data);
             }

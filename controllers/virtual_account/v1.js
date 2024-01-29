@@ -1,13 +1,13 @@
 'use strict';
 import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
-import { checkIsManagerUrl } from "../../utils.js/function.js";
+import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
-
+//뱅크너스 활용 api
 const virtualAccountV1Ctrl = {
     request: async (req, res, next) => {//발급요청
         try {

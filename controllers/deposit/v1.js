@@ -7,7 +7,7 @@ import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameD
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'deposits';
-
+//더즌활용 api
 const depositV1Ctrl = {
     create: async (req, res, next) => {
         try {
