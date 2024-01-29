@@ -314,7 +314,7 @@ const withdrawV1Ctrl = {
                 pay_type: 'withdraw',
                 dns_data: dns_data,
                 decode_user: user,
-                date: trx?.created_at.substring(0, 10),
+                date: trx?.created_at.substring(0, 10).replaceAll('-', ''),
                 tid,
             })
             console.log(api_result)
