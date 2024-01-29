@@ -9,8 +9,12 @@ router
 router
     .route('/v1/check')
     .post(withdrawV1Ctrl.check)
+router
+    .route('/v1/withdraw/check')
+    .post(withdrawV1Ctrl.check_withdraw)
 
 router
     .route('/v2')
-    .post(withdrawV2Ctrl.request)
+    .post(withdrawV2Ctrl.request);
+
 export default router;
