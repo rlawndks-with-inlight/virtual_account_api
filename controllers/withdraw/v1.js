@@ -176,26 +176,60 @@ const withdrawV1Ctrl = {
             }
 
 
+            // let get_balance = await corpApi.balance.info({
+            //     pay_type: 'withdraw',
+            //     dns_data: dns_data,
+            //     decode_user: user,
+            // })
+            // if (get_balance.data?.amount < withdraw_amount) {
+            //     return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
+            // }
+            // let account_info = await corpApi.account.info({
+            //     pay_type: 'withdraw',
+            //     dns_data: dns_data,
+            //     decode_user: user,
+            //     bank_code: withdraw_bank_code,
+            //     acct_num: withdraw_acct_num,
+            //     amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
+            // })
+            // if (account_info?.code != 100) {
+            //     return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
+            // }
 
-            let get_balance = await corpApi.balance.info({
-                pay_type: 'withdraw',
-                dns_data: dns_data,
-                decode_user: user,
-            })
-            if (get_balance.data?.amount < withdraw_amount) {
-                return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
+            let first_obj = {
+                brand_id: dns_data?.id,
+                pay_type: pay_type,
+                expect_amount: (-1) * amount,
+                settle_bank_code: withdraw_bank_code,
+                settle_acct_num: withdraw_acct_num,
+                settle_acct_name: withdraw_acct_name,
+                withdraw_fee: user?.withdraw_fee,
+                user_id: user?.id,
+                withdraw_status: 20,
+                note: note,
             }
-            let account_info = await corpApi.account.info({
-                pay_type: 'withdraw',
-                dns_data: dns_data,
-                decode_user: user,
-                bank_code: withdraw_bank_code,
-                acct_num: withdraw_acct_num,
-                amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
-            })
-            if (account_info?.code != 100) {
-                return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
+            if (user?.level == 10) {
+                first_obj['mcht_amount'] = (-1) * amount;
+                first_obj['mcht_id'] = user?.id;
+                for (var i = 0; i < operator_list.length; i++) {
+                    first_obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
+                    if (user[`sales${operator_list[i].num}_id`] > 0) {
+                        first_obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
+                        first_obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
+                    }
+                }
+            } else if (user?.level < 40 && user?.level > 10) {
+                for (var i = 0; i < operator_list.length; i++) {
+                    if (operator_list[i]?.value == user?.level) {
+                        first_obj[`sales${operator_list[i].num}_id`] = user?.id;
+                        first_obj[`sales${operator_list[i].num}_amount`] = (-1) * amount;
+                        break;
+                    }
+                }
             }
+            let first_result = await insertQuery(`deposits`, first_obj);
+            let withdraw_id = first_result?.result?.insertId;
+
 
             let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
@@ -212,40 +246,13 @@ const withdrawV1Ctrl = {
             let tid = api_result.data?.tid;
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
             let obj = {
-                brand_id: dns_data?.id,
-                pay_type: pay_type,
-                expect_amount: (-1) * amount,
-                settle_bank_code: withdraw_bank_code,
-                settle_acct_num: withdraw_acct_num,
-                settle_acct_name: withdraw_acct_name,
-                withdraw_fee: user?.withdraw_fee,
-                user_id: user?.id,
                 withdraw_status: 5,
-                note: note,
                 trx_id: tid,
                 virtual_acct_balance: virtual_acct_balance,
             };
-            if (user?.level == 10) {
-                obj['mcht_amount'] = (-1) * amount;
-                obj['mcht_id'] = user?.id;
-                for (var i = 0; i < operator_list.length; i++) {
-                    obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
-                    if (user[`sales${operator_list[i].num}_id`] > 0) {
-                        obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
-                        obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
-                    }
-                }
-            } else if (user?.level < 40 && user?.level > 10) {
-                for (var i = 0; i < operator_list.length; i++) {
-                    if (operator_list[i]?.value == user?.level) {
-                        obj[`sales${operator_list[i].num}_id`] = user?.id;
-                        obj[`sales${operator_list[i].num}_amount`] = (-1) * amount;
-                        break;
-                    }
-                }
-            }
-            let result = await insertQuery(`deposits`, obj);
-            let withdraw_id = result?.result?.insertId;
+
+            let result = await updateQuery(`deposits`, obj, withdraw_id);
+
             for (var i = 0; i < 3; i++) {
                 let api_result2 = await corpApi.withdraw.request_check({
                     pay_type: 'withdraw',
