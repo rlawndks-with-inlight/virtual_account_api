@@ -210,7 +210,7 @@ const withdrawV1Ctrl = {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
             let tid = api_result.data?.tid;
-            let virtual_acct_balance = api_result?.virtual_acct_balance ?? 0;
+            let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
             let obj = {
                 brand_id: dns_data?.id,
                 pay_type: pay_type,
@@ -262,7 +262,6 @@ const withdrawV1Ctrl = {
                     break;
                 }
             }
-
 
             return response(req, res, 100, "success", {})
 
