@@ -61,7 +61,7 @@ const withdrawV1Ctrl = {
 
         }
     },
-    request: async (req, res, next) => {//발급요청
+    request: async (req, res, next) => {//출금요청
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
@@ -78,7 +78,6 @@ const withdrawV1Ctrl = {
                 otp_num,
             } = req.body;
 
-            withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", false);
             }
@@ -89,27 +88,6 @@ const withdrawV1Ctrl = {
                 return response(req, res, -100, "api key가 잘못되었습니다.", false);
             }
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
-
-            if (!withdraw_bank_code) {
-                return response(req, res, -100, "은행을 선택해 주세요.", false)
-            }
-            if (!withdraw_acct_num) {
-                return response(req, res, -100, "계좌번호를 입력해 주세요.", false)
-            }
-            if (!withdraw_acct_name) {
-                return response(req, res, -100, "예금주명을 입력해 주세요.", false)
-            }
-
-            let return_time = returnMoment().substring(11, 16);
-            if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
-                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
-                }
-            } else {
-                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time && return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
-                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
-                }
-            }
 
             let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
             mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
@@ -140,13 +118,14 @@ const withdrawV1Ctrl = {
                     return response(req, res, -100, "OTP번호가 잘못되었습니다.", false);
                 }
             }
-            let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
-            if (user?.level == 10 && dns_data?.setting_obj?.is_use_daily_withdraw == 1) {
-                let daliy_withdraw_amount = await getDailyWithdrawAmount(user);
-                daliy_withdraw_amount = (daliy_withdraw_amount?.withdraw_amount ?? 0) * (-1);
-                if (daliy_withdraw_amount + amount > user?.daily_withdraw_amount) {
-                    return response(req, res, -100, `일일 출금금액을 넘었습니다.\n일일 출금금액:${commarNumber(user?.daily_withdraw_amount)}`, false);
-                }
+            if (!withdraw_bank_code) {
+                return response(req, res, -100, "은행을 선택해 주세요.", false)
+            }
+            if (!withdraw_acct_num) {
+                return response(req, res, -100, "계좌번호를 입력해 주세요.", false)
+            }
+            if (!withdraw_acct_name) {
+                //     return response(req, res, -100, "예금주명을 입력해 주세요.", false)
             }
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
@@ -158,6 +137,28 @@ const withdrawV1Ctrl = {
             } else {
                 return response(req, res, -100, "결제타입에러", false)
             }
+            let return_time = returnMoment().substring(11, 16);
+            if (dns_data?.setting_obj?.not_withdraw_s_time >= dns_data?.setting_obj?.not_withdraw_e_time) {
+                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time || return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
+                }
+            } else {
+                if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time && return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
+                    return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
+                }
+            }
+            // 여기부터 출금로직
+            withdraw_amount = parseInt(withdraw_amount);
+
+            let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
+            if (user?.level == 10 && dns_data?.setting_obj?.is_use_daily_withdraw == 1) {
+                let daliy_withdraw_amount = await getDailyWithdrawAmount(user);
+                daliy_withdraw_amount = (daliy_withdraw_amount?.withdraw_amount ?? 0) * (-1);
+                if (daliy_withdraw_amount + amount > user?.daily_withdraw_amount) {
+                    return response(req, res, -100, `일일 출금금액을 넘었습니다.\n일일 출금금액:${commarNumber(user?.daily_withdraw_amount)}`, false);
+                }
+            }
+
             let settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${user?.id}`;
             let settle_amount = await pool.query(settle_amount_sql);
             settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
@@ -173,6 +174,8 @@ const withdrawV1Ctrl = {
             if (settle_amount - amount < user?.min_withdraw_hold_price) {
                 return response(req, res, -100, `최소 ${pay_type_name} 보류금액은 ${commarNumber(user?.min_withdraw_hold_price)}원 입니다.`, false)
             }
+
+
 
             let get_balance = await corpApi.balance.info({
                 pay_type: 'withdraw',
@@ -257,6 +260,8 @@ const withdrawV1Ctrl = {
                     break;
                 }
             }
+
+
             return response(req, res, 100, "success", {})
 
         } catch (err) {
