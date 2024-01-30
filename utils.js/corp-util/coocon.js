@@ -241,6 +241,7 @@ export const cooconApi = {
                         data: {
                             amount: response?.TRSC_AMT,
                             tid: response?.TRSC_SEQ_NO,
+                            virtual_acct_balance: response?.BAL_AMT,
                         },
                     };
                 } else {

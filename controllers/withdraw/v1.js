@@ -210,6 +210,7 @@ const withdrawV1Ctrl = {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
             let tid = api_result.data?.tid;
+            let virtual_acct_balance = api_result?.virtual_acct_balance ?? 0;
             let obj = {
                 brand_id: dns_data?.id,
                 pay_type: pay_type,
@@ -222,6 +223,7 @@ const withdrawV1Ctrl = {
                 withdraw_status: 5,
                 note: note,
                 trx_id: tid,
+                virtual_acct_balance: virtual_acct_balance,
             };
             if (user?.level == 10) {
                 obj['mcht_amount'] = (-1) * amount;
