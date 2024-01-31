@@ -230,7 +230,6 @@ const withdrawV1Ctrl = {
             let first_result = await insertQuery(`deposits`, first_obj);
             let withdraw_id = first_result?.result?.insertId;
 
-
             let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',

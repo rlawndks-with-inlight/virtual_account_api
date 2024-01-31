@@ -33,6 +33,7 @@ const pushCooconCtrl = {
                 deposit_bank_code,
                 deposit_acct_num,
             } = data;
+            console.log(data)
             if (trx_code == '1300') {
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
                     corp_code,
