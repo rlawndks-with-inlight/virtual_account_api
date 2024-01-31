@@ -260,10 +260,16 @@ const withdrawV1Ctrl = {
                     date,
                     tid,
                 })
+                let status = 0;
+                if (api_result2.data?.status == 3) {
+                    status = 10;
+                } else if (api_result2.data?.status == 6) {
+                    continue;
+                }
                 if (api_result2.code == 100) {
                     let result = await updateQuery(`deposits`, {
-                        withdraw_status: 0,
-                        amount: (-1) * amount,
+                        withdraw_status: status,
+                        amount: (status == 0 ? ((-1) * amount) : 0),
                     }, withdraw_id)
                     break;
                 }
@@ -328,10 +334,16 @@ const withdrawV1Ctrl = {
                 date: trx?.created_at.substring(0, 10).replaceAll('-', ''),
                 tid,
             })
+            let status = 0;
+            if (api_result.data?.status == 3) {
+                status = 10;
+            } else if (api_result.data?.status == 6) {
+                status = 20;
+            }
             if (api_result.code == 100) {
                 let result = await updateQuery(`deposits`, {
-                    withdraw_status: 0,
-                    amount: trx?.expect_amount,
+                    withdraw_status: status,
+                    amount: (status == 0 ? trx?.expect_amount : 0),
                 }, trx?.id)
                 return response(req, res, 100, "success", {})
 

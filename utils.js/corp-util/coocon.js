@@ -279,13 +279,15 @@ export const cooconApi = {
                     headers: getDefaultHeader(),
                 });
                 console.log(response)
+                let status = response?.STS;
                 if (response?.RESP_CD == '0000') {
-                    if (response?.TRSC_AMT > 0) {
+                    if (response?.TRSC_AMT > 0 && status == 1) {
                         return {
                             code: 100,
                             message: '',
                             data: {
                                 amount: response?.TRSC_AMT,
+                                status,
                             },
                         };
                     } else {
@@ -294,6 +296,7 @@ export const cooconApi = {
                             message: response?.RCV_ACCT_NM,
                             data: {
                                 amount: response?.TRSC_AMT,
+                                status,
                             },
                         };
                     }
