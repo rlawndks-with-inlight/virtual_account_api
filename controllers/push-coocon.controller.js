@@ -40,6 +40,7 @@ const pushCooconCtrl = {
                     virtual_acct_num
                 ]);
                 dns_data = dns_data?.result[0];
+                console.log(dns_data)
                 trx_id = date + time + trx_id;
                 let insert_obj = {
                     brand_id: dns_data?.id,
