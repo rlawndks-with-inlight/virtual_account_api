@@ -125,7 +125,7 @@ const withdrawV1Ctrl = {
                 return response(req, res, -100, "계좌번호를 입력해 주세요.", false)
             }
             if (!withdraw_acct_name) {
-                //     return response(req, res, -100, "예금주명을 입력해 주세요.", false)
+                return response(req, res, -100, "예금주명을 입력해 주세요.", false)
             }
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
