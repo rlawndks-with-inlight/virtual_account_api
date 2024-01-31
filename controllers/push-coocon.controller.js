@@ -13,7 +13,7 @@ const pushCooconCtrl = {
                 plain_text
             } = req.body;
             let text = Buffer.from(plain_text, "base64").toString('utf8');
-            console.log(text)
+            //console.log(text)
             let data = makeDataObj(text);
             let {
                 length,
@@ -33,14 +33,13 @@ const pushCooconCtrl = {
                 deposit_bank_code,
                 deposit_acct_num,
             } = data;
-            console.log(data)
+            //console.log(data)
             if (trx_code == '1300') {
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
                     corp_code,
                     virtual_acct_num
                 ]);
                 dns_data = dns_data?.result[0];
-                console.log(dns_data)
                 trx_id = date + time + trx_id;
                 let insert_obj = {
                     brand_id: dns_data?.id,
