@@ -278,6 +278,7 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
+                console.log(response)
                 if (response?.RESP_CD == '0000') {
                     if (response?.TRSC_AMT > 0) {
                         return {
