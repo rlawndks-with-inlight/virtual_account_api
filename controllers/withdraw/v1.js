@@ -77,7 +77,9 @@ const withdrawV1Ctrl = {
                 pay_type = 'withdraw',
                 otp_num,
             } = req.body;
-
+            if (!(withdraw_amount > 0)) {
+                return response(req, res, -100, "금액을 0원 이상 입력해주세요.", false);
+            }
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", false);
             }
