@@ -355,25 +355,6 @@ export const getOperatorList = (brand_) => {
     return operator_list;
 }
 
-export const sendNotiPush = async (user = {}, pay_type, data = {}, id) => {
-    try {
-        if (user[`${pay_type}_noti_url`]) {
-            for (var i = 0; i < 5; i++) {
-                let { data: result } = await axios.post(user[`${pay_type}_noti_url`], data);
-                if (result == '0000') {
-                    await updateQuery(`deposits`, {
-                        [`${pay_type}_noti_status`]: 0,
-                    }, id)
-                    break;
-                }
-                await new Promise((r) => setTimeout(r, 10000));
-            }
-        }
-    } catch (err) {
-        console.log(err);
-    }
-
-}
 export const getDailyWithdrawAmount = async (user) => {
     let return_moment = returnMoment().substring(0, 10);
     let s_dt = return_moment + ` 00:00:00`;
