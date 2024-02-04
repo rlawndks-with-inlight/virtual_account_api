@@ -214,7 +214,7 @@ const withdrawV1Ctrl = {
                 first_obj['mcht_amount'] = (-1) * amount;
                 first_obj['mcht_id'] = user?.id;
                 for (var i = 0; i < operator_list.length; i++) {
-                    first_obj['head_office_fee'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
+                    first_obj['head_office_amount'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
                     if (user[`sales${operator_list[i].num}_id`] > 0) {
                         first_obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
                         first_obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
