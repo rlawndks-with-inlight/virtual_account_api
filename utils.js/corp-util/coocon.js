@@ -4,13 +4,12 @@ import crypto from 'crypto';
 import https from 'https';
 
 const API_URL = process.env.API_ENV == 'production' ? "https://apigw.coocon.co.kr" : "https://dev2.coocon.co.kr:8443";
-
 const getDefaultBody = (dns_data, pay_type) => {
     return {
         "SECR_KEY": dns_data[`${pay_type}_sign_key`],
         "TRT_INST_CD": dns_data[`${pay_type}_trt_inst_code`],
         "BANK_CD": dns_data[`${pay_type}_virtual_bank_code`],
-        "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(0, 12)
+        "TRSC_SEQ_NO": (new Date().getTime()).toString().substring(1, 13)
     }
 }
 
