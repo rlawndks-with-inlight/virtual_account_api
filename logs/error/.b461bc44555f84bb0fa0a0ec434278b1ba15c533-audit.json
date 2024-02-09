@@ -49,6 +49,16 @@
             "date": 1707067917192,
             "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\error\\2024-02-05.error.log",
             "hash": "ca330c10f87de3d1c9244f856a8e892668ebda87b83c7e2584d2f8fdad483e52"
+        },
+        {
+            "date": 1707463260861,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\error\\2024-02-09.error.log",
+            "hash": "d15b98bf5e33fabb6784dc9a304130577cb2e24a230f8e4ddf3f3fbbd9b18809"
+        },
+        {
+            "date": 1707492114864,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\error\\2024-02-10.error.log",
+            "hash": "7f3b395e2351129ca926acf05c01384918db948afe9e623dc175f989fa6c88e9"
         }
     ],
     "hashType": "sha256"
