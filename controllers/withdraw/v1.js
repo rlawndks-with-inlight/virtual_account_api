@@ -86,7 +86,6 @@ const withdrawV1Ctrl = {
             }
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
-            console.log(dns_data)
             let operator_list = getOperatorList(dns_data);
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", false);
@@ -242,7 +241,7 @@ const withdrawV1Ctrl = {
                 bank_code: withdraw_bank_code,
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
-                deposit_acct_name: deposit_acct_name || user?.nickname,
+                deposit_acct_name: deposit_acct_name || withdraw_acct_name,
             })
             let tid = api_result.data?.tid;
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
