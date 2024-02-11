@@ -199,6 +199,7 @@ const withdrawV1Ctrl = {
             //     return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             // }
 
+            let trx_id = (new Date().getTime()).toString().substring(1, 13);
             let first_obj = {
                 brand_id: dns_data?.id,
                 pay_type: pay_type,
@@ -210,6 +211,7 @@ const withdrawV1Ctrl = {
                 user_id: user?.id,
                 withdraw_status: 20,
                 note: note,
+                trx_id,
             }
             if (user?.level == 10) {
                 first_obj['mcht_amount'] = (-1) * amount;
@@ -242,6 +244,7 @@ const withdrawV1Ctrl = {
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
                 deposit_acct_name: deposit_acct_name || withdraw_acct_name,
+                trx_id,
             })
             let tid = api_result.data?.tid;
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;

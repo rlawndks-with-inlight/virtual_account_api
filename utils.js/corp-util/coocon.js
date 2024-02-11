@@ -217,7 +217,7 @@ export const cooconApi = {
         request: async (data) => {//출금요청
             let {
                 dns_data, pay_type, decode_user,
-                bank_code, acct_num, amount, deposit_acct_name
+                bank_code, acct_num, amount, deposit_acct_name, trx_id
             } = data;
             let default_body = getDefaultBody(dns_data, pay_type);
             try {
@@ -225,6 +225,7 @@ export const cooconApi = {
                 let query = new URLSearchParams()
                 query.append('JSONData', JSON.stringify({
                     ...default_body,
+                    "TRSC_SEQ_NO": trx_id,
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
