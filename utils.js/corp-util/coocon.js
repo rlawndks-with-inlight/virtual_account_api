@@ -215,12 +215,12 @@ export const cooconApi = {
     },
     withdraw: {
         request: async (data) => {//출금요청
+            let {
+                dns_data, pay_type, decode_user,
+                bank_code, acct_num, amount, deposit_acct_name
+            } = data;
             let default_body = getDefaultBody(dns_data, pay_type);
             try {
-                let {
-                    dns_data, pay_type, decode_user,
-                    bank_code, acct_num, amount, deposit_acct_name
-                } = data;
 
                 let query = new URLSearchParams()
                 query.append('JSONData', JSON.stringify({
@@ -283,7 +283,6 @@ export const cooconApi = {
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
                 });
-                console.log(response)
                 let status = response?.STS;
                 if (response?.RESP_CD == '0000') {
                     if (response?.TRSC_AMT > 0 && status == 1) {

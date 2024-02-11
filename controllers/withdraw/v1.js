@@ -86,6 +86,7 @@ const withdrawV1Ctrl = {
             }
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
+            console.log(dns_data)
             let operator_list = getOperatorList(dns_data);
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", false);
