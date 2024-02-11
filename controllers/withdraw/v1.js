@@ -235,6 +235,10 @@ const withdrawV1Ctrl = {
             let first_result = await insertQuery(`deposits`, first_obj);
             let withdraw_id = first_result?.result?.insertId;
 
+            if (user?.is_withdraw_hold == 1) {
+                return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
+            }
+
             let date = returnMoment().substring(0, 10).replaceAll('-', '');
             let api_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
@@ -247,7 +251,6 @@ const withdrawV1Ctrl = {
                 trx_id,
             })
             let tid = api_result.data?.tid;
-            console.log(tid)
 
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
             let obj = {

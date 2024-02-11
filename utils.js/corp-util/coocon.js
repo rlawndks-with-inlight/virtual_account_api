@@ -225,17 +225,7 @@ export const cooconApi = {
                 TRSC_SEQ_NO: trx_id,
             }
             try {
-
                 let query = new URLSearchParams()
-                console.log({
-                    ...default_body,
-                    KEY: '6120',
-                    RCV_BNK_CD: bank_code,
-                    RCV_ACCT_NO: acct_num,
-                    WDRW_ACCT_NO: dns_data[`${pay_type}_virtual_acct_num`],
-                    TRSC_AMT: amount,
-                    WDRW_ACCT_NM: deposit_acct_name,
-                })
                 query.append('JSONData', JSON.stringify({
                     ...default_body,
                     KEY: '6120',

@@ -64,6 +64,11 @@
             "date": 1707643391346,
             "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-02-11.exception.log",
             "hash": "0920cd193d167b7f969acefe3fd8ace540d592479d2422bb6096d48520546c21"
+        },
+        {
+            "date": 1707665718154,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-02-12.exception.log",
+            "hash": "ea64482b3e6a3b9fd297ed89d58a012b6bbb257f14ee4ea97c96f466f8715890"
         }
     ],
     "hashType": "sha256"
