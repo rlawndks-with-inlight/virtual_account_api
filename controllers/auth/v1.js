@@ -54,6 +54,9 @@ const authV1Ctrl = {
                 const {
                     api_key,
                     mid,
+                    tid,
+                    trd_no,
+                    vrf_word
                 } = req.body;
 
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
@@ -61,12 +64,19 @@ const authV1Ctrl = {
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-                let result = await hectoApi.mobile.check({
+                let api_result = await hectoApi.mobile.check({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
+                    tid,
+                    trd_no,
+                    vrf_word,
                 })
-                console.log(result);
+                if (api_result?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
+
 
                 return response(req, res, 100, "success", {})
 
@@ -84,6 +94,10 @@ const authV1Ctrl = {
                 const {
                     api_key,
                     mid,
+                    mcht_trd_no,
+                    bank_code,
+                    acct_num,
+                    acct_name,
                 } = req.body;
 
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
@@ -92,19 +106,31 @@ const authV1Ctrl = {
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
 
-                let result = hectoApi.account.info({
+                let api_result = hectoApi.account.info({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
+                    bank_code,
+                    acct_num,
+                    acct_name,
                 })
-                console.log(result);
+                if (api_result?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
 
-                let result2 = await hectoApi.user.account({
+                let api_result2 = await hectoApi.user.account({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
+                    mcht_trd_no,
+                    bank_code,
+                    acct_num,
                 })
-                console.log(result2);
+                if (api_result2?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), false)
+                }
 
                 return response(req, res, 100, "success", {})
 
@@ -120,6 +146,8 @@ const authV1Ctrl = {
                 const {
                     api_key,
                     mid,
+                    mcht_trd_no,
+                    vrf_word,
                 } = req.body;
 
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
@@ -127,12 +155,17 @@ const authV1Ctrl = {
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-                let result = await hectoApi.user.account_verify({
+                let api_result = await hectoApi.user.account_verify({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
+                    mcht_trd_no,
+                    vrf_word,
                 })
-                console.log(result);
+                if (api_result?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
 
                 return response(req, res, 100, "success", {})
 
