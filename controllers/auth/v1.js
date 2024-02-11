@@ -5,9 +5,7 @@ import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameD
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 //헥토활용 api
-
 const authV1Ctrl = {
-
     phone: {
         request: async (req, res, next) => {
             try {
@@ -16,20 +14,32 @@ const authV1Ctrl = {
                     mid,
                     phone_num,
                     name,
+                    gender,
+                    birth,
+                    tel_com,
                 } = req.body;
-
+                console.log(123)
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
 
-                let result = hectoApi.mobile.request({
+                let api_result = await hectoApi.mobile.request({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
+                    phone_num,
+                    name,
+                    gender,
+                    birth,
+                    tel_com,
                 })
-                console.log(result);
+                if (api_result?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
+                console.log(api_result);
                 return response(req, res, 100, "success", {})
 
             } catch (err) {
@@ -51,7 +61,7 @@ const authV1Ctrl = {
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-                let result = hectoApi.mobile.check({
+                let result = await hectoApi.mobile.check({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
@@ -89,7 +99,7 @@ const authV1Ctrl = {
                 })
                 console.log(result);
 
-                let result2 = hectoApi.user.account({
+                let result2 = await hectoApi.user.account({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
@@ -117,7 +127,7 @@ const authV1Ctrl = {
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-                let result = hectoApi.user.account_verify({
+                let result = await hectoApi.user.account_verify({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,

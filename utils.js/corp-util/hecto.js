@@ -3,18 +3,56 @@ import axios from 'axios';
 import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
+import { returnMoment } from '../function.js';
 
 const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
 
 const getDefaultHeader = () => {
     return {
-        'Content-Type': 'application/json;charset=utf-8.',
+        'Content-Type': 'application/json;charset=utf-8',
     }
 }
 const getDefaultBody = (dns_data, pay_type) => {
+    let return_moment = returnMoment();
+    let date = return_moment.split(' ')[0].replaceAll('-', '');
+    let time = return_moment.split(' ')[1].replaceAll(':', '');
+    console.log(date)
+    console.log(time)
     return {
-        'mchtId': '',
+        'mchtId': dns_data?.auth_mcht_id,
+        'reqDt': date,
+        'reqTm': time,
     }
+}
+const getAES256 = (data, key) => {
+    const cipher = crypto.createCipheriv('aes-256-ecb', key, null);
+
+    // 데이터 업데이트 및 암호화
+    let encryptedData = cipher.update(data, 'utf8', 'base64');
+    encryptedData += cipher.final('base64');
+
+    return encryptedData;
+}
+const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
+    let obj = obj_;
+    let pktHash = "";
+    console.log(obj)
+    for (var i = 0; i < hash_list.length; i++) {
+        pktHash += `${obj[hash_list[i]]}`;
+    }
+    pktHash += dns_data?.auth_api_id;
+    //pktHash += 'ST190808090913247723';
+    const hash = crypto.createHash('sha256');
+    hash.update(pktHash);
+    const hashedData = hash.digest('hex');
+    obj['pktHash'] = hashedData;
+
+    for (var i = 0; i < encr_list.length; i++) {
+        obj[encr_list[i]] = getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv);
+        // obj[encr_list[i]] = getAES256(`${obj[encr_list[i]]}`, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
+    }
+    console.log(obj)
+    return obj;
 }
 export const hectoApi = {
     account: {
@@ -22,36 +60,49 @@ export const hectoApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
+                    bank_code,
+                    acct_num,
+                    acct_name
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtCustId: '',
-                    reqDt: '',
-                    reqTm: '',
-                    uii: '',
-                    telecomCd: '',
-                    cphoneNo: '',
-                    mchtCustNm: '',
-                    authMthdCd: '',
-                    pktHash: '',
+                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    bankCd: bank_code,
+                    custAcntNo: acct_num,
+                    custAcntSumry: acct_name,
                 }
+                query = processObj(
+                    query,
+                    [
+                        'mchtId',
+                        'mchtCustId',
+                        'reqDt',
+                        'reqTm',
+                        'custAcntNo',
+                    ],
+                    [
+                        'mchtCustId',
+                        'custAcntSumry',
+                    ],
+                    dns_data
+                )
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownership`, query, {
                     headers: getDefaultHeader(),
                 });
-                if (response?.RESP_CD == '0000') {
+                if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
+
                         },
                     };
                 } else {
                     return {
                         code: -100,
-                        message: response?.RESP_MSG,
+                        message: response?.outRsltMsg,
                         data: {},
                     };
                 }
@@ -68,40 +119,55 @@ export const hectoApi = {
         },
     },
     user: {
-        account: async (data) => {//잔액
+        account: async (data) => {//
             try {
                 let {
                     dns_data, pay_type, decode_user,
+                    mcht_trd_no,
+                    bank_code,
+                    acct_num,
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtCustId: '',
-                    reqDt: '',
-                    reqTm: '',
-                    uii: '',
-                    telecomCd: '',
-                    cphoneNo: '',
-                    mchtCustNm: '',
-                    authMthdCd: '',
-                    pktHash: '',
+                    mchtTrdNo: mcht_trd_no,
+                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    bankCd: bank_code,
+                    custAcntNo: acct_num,
+                    authType: '3',
                 }
+                query = processObj(
+                    query,
+                    [
+                        'mchtId',
+                        'reqDt',
+                        'reqTm',
+                        'bankCd',
+                        'acct_num',
+                    ],
+                    [
+                        'mchtCustId',
+                        'custAcntNo',
+                        'authType',
+                    ],
+                    dns_data
+                )
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/ownership/req`, query, {
                     headers: getDefaultHeader(),
                 });
-                if (response?.RESP_CD == '0000') {
+                if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
+
                         },
                     };
                 } else {
                     return {
                         code: -100,
-                        message: response?.RESP_MSG,
+                        message: response?.outRsltMsg,
                         data: {},
                     };
                 }
@@ -116,44 +182,53 @@ export const hectoApi = {
 
             }
         },
-        account_verify: async (data) => {//잔액
+        account_verify: async (data) => {//
             try {
                 let {
                     dns_data, pay_type, decode_user,
+                    mcht_trd_no,
+                    vrf_word,
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_RC10_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtCustId: '',
-                    reqDt: '',
-                    reqTm: '',
-                    uii: '',
-                    telecomCd: '',
-                    cphoneNo: '',
-                    mchtCustNm: '',
-                    authMthdCd: '',
-                    pktHash: '',
+                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    mchtTrdNo: mcht_trd_no,
+                    authNo: vrf_word,
                 }
+                query = processObj(
+                    query,
+                    [
+                        'mchtId',
+                        'reqDt',
+                        'reqTm',
+                        'mchtTrdNo',
+                    ],
+                    [
+                        'mchtCustId',
+                        'authNo',
+                    ],
+                    dns_data
+                )
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/ownership/check`, query, {
                     headers: getDefaultHeader(),
                 });
-                if (response?.RESP_CD == '0000') {
+                if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
+
                         },
                     };
                 } else {
                     return {
                         code: -100,
-                        message: response?.RESP_MSG,
+                        message: response?.outRsltMsg,
                         data: {},
                     };
                 }
-
             } catch (err) {
                 console.log(err)
                 return {
@@ -266,84 +341,118 @@ export const hectoApi = {
         },
     },
     mobile: {
-        request: async (data) => {//잔액
+        request: async (data) => {
             try {
                 let {
                     dns_data, pay_type, decode_user,
+                    phone_num,
+                    name,
+                    gender,
+                    birth,
+                    tel_com,
                 } = data;
-
                 let query = {
                     hdInfo: 'SPAY_M100_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtCustId: '',
-                    reqDt: '',
-                    reqTm: '',
-                    uii: '',
-                    telecomCd: '',
-                    cphoneNo: '',
-                    mchtCustNm: '',
-                    authMthdCd: '',
+                    mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
+                    uii: birth + (gender == 'M' ? '1' : '2'),
+                    telecomCd: parseInt(tel_com),
+                    cphoneNo: phone_num,
+                    mchtCustNm: name,
+                    authMthdCd: 1,
                     pktHash: '',
                 }
+                query = processObj(
+                    query,
+                    [
+                        'mchtId',
+                        'mchtCustId',
+                        'reqDt',
+                        'reqTm',
+                        'uii',
+                        'cphoneNo',
+                        'authMthdCd',
+                    ],
+                    [
+                        'mchtCustId',
+                        'uii',
+                        'cphoneNo',
+                        'mchtCustNm'
+                    ],
+                    dns_data
+                )
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/mobile/req`, query, {
                     headers: getDefaultHeader(),
                 });
-                if (response?.RESP_CD == '0000') {
+                console.log(response)
+                if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
+
                         },
                     };
                 } else {
                     return {
                         code: -100,
-                        message: response?.RESP_MSG,
+                        message: response?.outRsltMsg,
                         data: {},
                     };
                 }
 
             } catch (err) {
-                console.log(err)
+                console.log(err?.response)
                 return {
-                    code: -100,
+                    code: -200,
                     message: '',
                     data: {},
                 };
 
             }
         },
-        check: async (data) => {//잔액
+        check: async (data) => {
             try {
                 let {
                     dns_data, pay_type, decode_user,
+                    tid,
+                    trd_no,
+                    vrf_word
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_M200_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    reqDt: '',
-                    reqTm: '',
-                    tid: '',
-                    trdNo: '',
-                    pktHash: '',
+                    tid: tid,
+                    trdNo: trd_no,
+                    authNo: vrf_word,
                 }
+                query = processObj(
+                    query,
+                    [
+                        'mchtId',
+                        'reqDt',
+                        'reqTm',
+                        'tid',
+                    ],
+                    [],
+                    dns_data
+                )
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/mobile/check`, query, {
                     headers: getDefaultHeader(),
                 });
-                if (response?.RESP_CD == '0000') {
+                if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.WDRW_CAN_AMT,
+
                         },
                     };
                 } else {
                     return {
                         code: -100,
-                        message: response?.RESP_MSG,
+                        message: response?.outRsltMsg,
                         data: {},
                     };
                 }
