@@ -225,7 +225,7 @@ export const cooconApi = {
                 let query = new URLSearchParams()
                 query.append('JSONData', JSON.stringify({
                     ...default_body,
-                    "TRSC_SEQ_NO": trx_id,
+                    TRSC_SEQ_NO: trx_id,
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
