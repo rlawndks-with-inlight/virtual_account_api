@@ -247,10 +247,11 @@ const withdrawV1Ctrl = {
                 trx_id,
             })
             let tid = api_result.data?.tid;
+            console.log(tid)
+
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
             let obj = {
                 withdraw_status: 5,
-                trx_id: tid,
                 virtual_acct_balance: virtual_acct_balance,
             };
             let result = await updateQuery(`deposits`, obj, withdraw_id);

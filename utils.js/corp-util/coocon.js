@@ -220,12 +220,24 @@ export const cooconApi = {
                 bank_code, acct_num, amount, deposit_acct_name, trx_id
             } = data;
             let default_body = getDefaultBody(dns_data, pay_type);
+            default_body = {
+                ...default_body,
+                TRSC_SEQ_NO: trx_id,
+            }
             try {
 
                 let query = new URLSearchParams()
+                console.log({
+                    ...default_body,
+                    KEY: '6120',
+                    RCV_BNK_CD: bank_code,
+                    RCV_ACCT_NO: acct_num,
+                    WDRW_ACCT_NO: dns_data[`${pay_type}_virtual_acct_num`],
+                    TRSC_AMT: amount,
+                    WDRW_ACCT_NM: deposit_acct_name,
+                })
                 query.append('JSONData', JSON.stringify({
                     ...default_body,
-                    TRSC_SEQ_NO: trx_id,
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
