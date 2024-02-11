@@ -215,20 +215,22 @@ export const cooconApi = {
     },
     withdraw: {
         request: async (data) => {//출금요청
+            let default_body = getDefaultBody(dns_data, pay_type);
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    bank_code, acct_num, amount
+                    bank_code, acct_num, amount, deposit_acct_name
                 } = data;
 
                 let query = new URLSearchParams()
                 query.append('JSONData', JSON.stringify({
-                    ...getDefaultBody(dns_data, pay_type),
+                    ...default_body,
                     KEY: '6120',
                     RCV_BNK_CD: bank_code,
                     RCV_ACCT_NO: acct_num,
                     WDRW_ACCT_NO: dns_data[`${pay_type}_virtual_acct_num`],
                     TRSC_AMT: amount,
+                    WDRW_ACCT_NM: deposit_acct_name,
                 }))
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),
@@ -239,7 +241,7 @@ export const cooconApi = {
                         message: '',
                         data: {
                             amount: response?.TRSC_AMT,
-                            tid: response?.TRSC_SEQ_NO,
+                            tid: default_body?.TRSC_SEQ_NO,
                             virtual_acct_balance: response?.BAL_AMT,
                         },
                     };
@@ -247,7 +249,9 @@ export const cooconApi = {
                     return {
                         code: -100,
                         message: response?.RESP_MSG,
-                        data: {},
+                        data: {
+                            tid: default_body?.TRSC_SEQ_NO
+                        },
                     };
                 }
             } catch (err) {
@@ -256,7 +260,9 @@ export const cooconApi = {
                 return {
                     code: -100,
                     message: '',
-                    data: {},
+                    data: {
+                        tid: default_body?.TRSC_SEQ_NO
+                    },
                 };
 
             }

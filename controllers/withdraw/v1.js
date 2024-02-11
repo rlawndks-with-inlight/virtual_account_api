@@ -76,6 +76,7 @@ const withdrawV1Ctrl = {
                 withdraw_acct_name,
                 pay_type = 'withdraw',
                 otp_num,
+                deposit_acct_name = "",
             } = req.body;
             if (!(withdraw_amount > 0)) {
                 return response(req, res, -100, "금액을 0원 이상 입력해주세요.", false);
@@ -240,10 +241,8 @@ const withdrawV1Ctrl = {
                 bank_code: withdraw_bank_code,
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
+                deposit_acct_name: deposit_acct_name || user?.nickname,
             })
-            if (api_result?.code != 100) {
-                return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
-            }
             let tid = api_result.data?.tid;
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
             let obj = {
@@ -251,7 +250,6 @@ const withdrawV1Ctrl = {
                 trx_id: tid,
                 virtual_acct_balance: virtual_acct_balance,
             };
-
             let result = await updateQuery(`deposits`, obj, withdraw_id);
 
             for (var i = 0; i < 3; i++) {
