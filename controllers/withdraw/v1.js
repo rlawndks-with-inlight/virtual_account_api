@@ -199,6 +199,7 @@ const withdrawV1Ctrl = {
             //     return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             // }
 
+
             let trx_id = (new Date().getTime()).toString().substring(1, 13);
             let first_obj = {
                 brand_id: dns_data?.id,

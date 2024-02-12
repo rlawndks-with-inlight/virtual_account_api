@@ -36,7 +36,6 @@ const getAES256 = (data, key) => {
 const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     let obj = obj_;
     let pktHash = "";
-    console.log(obj)
     for (var i = 0; i < hash_list.length; i++) {
         pktHash += `${obj[hash_list[i]]}`;
     }
@@ -73,6 +72,8 @@ export const hectoApi = {
                     custAcntNo: acct_num,
                     custAcntSumry: acct_name,
                 }
+                console.log(query)
+
                 query = processObj(
                     query,
                     [
@@ -123,7 +124,6 @@ export const hectoApi = {
             try {
                 let {
                     dns_data, pay_type, decode_user,
-                    mcht_trd_no,
                     bank_code,
                     acct_num,
                 } = data;
@@ -131,8 +131,7 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtTrdNo: mcht_trd_no,
-                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                     authType: '3',
@@ -156,6 +155,7 @@ export const hectoApi = {
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/ownership/req`, query, {
                     headers: getDefaultHeader(),
                 });
+                console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
