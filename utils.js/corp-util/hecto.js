@@ -6,7 +6,7 @@ import https from 'https';
 import { returnMoment } from '../function.js';
 
 const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
-
+const MCHT_ID = process.env.API_ENV == 'production' ? 'M2421090' : 'M2429693'
 const getDefaultHeader = () => {
     return {
         'Content-Type': 'application/json;charset=utf-8',
@@ -16,10 +16,8 @@ const getDefaultBody = (dns_data, pay_type) => {
     let return_moment = returnMoment();
     let date = return_moment.split(' ')[0].replaceAll('-', '');
     let time = return_moment.split(' ')[1].replaceAll(':', '');
-    console.log(date)
-    console.log(time)
     return {
-        'mchtId': dns_data?.auth_mcht_id,
+        'mchtId': process.env.API_ENV == 'production' ? dns_data?.auth_mcht_id : 'M2429693',
         'reqDt': date,
         'reqTm': time,
     }
@@ -39,16 +37,14 @@ const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     for (var i = 0; i < hash_list.length; i++) {
         pktHash += `${obj[hash_list[i]]}`;
     }
-    pktHash += dns_data?.auth_api_id;
-    //pktHash += 'ST190808090913247723';
+    pktHash += (process.env.API_ENV == 'production' ? dns_data?.auth_api_id : 'ST190808090913247723');
     const hash = crypto.createHash('sha256');
     hash.update(pktHash);
     const hashedData = hash.digest('hex');
     obj['pktHash'] = hashedData;
 
     for (var i = 0; i < encr_list.length; i++) {
-        obj[encr_list[i]] = getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv);
-        // obj[encr_list[i]] = getAES256(`${obj[encr_list[i]]}`, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
+        obj[encr_list[i]] = process.env.API_ENV == 'production' ? getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv) : getAES256(`${obj[encr_list[i]]}`, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
     }
     console.log(obj)
     return obj;
@@ -72,8 +68,6 @@ export const hectoApi = {
                     custAcntNo: acct_num,
                     custAcntSumry: acct_name,
                 }
-                console.log(query)
-
                 query = processObj(
                     query,
                     [
@@ -92,6 +86,7 @@ export const hectoApi = {
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownership`, query, {
                     headers: getDefaultHeader(),
                 });
+                console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
@@ -131,11 +126,13 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
+                    mchtTrdNo: `OID201902210001`,
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                     authType: '3',
                 }
+                console.log(query)
                 query = processObj(
                     query,
                     [
@@ -143,7 +140,7 @@ export const hectoApi = {
                         'reqDt',
                         'reqTm',
                         'bankCd',
-                        'acct_num',
+                        'custAcntNo',
                     ],
                     [
                         'mchtCustId',
