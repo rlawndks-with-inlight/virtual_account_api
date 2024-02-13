@@ -94,10 +94,9 @@ const authV1Ctrl = {
                 const {
                     api_key,
                     mid,
-                    mcht_trd_no,
-                    bank_code,
-                    acct_num,
-                    name,
+                    deposit_bank_code,
+                    deposit_acct_num,
+                    deposit_acct_name,
                 } = req.body;
 
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
@@ -110,8 +109,9 @@ const authV1Ctrl = {
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
-                    bank_code,
-                    acct_num,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    name: deposit_acct_name,
                 })
                 if (api_result?.code != 100 && api_result?.message != '처리중 요청이 있음') {
                     await db.rollback();
