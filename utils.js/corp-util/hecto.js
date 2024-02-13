@@ -121,15 +121,17 @@ export const hectoApi = {
                     dns_data, pay_type, decode_user,
                     bank_code,
                     acct_num,
+                    name,
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtTrdNo: `OID201902210001`,
+                    mchtTrdNo: `OID${dns_data?.id}${new Date().getTime()}`,
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
+                    mchtCustNm: name,
                     authType: '3',
                 }
                 console.log(query)
@@ -145,7 +147,7 @@ export const hectoApi = {
                     [
                         'mchtCustId',
                         'custAcntNo',
-                        'authType',
+                        'mchtCustNm',
                     ],
                     dns_data
                 )
