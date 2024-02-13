@@ -160,14 +160,16 @@ export const hectoApi = {
                         code: 100,
                         message: '',
                         data: {
-
+                            mcht_trd_no: response?.mchtTrdNo
                         },
                     };
                 } else {
                     return {
                         code: -100,
                         message: response?.outRsltMsg,
-                        data: {},
+                        data: {
+                            mcht_trd_no: response?.mchtTrdNo
+                        },
                     };
                 }
 
