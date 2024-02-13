@@ -118,7 +118,8 @@ const authV1Ctrl = {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
                 return response(req, res, 100, "success", {
-                    mcht_trd_no: api_result.data?.mcht_trd_no
+                    mcht_trd_no: api_result.data?.mcht_trd_no,
+                    mcht_cust_id: api_result.data?.mcht_cust_id,
                 })
             } catch (err) {
                 console.log(err)
@@ -133,6 +134,7 @@ const authV1Ctrl = {
                     api_key,
                     mid,
                     mcht_trd_no,
+                    mcht_cust_id,
                     vrf_word,
                 } = req.body;
 
@@ -147,6 +149,7 @@ const authV1Ctrl = {
                     decode_user: mcht,
                     mcht_trd_no,
                     vrf_word,
+                    mcht_cust_id,
                 })
                 if (api_result?.code != 100) {
                     await db.rollback();

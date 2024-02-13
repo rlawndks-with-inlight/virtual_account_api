@@ -31,6 +31,15 @@ const getAES256 = (data, key) => {
 
     return encryptedData;
 }
+const decryptAES256 = (encryptedData, key) => {
+    const decipher = crypto.createDecipheriv('aes-256-ecb', key, null);
+
+    // 암호화된 데이터 복호화
+    let decryptedData = decipher.update(encryptedData, 'base64', 'utf8');
+    decryptedData += decipher.final('utf8');
+
+    return decryptedData;
+}
 const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     let obj = obj_;
     let pktHash = "";
@@ -124,11 +133,13 @@ export const hectoApi = {
                     name,
                 } = data;
 
+                let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
+                let mcht_cust_id = `${dns_data?.id}${new Date().getTime()}`;
                 let query = {
                     hdInfo: 'SPAY_AA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtTrdNo: `OID${dns_data?.id}${new Date().getTime()}`,
-                    mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
+                    mchtTrdNo: mcht_trd_no,
+                    mchtCustId: mcht_cust_id,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                     mchtCustNm: name,
@@ -154,13 +165,14 @@ export const hectoApi = {
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/ownership/req`, query, {
                     headers: getDefaultHeader(),
                 });
-                console.log(response)
+                mcht_cust_id = process.env.API_ENV == 'production' ? decryptAES256(response?.mchtCustId, dns_data?.auth_iv) : decryptAES256(response?.mchtCustId, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            mcht_trd_no: response?.mchtTrdNo
+                            mcht_trd_no: response?.mchtTrdNo,
+                            mcht_cust_id,
                         },
                     };
                 } else {
@@ -168,7 +180,8 @@ export const hectoApi = {
                         code: -100,
                         message: response?.outRsltMsg,
                         data: {
-                            mcht_trd_no: response?.mchtTrdNo
+                            mcht_trd_no: response?.mchtTrdNo,
+                            mcht_cust_id,
                         },
                     };
                 }
@@ -188,13 +201,14 @@ export const hectoApi = {
                 let {
                     dns_data, pay_type, decode_user,
                     mcht_trd_no,
+                    mcht_cust_id,
                     vrf_word,
                 } = data;
 
                 let query = {
                     hdInfo: 'SPAY_RC10_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    'mchtCustId': mcht_cust_id,
                     mchtTrdNo: mcht_trd_no,
                     authNo: vrf_word,
                 }
@@ -386,6 +400,7 @@ export const hectoApi = {
                     headers: getDefaultHeader(),
                 });
                 console.log(response)
+
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
