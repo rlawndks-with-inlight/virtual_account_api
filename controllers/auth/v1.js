@@ -105,20 +105,19 @@ const authV1Ctrl = {
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-                await new Promise((r) => setTimeout(r, 3000));
-                let api_result = await hectoApi.account.info({
-                    pay_type: 'deposit',
-                    dns_data,
-                    decode_user: mcht,
-                    bank_code,
-                    acct_num,
-                    acct_name: name,
-                })
+                // let api_result = await hectoApi.account.info({
+                //     pay_type: 'deposit',
+                //     dns_data,
+                //     decode_user: mcht,
+                //     bank_code,
+                //     acct_num,
+                //     acct_name: name,
+                // })
 
-                if (api_result?.code != 100) {
-                    await db.rollback();
-                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
-                }
+                // if (api_result?.code != 100) {
+                //     await db.rollback();
+                //     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                // }
                 let api_result2 = await hectoApi.user.account({
                     pay_type: 'deposit',
                     dns_data,
