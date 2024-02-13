@@ -119,18 +119,18 @@ const authV1Ctrl = {
                     await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
-                // let api_result2 = await hectoApi.user.account({
-                //     pay_type: 'deposit',
-                //     dns_data,
-                //     decode_user: mcht,
-                //     bank_code,
-                //     acct_num,
-                // })
-                // console.log(api_result2)
-                // if (api_result2?.code != 100) {
-                //     await db.rollback();
-                //     return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), false)
-                // }
+                let api_result2 = await hectoApi.user.account({
+                    pay_type: 'deposit',
+                    dns_data,
+                    decode_user: mcht,
+                    bank_code,
+                    acct_num,
+                })
+                console.log(api_result2)
+                if (api_result2?.code != 100) {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), false)
+                }
                 return response(req, res, 100, "success", {})
             } catch (err) {
                 console.log(err)
