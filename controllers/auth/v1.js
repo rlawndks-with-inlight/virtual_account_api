@@ -148,8 +148,8 @@ const authV1Ctrl = {
                     dns_data,
                     decode_user: mcht,
                     mcht_trd_no,
-                    vrf_word,
                     mcht_cust_id,
+                    vrf_word,
                 })
                 if (api_result?.code != 100) {
                     await db.rollback();
