@@ -152,7 +152,7 @@ const authV1Ctrl = {
                 if (!mcht) {
                     return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
                 }
-                let api_result = await hectoApi.user.account({
+                let api_result = await hectoApi.account.info({
                     pay_type: 'deposit',
                     dns_data,
                     decode_user: mcht,
@@ -160,13 +160,29 @@ const authV1Ctrl = {
                     acct_num: deposit_acct_num,
                     name: deposit_acct_name,
                 })
-                if (api_result?.code != 100 && api_result?.message != '처리중 요청이 있음') {
+                if (api_result?.code != 100) {
                     await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
+                console.log(api_result.data)
+                if (api_result.data?.name != deposit_acct_name) {
+                    return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
+                }
+                let api_result2 = await hectoApi.user.account({
+                    pay_type: 'deposit',
+                    dns_data,
+                    decode_user: mcht,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    name: deposit_acct_name,
+                })
+                if (api_result2?.code != 100 && api_result2?.message != '처리중 요청이 있음') {
+                    await db.rollback();
+                    return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), false)
+                }
                 return response(req, res, 100, "success", {
-                    mcht_trd_no: api_result.data?.mcht_trd_no,
-                    mcht_cust_id: api_result.data?.mcht_cust_id,
+                    mcht_trd_no: api_result2.data?.mcht_trd_no,
+                    mcht_cust_id: api_result2.data?.mcht_cust_id,
                 })
             } catch (err) {
                 console.log(err)

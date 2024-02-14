@@ -55,7 +55,6 @@ const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     for (var i = 0; i < encr_list.length; i++) {
         obj[encr_list[i]] = process.env.API_ENV == 'production' ? getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv) : getAES256(`${obj[encr_list[i]]}`, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
     }
-    console.log(obj)
     return obj;
 }
 export const hectoApi = {
@@ -66,16 +65,16 @@ export const hectoApi = {
                     dns_data, pay_type, decode_user,
                     bank_code,
                     acct_num,
-                    acct_name
+                    name
                 } = data;
 
                 let query = {
-                    hdInfo: 'SPAY_AA00_1.0',
+                    hdInfo: 'SPAY_NA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    'mchtCustId': `${dns_data?.id}${new Date().getTime()}`,
+                    mchtId: process.env.API_ENV == 'production' ? 'M2358093' : 'M2429693',
+                    mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
-                    custAcntSumry: acct_name,
                 }
                 query = processObj(
                     query,
@@ -88,20 +87,20 @@ export const hectoApi = {
                     ],
                     [
                         'mchtCustId',
-                        'custAcntSumry',
+                        'custAcntNo',
                     ],
                     dns_data
                 )
-                let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownership`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownercheck1`, query, {
                     headers: getDefaultHeader(),
                 });
-                console.log(response)
+                let mcht_cust_nm = process.env.API_ENV == 'production' ? decryptAES256(response?.mchtCustNm, dns_data?.auth_iv) : decryptAES256(response?.mchtCustNm, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-
+                            name: mcht_cust_nm
                         },
                     };
                 } else {

@@ -11,9 +11,6 @@ import 'dotenv/config';
 const pushDoznCtrl = {
     deposit: async (req, res, next) => {
         try {
-            let is_manager = await checkIsManagerUrl(req);
-            const decode_user = checkLevel(req.cookies.token, 0);
-            const decode_dns = checkDns(req.cookies.dns);
             const { brand_id } = req.params;
             const {
                 list = [],
