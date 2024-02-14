@@ -18,13 +18,21 @@ const authV1Ctrl = {
                     birth,
                     tel_com,
                 } = req.body;
-                console.log(123)
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
+                if (!dns_data) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
                 dns_data['operator_list'] = getOperatorList(dns_data);
+
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-
+                if (!mcht) {
+                    return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
+                }
                 let api_result = await hectoApi.mobile.request({
                     pay_type: 'deposit',
                     dns_data,
@@ -58,12 +66,20 @@ const authV1Ctrl = {
                     trd_no,
                     vrf_word
                 } = req.body;
-
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
+                if (!dns_data) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
+                if (!mcht) {
+                    return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
+                }
                 let api_result = await hectoApi.mobile.check({
                     pay_type: 'deposit',
                     dns_data,
@@ -98,13 +114,20 @@ const authV1Ctrl = {
                     deposit_acct_num,
                     deposit_acct_name,
                 } = req.body;
-
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
+                if (!dns_data) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
-
+                if (!mcht) {
+                    return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
+                }
                 let api_result = await hectoApi.user.account({
                     pay_type: 'deposit',
                     dns_data,
@@ -137,12 +160,20 @@ const authV1Ctrl = {
                     mcht_cust_id,
                     vrf_word,
                 } = req.body;
-
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
+                if (!dns_data) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
                 dns_data['operator_list'] = getOperatorList(dns_data);
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
+                if (!mcht) {
+                    return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
+                }
                 let api_result = await hectoApi.user.account_verify({
                     pay_type: 'deposit',
                     dns_data,
