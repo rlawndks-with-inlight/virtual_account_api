@@ -164,7 +164,6 @@ const authV1Ctrl = {
                     await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
-                console.log(api_result.data)
                 if (api_result.data?.name != deposit_acct_name) {
                     return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
                 }
