@@ -18,13 +18,23 @@ const authV1Ctrl = {
                     birth,
                     tel_com,
                 } = req.body;
+
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                }
+                if (
+                    !phone_num ||
+                    !name ||
+                    !gender ||
+                    !birth ||
+                    !tel_com
+                ) {
+                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
                 if (!dns_data) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
                 dns_data['operator_list'] = getOperatorList(dns_data);
 
@@ -68,6 +78,13 @@ const authV1Ctrl = {
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
+                if (
+                    !tid ||
+                    !trd_no ||
+                    !vrf_word
+                ) {
+                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
@@ -117,6 +134,13 @@ const authV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
+                if (
+                    !deposit_bank_code ||
+                    !deposit_acct_num ||
+                    !deposit_acct_name
+                ) {
+                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
                 if (!dns_data) {
@@ -162,6 +186,13 @@ const authV1Ctrl = {
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
+                if (
+                    !mcht_trd_no ||
+                    !mcht_cust_id ||
+                    !vrf_word
+                ) {
+                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
