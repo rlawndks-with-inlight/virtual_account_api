@@ -6,9 +6,14 @@ import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
-import speakeasy from 'speakeasy';
-const table_name = 'virtual_accounts';
+import crypto from 'crypto';
+
 //뱅크너스출금
+
+const makeSignValue = (text) => {
+    let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
+    return api_sign_val;
+}
 const withdrawV2Ctrl = {
     request: async (req, res, next) => {
         try {
@@ -19,6 +24,7 @@ const withdrawV2Ctrl = {
                 withdraw_amount,
                 pay_type = 'withdraw',
                 note = "",
+                api_sign_val,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -52,7 +58,15 @@ const withdrawV2Ctrl = {
                 mid
             ]);
             user = user?.result[0];
-
+            if (!user) {
+                return response(req, res, -100, "mid가 잘못 되었습니다..", false)
+            }
+            if (dns_data?.is_use_sign_key == 1) {
+                let user_api_sign_val = makeSignValue(`${api_key}${mid}${user?.sign_key}`);
+                if (user_api_sign_val != api_sign_val) {
+                    return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
+                }
+            }
 
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0`, [
                 guid

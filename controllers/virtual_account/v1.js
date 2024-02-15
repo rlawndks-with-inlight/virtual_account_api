@@ -33,11 +33,8 @@ const virtualAccountV1Ctrl = {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-
-
             let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             brand = brand?.result[0];
-
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
