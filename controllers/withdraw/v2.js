@@ -10,7 +10,7 @@ import crypto from 'crypto';
 
 //뱅크너스출금
 
-const makeSignValue = (text) => {
+export const makeSignValueSha256 = (text) => {
     let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
     return api_sign_val;
 }
@@ -62,7 +62,7 @@ const withdrawV2Ctrl = {
                 return response(req, res, -100, "mid가 잘못 되었습니다..", false)
             }
             if (dns_data?.is_use_sign_key == 1) {
-                let user_api_sign_val = makeSignValue(`${api_key}${mid}${user?.sign_key}`);
+                let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${user?.sign_key}`);
                 if (user_api_sign_val != api_sign_val) {
                     return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }

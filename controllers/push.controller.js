@@ -7,6 +7,7 @@ import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response } from "../utils.js/util.js";
 import 'dotenv/config';
+import { makeSignValueSha256 } from "./withdraw/v2.js";
 
 //노티 받기
 
@@ -35,6 +36,7 @@ const pushCtrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
+
             let mcht_columns = [
                 `users.*`,
                 `merchandise_columns.mcht_fee`
@@ -134,13 +136,17 @@ const pushCtrl = {
                 }
                 if (mcht?.deposit_noti_url) {
                     obj[`deposit_noti_status`] = 5;
-                    obj[`deposit_noti_obj`] = JSON.stringify({
+                    let noti_data = {
                         amount,
                         bank_code: deposit_bank_code,
                         acct_num: deposit_acct_num,
                         acct_name: deposit_acct_name,
                         tid: tid,
-                    });
+                    }
+                    if (dns_data?.is_use_sign_key == 1) {
+                        noti_data['api_sign_val'] = makeSignValueSha256(`${dns_data?.api_key}${mcht?.mid ?? ""}${mcht?.sign_key ?? ""}`)
+                    }
+                    obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
                 }
                 let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
             }
