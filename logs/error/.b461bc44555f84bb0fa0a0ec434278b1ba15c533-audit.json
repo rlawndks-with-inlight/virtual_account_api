@@ -89,6 +89,11 @@
             "date": 1708010174483,
             "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\error\\2024-02-16.error.log",
             "hash": "c1fa36c056b330807ada0aba55bc7ae5be92c4c873b73b1c4b28c1b69b3ff6d0"
+        },
+        {
+            "date": 1708098796141,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\error\\2024-02-17.error.log",
+            "hash": "cf0b39250dd1efab3286c763f8abbbba6b251d8de69d7a7510c9936d3e50ed62"
         }
     ],
     "hashType": "sha256"

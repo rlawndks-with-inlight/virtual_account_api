@@ -348,13 +348,13 @@ const withdrawV1Ctrl = {
             } else if (api_result.data?.status == 6) {
                 status = 20;
             }
+            console.log(api_result)
             if (api_result.code == 100) {
                 let result = await updateQuery(`deposits`, {
                     withdraw_status: status,
                     amount: (status == 0 ? trx?.expect_amount : 0),
                 }, trx?.id)
                 return response(req, res, 100, "success", {})
-
             } else {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
             }
