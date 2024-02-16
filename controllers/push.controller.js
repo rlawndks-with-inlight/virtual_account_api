@@ -184,7 +184,7 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let amount = trx_stat == 'WITHDRAW_SUCCESS' ? (-1) * (parseInt(trx_amt) + trx?.withdraw_fee) : 0;
+            let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + trx?.withdraw_fee)) : 0;
             let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 tid,
             ])
@@ -218,7 +218,7 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let amount = trx_stat == 'WITHDRAW_SUCCESS' ? (-1) * (parseInt(trx_amt) + trx?.withdraw_fee) : 0;
+            let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + trx?.withdraw_fee)) : 0;
             let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 tid,
             ])
