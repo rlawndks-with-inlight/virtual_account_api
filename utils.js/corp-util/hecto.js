@@ -76,7 +76,7 @@ export const hectoApi = {
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                 }
-                let auth_iv = 'auth_iv';
+                let auth_iv = '0o83b22401AVZC1HM0Mi3TNV1ER4YIed';
                 let auth_api_id = 'ST2305101028319313874';
                 query = processObj(
                     query,
