@@ -76,6 +76,8 @@ export const hectoApi = {
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                 }
+                let auth_iv = 'auth_iv';
+                let auth_api_id = 'ST2305101028319313874';
                 query = processObj(
                     query,
                     [
@@ -91,8 +93,8 @@ export const hectoApi = {
                     ],
                     {
                         ...dns_data,
-                        auth_iv: '0o83b22401AVZC1HM0Mi3TNV1ER4YIed',
-                        auth_api_id: 'ST2305101028319313874'
+                        auth_iv,
+                        auth_api_id,
                     }
                 )
                 console.log(query)
@@ -101,7 +103,7 @@ export const hectoApi = {
                 });
                 console.log(response)
                 if (response?.outStatCd == '0021') {
-                    let mcht_cust_nm = process.env.API_ENV == 'production' ? decryptAES256(response?.mchtCustNm, dns_data?.auth_iv) : decryptAES256(response?.mchtCustNm, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
+                    let mcht_cust_nm = process.env.API_ENV == 'production' ? decryptAES256(response?.mchtCustNm, auth_iv) : decryptAES256(response?.mchtCustNm, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
                     return {
                         code: 100,
                         message: '',
