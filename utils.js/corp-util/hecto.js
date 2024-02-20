@@ -71,7 +71,7 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_NA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtId: process.env.API_ENV == 'production' ? 'M2358093' : 'M2429693',
+                    mchtId: process.env.API_ENV == 'production' ? 'M2353522' : 'M2358093',
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
