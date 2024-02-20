@@ -91,9 +91,11 @@ export const hectoApi = {
                     ],
                     dns_data
                 )
+                console.log(query)
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownercheck1`, query, {
                     headers: getDefaultHeader(),
                 });
+
                 if (response?.outStatCd == '0021') {
                     let mcht_cust_nm = process.env.API_ENV == 'production' ? decryptAES256(response?.mchtCustNm, dns_data?.auth_iv) : decryptAES256(response?.mchtCustNm, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
                     return {
