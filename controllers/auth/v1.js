@@ -54,7 +54,6 @@ const authV1Ctrl = {
                     tel_com,
                 })
                 if (api_result?.code != 100) {
-                    await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
                 console.log(api_result);
@@ -106,7 +105,6 @@ const authV1Ctrl = {
                     vrf_word,
                 })
                 if (api_result?.code != 100) {
-                    await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
 
@@ -161,7 +159,6 @@ const authV1Ctrl = {
                     name: deposit_acct_name,
                 })
                 if (api_result?.code != 100) {
-                    await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
                 if (api_result.data?.name != deposit_acct_name) {
@@ -176,7 +173,6 @@ const authV1Ctrl = {
                     name: deposit_acct_name,
                 })
                 if (api_result2?.code != 100 && api_result2?.message != '처리중 요청이 있음') {
-                    await db.rollback();
                     return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), false)
                 }
                 return response(req, res, 100, "success", {
@@ -229,7 +225,6 @@ const authV1Ctrl = {
                     vrf_word,
                 })
                 if (api_result?.code != 100) {
-                    await db.rollback();
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
 
