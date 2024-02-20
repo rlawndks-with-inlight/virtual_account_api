@@ -91,7 +91,8 @@ export const hectoApi = {
                     ],
                     {
                         ...dns_data,
-                        auth_iv: '0o83b22401AVZC1HM0Mi3TNV1ER4YIed'
+                        auth_iv: '0o83b22401AVZC1HM0Mi3TNV1ER4YIed',
+                        auth_api_id: 'ST2305101028319313874'
                     }
                 )
                 console.log(query)
