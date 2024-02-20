@@ -71,7 +71,7 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_NA00_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtId: process.env.API_ENV == 'production' ? 'M2353526' : 'M2358093',
+                    mchtId: process.env.API_ENV == 'production' ? 'M2353522' : 'M2358093',
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     bankCd: bank_code,
                     custAcntNo: acct_num,
@@ -89,7 +89,10 @@ export const hectoApi = {
                         'mchtCustId',
                         'custAcntNo',
                     ],
-                    dns_data
+                    {
+                        ...dns_data,
+                        auth_iv: '0o83b22401AVZC1HM0Mi3TNV1ER4YIed'
+                    }
                 )
                 console.log(query)
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/acnt/ownercheck1`, query, {
