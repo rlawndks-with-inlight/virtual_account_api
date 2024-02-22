@@ -34,7 +34,6 @@ const pushDoznCtrl = {
                 } = list[i];
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
                 dns_data = dns_data?.result[0];
-
                 let operator_list = getOperatorList(dns_data);
                 let corp_account = await pool.query(`SELECT * FROM corp_accounts WHERE acct_num=? AND brand_id=${dns_data?.id}`, [
                     acctNo
