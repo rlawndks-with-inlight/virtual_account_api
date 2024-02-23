@@ -46,7 +46,6 @@ const pushDoznCtrl = {
 
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
-
                     let obj = {
                         amount: amount,
                         head_office_fee: dns_data?.head_office_fee,
@@ -54,6 +53,8 @@ const pushDoznCtrl = {
                         deposit_status: 0,
                         trx_id: tranNum,
                         corp_account_id: corp_account?.id,
+                        trans_date: tranDate,
+                        trans_time: tranTime,
                     };
                     let deposit_columns = [
                         `deposits.*`,
