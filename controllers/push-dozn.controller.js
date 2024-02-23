@@ -64,7 +64,7 @@ const pushDoznCtrl = {
                     deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.expect_amount=? AND deposits.deposit_acct_name=? AND deposits.deposit_status=5  `;
                     let deposit = await pool.query(deposit_sql, [
                         amount,
-                        tranName
+                        (tranName || memo)
                     ])
                     deposit = deposit?.result[0];
                     let bell_data = {
@@ -131,10 +131,10 @@ const pushDoznCtrl = {
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
                         obj['deposit_acct_num'] = recvAccntNo;
-                        obj['deposit_acct_name'] = tranName;
+                        obj['deposit_acct_name'] = tranName || memo;
                         obj['deposit_status'] = 10;
                         obj['brand_id'] = dns_data?.id;
-                        bell_data['deposit_acct_name'] = tranName;
+                        bell_data['deposit_acct_name'] = tranName || memo;
                         let result = await insertQuery(`deposits`, obj);
                     }
                     emitSocket({
