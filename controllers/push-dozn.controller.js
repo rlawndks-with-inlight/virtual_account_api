@@ -20,8 +20,8 @@ const pushDoznCtrl = {
                     acctNo,
                     finCode,
                     tranNum,
-                    tranDate,
-                    tranTime,
+                    tranDate = "",
+                    tranTime = "",
                     depositAmnt,
                     withdrawAmnt,
                     balance,
@@ -53,8 +53,8 @@ const pushDoznCtrl = {
                         deposit_status: 0,
                         trx_id: tranNum,
                         corp_account_id: corp_account?.id,
-                        trans_date: tranDate,
-                        trans_time: tranTime,
+                        trans_date: `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`,
+                        trans_time: `${tranTime.substring(0, 2)}:${tranDate.substring(2, 4)}:${tranDate.substring(4, 6)}`,
                     };
                     let deposit_columns = [
                         `deposits.*`,
