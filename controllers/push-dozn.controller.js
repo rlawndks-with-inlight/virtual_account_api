@@ -54,7 +54,7 @@ const pushDoznCtrl = {
                         trx_id: tranNum,
                         corp_account_id: corp_account?.id,
                         trans_date: `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`,
-                        trans_time: `${tranTime.substring(0, 2)}:${tranDate.substring(2, 4)}:${tranDate.substring(4, 6)}`,
+                        trans_time: `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`,
                     };
                     let deposit_columns = [
                         `deposits.*`,
@@ -63,6 +63,7 @@ const pushDoznCtrl = {
                     let deposit_sql = `SELECT ${deposit_columns.join()} FROM deposits`;
                     deposit_sql += ` LEFT JOIN users ON deposits.mcht_id=users.id `
                     deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.expect_amount=? AND deposits.deposit_acct_name=? AND deposits.deposit_status=5  `;
+
                     let deposit = await pool.query(deposit_sql, [
                         amount,
                         (tranName || memo)
