@@ -581,6 +581,8 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
                 }
             }
         }
+        console.log(result)
+
         return result;
     } else {
         for (var i = 0; i < operator_list.length; i++) {

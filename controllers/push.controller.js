@@ -5,7 +5,7 @@ import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
-import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response } from "../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 import { makeSignValueSha256 } from "./withdraw/v2.js";
 
@@ -39,18 +39,11 @@ const pushCtrl = {
 
             let mcht_columns = [
                 `users.*`,
-                `merchandise_columns.mcht_fee`
             ]
-            for (var i = 0; i < dns_data?.operator_list.length; i++) {
-                mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_id`);
-                mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_fee`);
-            }
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
-            mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
             let mcht = await pool.query(mcht_sql);
             mcht = mcht?.result[0];
-
 
             let trx_id = tid;
             let amount = parseInt(trx_amt);
@@ -72,37 +65,11 @@ const pushCtrl = {
                 head_office_fee: dns_data?.head_office_fee,
                 deposit_fee: mcht?.deposit_fee ?? 0
             };
-
-            let is_use_sales = false;
-            let is_first = true;
-            let sales_depth_num = -1;
-            let minus_fee = dns_data?.head_office_fee;
-            for (var i = 0; i < dns_data?.operator_list.length; i++) {
-                if (mcht[`sales${dns_data?.operator_list[i]?.num}_id`] > 0) {
-                    is_use_sales = true;
-                    if (is_first) {
-                        obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
-                    }
-                    is_first = false;
-                } else {
-                    continue;
-                }
-                if (sales_depth_num >= 0) {
-                    obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
-                }
-                obj[`sales${dns_data?.operator_list[i]?.num}_id`] = mcht[`sales${dns_data?.operator_list[i]?.num}_id`];
-                obj[`sales${dns_data?.operator_list[i]?.num}_fee`] = mcht[`sales${dns_data?.operator_list[i]?.num}_fee`];
-                minus_fee = obj[`sales${dns_data?.operator_list[i]?.num}_fee`];
-                sales_depth_num = dns_data?.operator_list[i]?.num;
+            let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
+            obj = {
+                ...obj,
+                ...deposit_setting,
             }
-            if (!is_use_sales) {
-                obj[`head_office_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
-            } else {
-                obj[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, mcht[`mcht_fee`] - minus_fee);
-            }
-            obj[`mcht_fee`] = mcht[`mcht_fee`];
-            obj[`mcht_amount`] = getNumberByPercent(amount, 100 - mcht[`mcht_fee`]) - (mcht?.deposit_fee ?? 0);
-
             let deposit_id = 0;
 
             let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
@@ -117,7 +84,7 @@ const pushCtrl = {
                 let result = await insertQuery(`deposits`, obj);
                 deposit_id = result?.result?.insertId;
             }
-
+            console.log(123)
             if (exist_deposit?.is_move_mother == 1) {
                 return res.send('0000');
             }
