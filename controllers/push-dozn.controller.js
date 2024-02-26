@@ -106,7 +106,7 @@ const pushDoznCtrl = {
                         let result = await updateQuery(`deposits`, obj, deposit?.id);
                     } else {
                         delete obj['head_office_fee'];
-                        obj['amount'] = amount;
+                        obj['expect_amount'] = amount;
                         obj['deposit_acct_num'] = recvAccntNo;
                         obj['deposit_acct_name'] = acct_name;
                         if (dns_data?.is_can_add_deposit == 1) {
