@@ -43,7 +43,7 @@ const pushDoznCtrl = {
                     insertResponseLog(req, '9999');
                     return res.send('9999');
                 }
-
+                let acct_name = tranName || memo || tranDetail;
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
                     let obj = {
@@ -66,7 +66,7 @@ const pushDoznCtrl = {
 
                     let deposit = await pool.query(deposit_sql, [
                         amount,
-                        (tranName || memo)
+                        acct_name
                     ])
                     deposit = deposit?.result[0];
                     let bell_data = {
@@ -133,10 +133,10 @@ const pushDoznCtrl = {
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
                         obj['deposit_acct_num'] = recvAccntNo;
-                        obj['deposit_acct_name'] = tranName || memo;
+                        obj['deposit_acct_name'] = acct_name;
                         obj['deposit_status'] = 10;
                         obj['brand_id'] = dns_data?.id;
-                        bell_data['deposit_acct_name'] = tranName || memo;
+                        bell_data['deposit_acct_name'] = acct_name;
                         let result = await insertQuery(`deposits`, obj);
                     }
                     emitSocket({
