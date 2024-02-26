@@ -43,7 +43,12 @@ const pushDoznCtrl = {
                     insertResponseLog(req, '9999');
                     return res.send('9999');
                 }
-                let acct_name = tranName || memo || tranDetail;
+                let acct_name = tranName;
+                if (finCode == '011' || finCode == '012') {
+                    acct_name = memo;
+                } else if (finCode == '088') {
+                    acct_name = tranDetail;
+                }
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
                     let obj = {
