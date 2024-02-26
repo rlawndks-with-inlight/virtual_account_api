@@ -56,7 +56,7 @@ const pushDoznCtrl = {
                         head_office_fee: dns_data?.head_office_fee,
                         corp_account_balance: balance,
                         deposit_status: 0,
-                        trx_id: tranNum,
+                        trx_id: tranNum || `${dns_data?.id}${new Date().getTime()}`,
                         corp_account_id: corp_account?.id,
                         trans_date: `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`,
                         trans_time: `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`,
