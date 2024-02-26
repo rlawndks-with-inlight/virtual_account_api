@@ -8,7 +8,7 @@ import when from 'when';
 import _ from 'lodash';
 import axios from 'axios';
 import { getMultipleQueryByWhen, selectQuerySimple, updateQuery } from './query-util.js';
-import { returnMoment } from './function.js';
+import { getUserDepositFee, getUserWithDrawFee, returnMoment } from './function.js';
 import logger from './winston/index.js';
 import corpApi from './corp-util/index.js';
 
@@ -480,19 +480,48 @@ export const getMotherDeposit = async (decode_dns) => {
 
     return data;
 }
+let defaultAmountResult = {
+    head_office_fee: 0,
+    head_office_amount: 0,
+    mcht_id: 0,
+    mcht_fee: 0,
+    mcht_amount: 0,
+    sales5_id: 0,
+    sales5_fee: 0,
+    sales5_amount: 0,
+    sales4_id: 0,
+    sales4_fee: 0,
+    sales4_amount: 0,
+    sales3_id: 0,
+    sales3_fee: 0,
+    sales3_amount: 0,
+    sales2_id: 0,
+    sales2_fee: 0,
+    sales2_amount: 0,
+    sales1_id: 0,
+    sales1_fee: 0,
+    sales1_amount: 0,
+    sales0_id: 0,
+    sales0_fee: 0,
+    sales0_amount: 0,
+    deposit_fee: 0,
+    withdraw_fee: 0,
+}
 export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data = {}) => {
     let user = user_;
     let result = {};
-
+    result['amount'] = amount;
+    let operator_list = getOperatorList(dns_data);
     if (user?.level == 10) {
+        result['mcht_id'] = user?.id;
         let mcht_columns = [
             `merchandise_columns.mcht_fee`
         ]
-        for (var i = 0; i < dns_data?.operator_list.length; i++) {
-            mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_id`);
-            mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_fee`);
-            mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_withdraw_fee`);
-            mcht_columns.push(`merchandise_columns.sales${dns_data?.operator_list[i]?.num}_deposit_fee`);
+        for (var i = 0; i < operator_list.length; i++) {
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_id`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_fee`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_withdraw_fee`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_deposit_fee`);
         }
         let mcht_sql = `SELECT ${mcht_columns.join()} FROM merchandise_columns `
         mcht_sql += ` WHERE mcht_id=${user?.id} `;
@@ -502,49 +531,133 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
             ...user,
             ...mcht,
         }
-        let is_use_sales = false;
-        let is_first = true;
-        let sales_depth_num = -1;
-        let minus_fee = dns_data?.head_office_fee;
-        for (var i = 0; i < dns_data?.operator_list.length; i++) {
-            if (user[`sales${dns_data?.operator_list[i]?.num}_id`] > 0) {
-                is_use_sales = true;
-                if (is_first) {
-                    result[`head_office_amount`] = getNumberByPercent(amount, user[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
+        result[`mcht_amount`] = amount - user?.deposit_fee;
+        result['deposit_fee'] = user?.deposit_fee;
+
+        if (dns_data?.is_use_fee_operator == 1) {
+            let is_use_sales = false;
+            let is_first = true;
+            let sales_depth_num = -1;
+            let minus_fee = dns_data?.head_office_fee;
+            result['head_office_fee'] = dns_data?.head_office_fee;
+            for (var i = 0; i < operator_list.length; i++) {
+                if (user[`sales${operator_list[i]?.num}_id`] > 0) {
+                    is_use_sales = true;
+                    if (is_first) {
+                        result[`head_office_amount`] = result[`head_office_amount`] ?? 0;
+                        result[`head_office_amount`] += getNumberByPercent(amount, user[`sales${operator_list[i]?.num}_fee`] - minus_fee)
+                    }
+                    is_first = false;
+                } else {
+                    continue;
                 }
-                is_first = false;
+                if (sales_depth_num >= 0) {
+                    result[`sales${sales_depth_num}_amount`] = result[`sales${sales_depth_num}_amount`] ?? 0;
+                    result[`sales${sales_depth_num}_amount`] += getNumberByPercent(amount, user[`sales${operator_list[i]?.num}_fee`] - minus_fee)
+                }
+                result[`sales${operator_list[i]?.num}_id`] = user[`sales${operator_list[i]?.num}_id`];
+                result[`sales${operator_list[i]?.num}_fee`] = user[`sales${operator_list[i]?.num}_fee`];
+                minus_fee = result[`sales${operator_list[i]?.num}_fee`];
+                sales_depth_num = operator_list[i]?.num;
+            }
+            if (!is_use_sales) {
+                result[`head_office_amount`] = result[`head_office_amount`] ?? 0;
+                result[`head_office_amount`] += getNumberByPercent(amount, user[`mcht_fee`] - minus_fee);
             } else {
-                continue;
+                result[`sales${sales_depth_num}_amount`] = result[`sales${sales_depth_num}_amount`] ?? 0;
+                result[`sales${sales_depth_num}_amount`] += getNumberByPercent(amount, user[`mcht_fee`] - minus_fee);
             }
-            if (sales_depth_num >= 0) {
-                result[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, user[`sales${dns_data?.operator_list[i]?.num}_fee`] - minus_fee)
+            result[`mcht_fee`] = user[`mcht_fee`];
+            result[`mcht_amount`] -= getNumberByPercent(amount, user[`mcht_fee`]);
+        }
+        if (dns_data?.is_use_deposit_operator == 1) {
+            result['head_office_amount'] = result['head_office_amount'] ?? 0;
+            result['head_office_amount'] += parseFloat(getUserDepositFee(user, 40, operator_list, dns_data?.deposit_head_office_fee));
+            for (var i = 0; i < operator_list.length; i++) {
+                if (user[`sales${operator_list[i].num}_id`] > 0) {
+                    result[`sales${operator_list[i].num}_amount`] = result[`sales${operator_list[i].num}_amount`] ?? 0;
+                    result[`sales${operator_list[i].num}_amount`] += parseFloat(getUserDepositFee(user, operator_list[i].value, operator_list, dns_data?.deposit_head_office_fee));
+                    result[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
+                }
             }
-            result[`sales${dns_data?.operator_list[i]?.num}_id`] = user[`sales${dns_data?.operator_list[i]?.num}_id`];
-            result[`sales${dns_data?.operator_list[i]?.num}_fee`] = user[`sales${dns_data?.operator_list[i]?.num}_fee`];
-            minus_fee = result[`sales${dns_data?.operator_list[i]?.num}_fee`];
-            sales_depth_num = dns_data?.operator_list[i]?.num;
         }
-        if (!is_use_sales) {
-            result[`head_office_amount`] = getNumberByPercent(amount, user[`mcht_fee`] - minus_fee);
-        } else {
-            result[`sales${sales_depth_num}_amount`] = getNumberByPercent(amount, user[`mcht_fee`] - minus_fee);
-        }
-        result[`mcht_fee`] = user[`mcht_fee`];
-        result[`mcht_amount`] = getNumberByPercent(amount, 100 - user[`mcht_fee`]) - (user?.deposit_fee ?? 0);
+        return result;
     } else {
-
+        for (var i = 0; i < operator_list.length; i++) {
+            if (operator_list[i]?.value == user?.level) {
+                result[`sales${operator_list[i].num}_id`] = user?.id;
+                break;
+            }
+        }
+        return result;
     }
-    console.log(result);
 }
-const asdasd = async () => {
-    const user = await pool.query(`SELECT * FROM `)
-}
-export const setWithdrawAmountSetting = (amount = 0, user = {}, dns_data = {}) => {
-    let result = {
-        amount: amount,
-    };
+
+export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data = {}) => {
+    let user = user_;
+    let result = {};
+    let operator_list = getOperatorList(dns_data);
+    result['amount'] = (-1) * (amount + user?.withdraw_fee);
+    result['withdraw_fee'] = user?.withdraw_fee;
     if (user?.level == 10) {
-
+        let mcht_columns = [
+            `merchandise_columns.mcht_fee`
+        ]
+        for (var i = 0; i < operator_list.length; i++) {
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_id`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_fee`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_withdraw_fee`);
+            mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_deposit_fee`);
+        }
+        let mcht_sql = `SELECT ${mcht_columns.join()} FROM merchandise_columns `
+        mcht_sql += ` WHERE mcht_id=${user?.id} `;
+        let mcht = await pool.query(mcht_sql);
+        mcht = mcht?.result[0];
+        user = {
+            ...user,
+            ...mcht,
+        }
+        result['mcht_amount'] = (-1) * (amount + user?.withdraw_fee);
+        result['mcht_id'] = user?.id;
+        if (dns_data?.is_use_deposit_operator == 1) {
+            result['head_office_amount'] = result['head_office_amount'] ?? 0;
+            result['head_office_amount'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
+            for (var i = 0; i < operator_list.length; i++) {
+                if (user[`sales${operator_list[i].num}_id`] > 0) {
+                    result[`sales${operator_list[i].num}_amount`] = result[`sales${operator_list[i].num}_amount`] ?? 0;
+                    result[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
+                    result[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
+                }
+            }
+        }
+        return result;
+    } else {
+        for (var i = 0; i < operator_list.length; i++) {
+            if (operator_list[i]?.value == user?.level) {
+                result[`sales${operator_list[i].num}_id`] = user?.id;
+                result[`sales${operator_list[i].num}_amount`] = (-1) * (amount + user?.withdraw_fee);
+                break;
+            }
+        }
+        return result;
     }
+}
 
+const asdasd = async () => {
+    try {
+        let dns_data = await pool.query(`SELECT * FROM brands WHERE id=66`);
+        dns_data = dns_data?.result[0];
+        let operator_list = getOperatorList(dns_data)
+        dns_data = {
+            ...dns_data,
+            operator_list,
+            setting_obj: JSON.parse(dns_data?.setting_obj ?? "{}"),
+        }
+        let user = await pool.query(`SELECT * FROM users WHERE id=304 `);
+        user = user?.result[0];
+        let result = await setDepositAmountSetting(100000, user, dns_data);
+        console.log(result)
+    } catch (err) {
+        console.log(err)
+    }
 }
