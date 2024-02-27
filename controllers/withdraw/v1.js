@@ -179,14 +179,14 @@ const withdrawV1Ctrl = {
             }
 
 
-            // let get_balance = await corpApi.balance.info({
-            //     pay_type: 'withdraw',
-            //     dns_data: dns_data,
-            //     decode_user: user,
-            // })
-            // if (get_balance.data?.amount < withdraw_amount) {
-            //     return response(req, res, -100, "출금 가능 금액보다 출금액이 더 큽니다.", false)
-            // }
+            let get_balance = await corpApi.balance.info({
+                pay_type: 'withdraw',
+                dns_data: dns_data,
+                decode_user: user,
+            })
+            if (get_balance.data?.amount < withdraw_amount) {
+                return response(req, res, -100, "출금가능금액 부족\n 본사에 문의하세요.", false)
+            }
             // let account_info = await corpApi.account.info({
             //     pay_type: 'withdraw',
             //     dns_data: dns_data,
