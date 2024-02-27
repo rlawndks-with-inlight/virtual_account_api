@@ -647,7 +647,7 @@ export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data 
 
 const asdasd = async () => {
     try {
-        let dns_data = await pool.query(`SELECT * FROM brands WHERE id=66`);
+        let dns_data = await pool.query(`SELECT * FROM brands WHERE id=71`);
         dns_data = dns_data?.result[0];
         let operator_list = getOperatorList(dns_data)
         dns_data = {
@@ -655,9 +655,9 @@ const asdasd = async () => {
             operator_list,
             setting_obj: JSON.parse(dns_data?.setting_obj ?? "{}"),
         }
-        let user = await pool.query(`SELECT * FROM users WHERE id=304 `);
+        let user = await pool.query(`SELECT * FROM users WHERE id=280 `);
         user = user?.result[0];
-        let result = await setDepositAmountSetting(100000, user, dns_data);
+        let result = await setDepositAmountSetting(50000, user, dns_data);
         console.log(result)
     } catch (err) {
         console.log(err)
