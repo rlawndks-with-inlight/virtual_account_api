@@ -443,15 +443,15 @@ export const getMotherDeposit = async (decode_dns) => {
     let operator_list = getOperatorList(decode_dns);
 
     let sum_columns = [
-        `SUM(amount) AS total_amount`,
-        `SUM(withdraw_fee) AS total_withdraw_fee`,
+        `SUM(CASE WHEN pay_type=15 THEN 0 ELSE amount END) AS total_amount`,
+        `SUM(CASE WHEN withdraw_status=0 THEN withdraw_fee ELSE 0 END) AS total_withdraw_fee`,
         `SUM(deposit_fee) AS total_deposit_fee`,
         `SUM(mcht_amount) AS total_mcht_amount`,
     ]
     for (var i = 0; i < operator_list.length; i++) {
         sum_columns.push(`SUM(sales${operator_list[i].num}_amount) AS total_sales${operator_list[i].num}_amount`);
     }
-    let sum_sql = `SELECT ${sum_columns.join()} FROM deposits WHERE brand_id=${decode_dns?.id}`;
+    let sum_sql = `SELECT ${sum_columns.join()} FROM deposits WHERE brand_id=${decode_dns?.id} `;
     let sql_list = [
         { table: 'brand', sql: brand_sql },
         { table: 'sum', sql: sum_sql },
@@ -467,7 +467,7 @@ export const getMotherDeposit = async (decode_dns) => {
         data: {},
     }
     if (decode_dns?.parent_id > 0) {
-        real_amount.data.amount = data['sum'].total_amount
+        real_amount.data.amount = data['sum'].total_amount + data['sum'].total_withdraw_fee;
     } else {
         real_amount = await corpApi.balance.info({
             pay_type: 'deposit',
