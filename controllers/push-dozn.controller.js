@@ -111,6 +111,7 @@ const pushDoznCtrl = {
                         obj['deposit_acct_name'] = acct_name;
                         obj['trans_date'] = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                         obj['trans_time'] = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
+
                         if (dns_data?.is_can_add_deposit == 1) {
                             obj['deposit_status'] = 10;
                         } else {
