@@ -348,7 +348,6 @@ const withdrawV1Ctrl = {
             } else if (api_result.data?.status == 6) {
                 status = 20;
             }
-            console.log(api_result)
             if (api_result.code == 100) {
                 let result = await updateQuery(`deposits`, {
                     withdraw_status: status,
