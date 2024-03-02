@@ -74,15 +74,19 @@ const virtualAccountV1Ctrl = {
                 }
                 if (user_type == 1 || user_type == 2) {
                     if (!business_num) {
+                        await db.rollback();
                         return response(req, res, -100, "사업자등록번호는 필수입니다.", {})
                     }
                     if (!company_name) {
+                        await db.rollback();
                         return response(req, res, -100, "회사명(상호)는 필수입니다.", {})
                     }
                     if (!ceo_name) {
+                        await db.rollback();
                         return response(req, res, -100, "대표자명은 필수입니다.", {})
                     }
                     if (!company_phone_num) {
+                        await db.rollback();
                         return response(req, res, -100, "회사 전화번호는 필수입니다.", {})
                     }
                     create_user_obj = {
