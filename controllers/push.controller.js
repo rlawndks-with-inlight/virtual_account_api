@@ -163,7 +163,6 @@ const pushCtrl = {
                     amount: amount,
                 }, trx?.id);
             } else {
-
                 let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
                 virtual_account = virtual_account?.result[0];
                 let brand_id = virtual_account?.brand_id;
@@ -187,6 +186,9 @@ const pushCtrl = {
                     withdraw_fee_type: dns_data?.withdraw_fee_type,
                     mcht_id: user?.id,
                     mcht_amount: (-1) * amount,
+                    settle_bank_code: virtual_account?.deposit_bank_code,
+                    settle_acct_num: virtual_account?.deposit_acct_num,
+                    settle_acct_name: virtual_account?.deposit_acct_name,
                 }
                 let result = await insertQuery(`deposits`, deposit_obj);
             }
