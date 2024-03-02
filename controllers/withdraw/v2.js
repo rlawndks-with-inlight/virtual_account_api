@@ -148,9 +148,15 @@ const withdrawV2Ctrl = {
                 return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
             }
             let result = await insertQuery(`deposits`, deposit_obj);
+            settle_amount = await pool.query(settle_amount_sql);
+            settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
+            if (settle_amount < 0) {
+                return response(req, res, -100, `유저 잔액은 마이너스가 될 수 없습니다.`, false)
+            }
             if (user?.is_withdraw_hold == 1) {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
             }
+
             let withdraw_id = result?.result?.insertId;
 
             let api_move_to_user_amount_result = await corpApi.transfer.pass({

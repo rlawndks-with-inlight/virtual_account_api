@@ -147,7 +147,7 @@ const pushCtrl = {
                 trx_tp,
                 trx_amt,
                 api_sign_val,
-                guid,
+                guid = "",
                 trx_stat,
                 tid,
             } = req.body;
@@ -165,13 +165,17 @@ const pushCtrl = {
             } else {
                 let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
                 virtual_account = virtual_account?.result[0];
-                let brand_id = virtual_account?.brand_id;
+                let brand_id = virtual_account?.brand_id ?? 0;
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
                 dns_data = dns_data?.result[0];
-                let user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
-                    virtual_account?.mcht_id
-                ]);
-                user = user?.result[0];
+                let user = {};
+                if (dns_data) {
+                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                        virtual_account?.mcht_id
+                    ]);
+                    user = user?.result[0];
+                }
+
                 amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + user?.withdraw_fee)) : 0;
                 let deposit_obj = {
                     trx_id: tid,
@@ -182,9 +186,9 @@ const pushCtrl = {
                     withdraw_status,
                     withdraw_fee: user?.withdraw_fee,
                     virtual_account_id: virtual_account?.id,
-                    user_id: user?.id,
+                    user_id: user?.id ?? 0,
                     withdraw_fee_type: dns_data?.withdraw_fee_type,
-                    mcht_id: user?.id,
+                    mcht_id: user?.id ?? 0,
                     mcht_amount: (-1) * amount,
                     settle_bank_code: virtual_account?.deposit_bank_code,
                     settle_acct_num: virtual_account?.deposit_acct_num,
