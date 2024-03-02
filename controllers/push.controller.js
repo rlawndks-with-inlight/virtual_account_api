@@ -157,11 +157,39 @@ const pushCtrl = {
             trx = trx?.result[0];
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
+            if (trx) {
+                let update_trx = await updateQuery(`deposits`, {
+                    withdraw_status,
+                    amount: amount,
+                }, trx?.id);
+            } else {
 
-            let update_trx = await updateQuery(`deposits`, {
-                withdraw_status,
-                amount: amount,
-            }, trx?.id);
+                let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
+                virtual_account = virtual_account?.result[0];
+                let brand_id = virtual_account?.brand_id;
+                let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+                dns_data = dns_data?.result[0];
+                let user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                    virtual_account?.mcht_id
+                ]);
+                user = user?.result[0];
+                amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + user?.withdraw_fee)) : 0;
+                let deposit_obj = {
+                    trx_id: tid,
+                    brand_id,
+                    pay_type: 5,
+                    amount,
+                    expect_amount: amount,
+                    withdraw_status,
+                    withdraw_fee: user?.withdraw_fee,
+                    virtual_account_id: virtual_account?.id,
+                    user_id: user?.id,
+                    withdraw_fee_type: dns_data?.withdraw_fee_type,
+                    mcht_id: user?.id,
+                    mcht_amount: (-1) * amount,
+                }
+                let result = await insertQuery(`deposits`, deposit_obj);
+            }
             insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {
