@@ -412,7 +412,6 @@ export const insertResponseLog = (req, res) => {
     } catch (err) {
         console.log(err);
     }
-
 }
 export const insertLog = (data, res) => {
     try {
