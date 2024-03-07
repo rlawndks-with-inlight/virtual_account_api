@@ -199,6 +199,9 @@ const corpApi = {
             if (corp_type == 2) {
                 result = await cooconApi.account.info(data);
             }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.account.info(data);
+            }
             return result;
         },
     },
@@ -381,6 +384,9 @@ const corpApi = {
             }
             if (corp_type == 2) {
                 result = await cooconApi.withdraw.request(data);
+            }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.withdraw.request(data);
             }
             return result;
         },

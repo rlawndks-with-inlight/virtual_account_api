@@ -10,14 +10,14 @@ const makeHeaderData = (dns_data, pay_type) => {
     }
 }
 
-const processBodyObj = (obj_ = {}, dns_data, pay_type) => {
+const processBodyObj = (obj_ = {}, dns_data, pay_type, object_type = 'vact') => {
     let obj = obj_;
     obj = {
         ...obj,
         mchtId: dns_data[`${pay_type}_api_id`]
     }
     obj = {
-        "vact": obj,
+        [object_type]: obj,
     }
     return obj;
 }
@@ -134,6 +134,86 @@ export const koreaPaySystemApi = {
                     message: '',
                     data: {},
                 };
+            }
+        },
+    },
+    account: {
+        info: async (data) => {//예금주명조회
+            try {
+                let { dns_data, pay_type, decode_user,
+                    bank_code, acct_num, birth
+                } = data;
+                let query = {
+                    account: acct_num,
+                    bankCd: bank_code,
+                    identity: birth,
+                }
+                query = processBodyObj(query, dns_data, pay_type, "accnt");
+                let { data: result } = await axios.post(`${API_URL}/api/settle/accnt`, query, {
+                    headers: makeHeaderData(dns_data, pay_type)
+                });
+                if (result?.result?.resultCd != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.result?.advanceMsg,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: result?.message,
+                    data: {
+                        withdraw_acct_name: result?.accnt?.holder,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
+    withdraw: {
+        request: async (data) => {//출금신청
+            try {
+                let { dns_data, pay_type, decode_user,
+
+                } = data;
+                let query = {
+
+                }
+                query = processBodyObj(query, dns_data, pay_type, "transfer");
+                let { data: result } = await axios.post(`${API_URL}/api/settle/transfer`, query, {
+                    headers: makeHeaderData(dns_data, pay_type)
+                });
+                if (result?.result?.resultCd != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.result?.advanceMsg,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: result?.message,
+                    data: {
+                        withdraw_acct_name: result?.accnt?.holder,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
             }
         },
     },
