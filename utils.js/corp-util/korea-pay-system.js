@@ -123,7 +123,8 @@ export const koreaPaySystemApi = {
                     code: 100,
                     message: result?.message,
                     data: {
-                        tid: result?.vact?.authNo
+                        tid: result?.vact?.issueId,
+                        virtual_acct_num: result?.vact?.account,
                     },
                 };
             } catch (err) {

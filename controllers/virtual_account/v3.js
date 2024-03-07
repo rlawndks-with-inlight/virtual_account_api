@@ -197,7 +197,11 @@ const virtualAccountV3Ctrl = {
             let update_virtual_account = await updateQuery(`${table_name}`, {
                 deposit_acct_check: 1,
                 status: 0,
+                tid: api_result?.data?.tid,
             }, virtual_account?.id)
+            data.virtual_bank_code = virtual_account?.virtual_bank_code;
+            data.virtual_acct_num = api_result?.data?.virtual_acct_num;
+
             return response(req, res, 100, "success", data)
         } catch (err) {
             console.log(err)
