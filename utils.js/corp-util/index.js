@@ -1,6 +1,7 @@
 import { selectQuerySimple } from "../query-util.js";
 import { banknersApi } from "./bankners.js";
 import { cooconApi } from "./coocon.js";
+import { koreaPaySystemApi } from "./korea-pay-system.js";
 import { paytusApi } from "./paytus.js";
 
 const getDnsData = async (data_, dns_data_) => {
@@ -80,6 +81,9 @@ const corpApi = {
             if (corp_type == 3) {
                 result = await paytusApi.user.account(data);
             }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.user.account(data);
+            }
             return result;
         },
         account_verify: async (data_) => {//출금계좌등록
@@ -103,6 +107,9 @@ const corpApi = {
             }
             if (corp_type == 3) {
                 result = await paytusApi.user.account_verify(data);
+            }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.user.account_verify(data);
             }
             return result;
         },
