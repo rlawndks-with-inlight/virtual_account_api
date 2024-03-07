@@ -4,7 +4,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
 
@@ -61,6 +61,14 @@ const withdrawV2Ctrl = {
             if (!user) {
                 return response(req, res, -100, "mid가 잘못 되었습니다..", false)
             }
+
+            let requestIp = getReqIp(req);
+            let ip_list = await pool.query(`SELECT * FROM permit_ips WHERE user_id=${user?.id} AND is_delete=0`);
+            ip_list = ip_list?.result;
+            if (user?.level < 40 && (!ip_list.map(itm => { return itm?.ip }).includes(requestIp)) && ip_list.length > 0) {
+                return response(req, res, -150, "권한이 없습니다.", {})
+            }
+
             if (dns_data?.is_use_sign_key == 1) {
                 let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${user?.sign_key}`);
                 if (user_api_sign_val != api_sign_val) {

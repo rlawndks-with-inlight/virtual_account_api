@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
@@ -40,6 +40,15 @@ const withdrawV1Ctrl = {
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
             let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
+
+            let requestIp = getReqIp(req);
+            let ip_list = await pool.query(`SELECT * FROM permit_ips WHERE user_id=${user?.id} AND is_delete=0`);
+            ip_list = ip_list?.result;
+            if (user?.level < 40 && (!ip_list.map(itm => { return itm?.ip }).includes(requestIp)) && ip_list.length > 0) {
+                return response(req, res, -150, "권한이 없습니다.", {})
+            }
+
+
             let account_info = await corpApi.account.info({
                 pay_type: 'withdraw',
                 dns_data: dns_data,
@@ -111,6 +120,14 @@ const withdrawV1Ctrl = {
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
             let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
+
+            let requestIp = getReqIp(req);
+            let ip_list = await pool.query(`SELECT * FROM permit_ips WHERE user_id=${user?.id} AND is_delete=0`);
+            ip_list = ip_list?.result;
+            if (user?.level < 40 && (!ip_list.map(itm => { return itm?.ip }).includes(requestIp)) && ip_list.length > 0) {
+                return response(req, res, -150, "권한이 없습니다.", {})
+            }
+
             if (dns_data?.is_use_otp == 1) {
                 var verified = speakeasy.totp.verify({
                     secret: user?.otp_token,

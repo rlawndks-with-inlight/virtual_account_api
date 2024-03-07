@@ -1,3 +1,0 @@
-2024-01-28 23:58:03 [로그] error: uncaughtException: read ECONNRESET
-Error: read ECONNRESET
-    at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
