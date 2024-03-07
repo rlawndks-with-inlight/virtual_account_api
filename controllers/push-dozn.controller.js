@@ -87,7 +87,6 @@ const pushDoznCtrl = {
                         let mcht = await pool.query(sql);
                         mcht = mcht?.result[0];
                         let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
-                        console.log(deposit_setting)
                         obj = {
                             ...obj,
                             ...deposit_setting,

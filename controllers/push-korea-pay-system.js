@@ -35,7 +35,6 @@ const pushKoreaPaySystemCtrl = {
                 stlFee,
                 stlFeeVat,
             } = req.body;
-            console.log(req.body)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
