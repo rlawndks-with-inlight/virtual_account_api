@@ -154,7 +154,7 @@ const pushCtrl = {
                 tid,
             ])
             trx = trx?.result[0];
-            let withdraw_amount = trx_amt >= 0 ? trx_amt : (-1) * parseInt(trx_amt);
+            let withdraw_amount = Math.abs(trx_amt);
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
             if (trx) {
