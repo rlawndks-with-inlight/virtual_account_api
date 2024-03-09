@@ -100,20 +100,18 @@ const pushCtrl = {
                     is_move_mother: 1,
                     move_mother_tid: mother_to_result.data?.tid,
                 }
-                if (mcht?.deposit_noti_url) {
-                    obj[`deposit_noti_status`] = 5;
-                    let noti_data = {
-                        amount,
-                        bank_code: deposit_bank_code,
-                        acct_num: deposit_acct_num,
-                        acct_name: deposit_acct_name,
-                        tid: tid,
-                    }
-                    if (dns_data?.is_use_sign_key == 1) {
-                        noti_data['api_sign_val'] = makeSignValueSha256(`${dns_data?.api_key}${mcht?.mid ?? ""}${mcht?.sign_key ?? ""}`)
-                    }
-                    obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
+                obj[`deposit_noti_status`] = 5;
+                let noti_data = {
+                    amount,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    acct_name: deposit_acct_name,
+                    tid: tid,
                 }
+                if (dns_data?.is_use_sign_key == 1) {
+                    noti_data['api_sign_val'] = makeSignValueSha256(`${dns_data?.api_key}${mcht?.mid ?? ""}${mcht?.sign_key ?? ""}`)
+                }
+                obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
                 let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
             }
             sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
