@@ -250,18 +250,23 @@ const withdrawV1Ctrl = {
                     }
                 }
             }
-            await db.beginTransaction();
-            let first_result = await insertQuery(`deposits`, first_obj);
-            let withdraw_id = first_result?.result?.insertId;
+            try {
+                await db.beginTransaction();
+                let first_result = await insertQuery(`deposits`, first_obj);
+                let withdraw_id = first_result?.result?.insertId;
 
-            settle_amount = await pool.query(settle_amount_sql);
-            settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
-            if (settle_amount < 0) {
+                settle_amount = await pool.query(settle_amount_sql);
+                settle_amount = settle_amount?.result[0]?.settle_amount ?? 0;
+                if (settle_amount < 0) {
+                    await db.rollback();
+                    return response(req, res, -100, `유저 잔액은 마이너스가 될 수 없습니다.`, false)
+                } else {
+                    await db.commit();
+                }
+            } catch (err) {
                 await db.rollback();
-                return response(req, res, -100, `유저 잔액은 마이너스가 될 수 없습니다.`, false)
-            } else {
-                await db.commit();
             }
+
 
             if (user?.is_withdraw_hold == 1) {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
