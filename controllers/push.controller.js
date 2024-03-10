@@ -5,7 +5,7 @@ import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
-import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting } from "../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 import { makeSignValueSha256 } from "./withdraw/v2.js";
 
@@ -175,24 +175,26 @@ const pushCtrl = {
                 }
 
                 amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + user?.withdraw_fee)) : 0;
-                let deposit_obj = {
+                let obj = {
                     trx_id: tid,
                     brand_id,
                     pay_type: 5,
                     amount,
                     expect_amount: amount,
                     withdraw_status,
-                    withdraw_fee: user?.withdraw_fee,
                     virtual_account_id: virtual_account?.id,
                     user_id: user?.id ?? 0,
                     withdraw_fee_type: dns_data?.withdraw_fee_type,
-                    mcht_id: user?.id ?? 0,
-                    mcht_amount: (-1) * amount,
                     settle_bank_code: virtual_account?.deposit_bank_code,
                     settle_acct_num: virtual_account?.deposit_acct_num,
                     settle_acct_name: virtual_account?.deposit_acct_name,
                 }
-                let result = await insertQuery(`deposits`, deposit_obj);
+                let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                obj = {
+                    ...obj,
+                    ...withraw_obj,
+                }
+                let result = await insertQuery(`deposits`, obj);
             }
             insertResponseLog(req, '0000');
             return res.send('0000');
