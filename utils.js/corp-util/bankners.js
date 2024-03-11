@@ -455,7 +455,7 @@ export const banknersApi = {
             } = data;
             let query = {
                 guid,
-                bank_id: '007',
+                bank_id: dns_data[`${pay_type}_virtual_bank_code`],
                 version: 2,
             }
             query = makeBody(query, dns_data, pay_type)
@@ -471,7 +471,7 @@ export const banknersApi = {
                 code: 100,
                 message: '',
                 data: {
-                    bank_id: '007',
+                    bank_id: dns_data[`${pay_type}_virtual_bank_code`],
                     virtual_acct_num: result?.data?.vacnt_no,
                     tid: result?.data?.tid,
                     virtual_acct_name: result?.data?.vacnt_nm,
