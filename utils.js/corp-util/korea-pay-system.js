@@ -53,6 +53,44 @@ const checkVirtualAccountGet = async (dns_data, pay_type) => {
     }
 }
 export const koreaPaySystemApi = {
+    balance: {
+        info: async (data) => {
+            try {
+                let { dns_data, pay_type, decode_user,
+                    tid, vrf_word,
+                } = data;
+                let query = {
+                    authNo: tid,
+                    oneCertiInNo: vrf_word,
+                }
+                query = processBodyObj(query, dns_data, pay_type);
+                let { data: result } = await axios.get(`${API_URL}/api/settle/balance`, {
+                    headers: makeHeaderData(dns_data, pay_type)
+                });
+                if (result?.result?.resultCd != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.result?.advanceMsg,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: result?.message,
+                    data: {
+                        amount: result.balance?.balance,
+                    },
+                };
+            } catch (err) {
+                console.log(err);
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+            }
+        },
+    },
     user: {
         account: async (data) => {
             let { dns_data, pay_type, decode_user,

@@ -250,6 +250,9 @@ const corpApi = {
             if (corp_type == 2) {
                 result = await cooconApi.balance.info(data);
             }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.balance.info(data);
+            }
             return result;
         },
     },
