@@ -11,7 +11,7 @@ import http from 'http';
 import https from 'https';
 import scheduleIndex from "./utils.js/schedules/index.js";
 import upload from "./config/multerConfig.js";
-import { getReqIp, imageFieldList } from "./utils.js/util.js";
+import { getReqIp, imageFieldList, insertResponseLog } from "./utils.js/util.js";
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import io from "socket.io-client";
@@ -37,7 +37,13 @@ app.get('/', (req, res) => {
   console.log("api initialized")
   res.send('api initialized')
 });
-
+app.use((req, res, next) => {
+  console.log(req.originalUrl)
+  console.log(req.method)
+  insertResponseLog(req, '3333');
+  const err = new APIError('API not found', httpStatus.NOT_FOUND);
+  return next(err);
+});
 app.use((req, res, next) => {
   const err = new APIError('API not found', httpStatus.NOT_FOUND);
   return next(err);
