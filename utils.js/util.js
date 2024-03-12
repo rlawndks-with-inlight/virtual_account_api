@@ -527,7 +527,6 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
         mcht_sql += ` WHERE mcht_id=${user?.id} `;
         let mcht = await pool.query(mcht_sql);
         mcht = mcht?.result[0];
-        console.log(mcht)
         user = {
             ...user,
             ...mcht,
@@ -582,7 +581,6 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
                 }
             }
         }
-        console.log(result)
 
         return result;
     } else {

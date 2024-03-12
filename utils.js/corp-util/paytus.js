@@ -61,7 +61,6 @@ export const paytusApi = {
                     verifyVal: vrf_word,
                 }
                 let { data: result } = await axios.post(`${API_URL}/api/v1/viss/confirm`, query);
-                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -216,9 +215,7 @@ export const paytusApi = {
                     telNo: phone_num,
                     otpNo: vrf_word,
                 }
-                console.log(query)
                 let { data: result } = await axios.post(`${API_URL}/api/v1/viss/smsResult`, query);
-                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,
