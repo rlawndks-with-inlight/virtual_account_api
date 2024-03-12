@@ -131,6 +131,7 @@ const virtualAccountV3Ctrl = {
                 deposit_tid: data.tid,
                 virtual_bank_code: api_result2.data?.virtual_bank_code,
                 virtual_acct_num: api_result2.data?.virtual_acct_num,
+                virtual_acct_name: name,
                 virtual_issue_time: api_result2.data?.virtual_issue_time,
                 ci: api_result2.data?.ci,
             }, virtual_account_id)
@@ -208,6 +209,7 @@ const virtualAccountV3Ctrl = {
             }, virtual_account?.id)
             data.virtual_bank_code = virtual_account?.virtual_bank_code;
             data.virtual_acct_num = api_result?.data?.virtual_acct_num;
+            data.virtual_acct_name = virtual_account?.virtual_acct_name;
 
             return response(req, res, 100, "success", data)
         } catch (err) {
