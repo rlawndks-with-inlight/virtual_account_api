@@ -59,7 +59,7 @@ const withdrawV3Ctrl = {
             ]);
             user = user?.result[0];
             if (user?.can_return != 1 && pay_type == 20) {
-                return response(req, res, -100, "권한이 없습니다.", false)
+                return response(req, res, -100, "반환 권한이 없습니다.", false)
             }
             if (!user) {
                 return response(req, res, -100, "mid가 잘못 되었습니다..", false)

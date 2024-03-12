@@ -120,7 +120,9 @@ const withdrawV1Ctrl = {
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
             let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
             user = user?.result[0];
-
+            if (user?.can_return != 1 && pay_type == 'return') {
+                return response(req, res, -100, "반환 권한이 없습니다.", false)
+            }
             let requestIp = getReqIp(req);
             let ip_list = await pool.query(`SELECT * FROM permit_ips WHERE user_id=${user?.id} AND is_delete=0`);
             ip_list = ip_list?.result;
