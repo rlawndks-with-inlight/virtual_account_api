@@ -83,6 +83,7 @@ const pushKoreaPaySystemCtrl = {
                 mcht?.brand_id
             ])
             exist_deposit = exist_deposit?.result[0];
+            console.log(obj)
             if (exist_deposit) {
                 deposit_id = exist_deposit?.id;
             } else {

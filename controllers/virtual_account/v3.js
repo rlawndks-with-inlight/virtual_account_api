@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, generateRandomString, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
@@ -17,13 +17,11 @@ const virtualAccountV3Ctrl = {
             let {
                 api_key,
                 mid,
-
                 bank_code,
                 account,
                 name,
                 birth,
                 phone_num,
-
                 user_id = 0,
                 user_type = 0,
                 business_num,
@@ -99,6 +97,7 @@ const virtualAccountV3Ctrl = {
                     company_name,
                     ceo_name,
                     company_phone_num,
+                    guid: `${generateRandomString(10)}${new Date().getTime()}`,
                 });
                 virtual_account_id = insert_virtual_account?.result?.insertId;
             }
@@ -113,6 +112,9 @@ const virtualAccountV3Ctrl = {
                 phone_num: phone_num,
                 business_num: business_num,
                 user_type: user_type,
+                virtual_bank_code: virtual_account?.virtual_bank_code,
+                virtual_acct_num: virtual_account?.virtual_acct_num,
+                virtual_issue_time: virtual_account?.virtual_issue_time,
             })
             if (api_result2?.code != 100) {
                 await db.commit();
@@ -125,6 +127,7 @@ const virtualAccountV3Ctrl = {
                 deposit_tid: data.tid,
                 virtual_bank_code: api_result2.data?.virtual_bank_code,
                 virtual_acct_num: api_result2.data?.virtual_acct_num,
+                virtual_issue_time: api_result2.data?.virtual_issue_time,
                 ci: api_result2.data?.ci,
             }, virtual_account_id)
 

@@ -87,6 +87,7 @@ export const checkDns = (token) => { //dns 정보 뿌려주기
         return false
     }
 }
+
 const logRequestResponse = async (req, res, decode_user, decode_dns) => {//로그찍기
     let requestIp = getReqIp(req);
 
@@ -642,4 +643,15 @@ export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data 
         }
         return result;
     }
+}
+export function generateRandomString(length = 1) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        randomString += characters.charAt(randomIndex);
+    }
+
+    return randomString;
 }
