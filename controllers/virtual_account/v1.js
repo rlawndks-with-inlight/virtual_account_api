@@ -101,7 +101,7 @@ const virtualAccountV1Ctrl = {
                 let api_result = await corpApi.user.create(create_user_obj);
                 if (api_result?.code != 100) {
                     await db.rollback();
-                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), data)
+                    return response(req, res, -110, (api_result?.message || "서버 에러 발생"), data)
                 }
 
                 let insert_virtual_account = await insertQuery(`${table_name}`, {
@@ -140,7 +140,7 @@ const virtualAccountV1Ctrl = {
             })
             if (api_result2?.code != 100) {
                 await db.commit();
-                return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), data)
+                return response(req, res, -120, (api_result2?.message || "서버 에러 발생"), data)
             } else {
                 data.tid = api_result2.data?.tid;
             }
@@ -215,7 +215,7 @@ const virtualAccountV1Ctrl = {
                 vrf_word
             })
             if (api_result.code != 100) {
-                return response(req, res, -100, (api_result?.message || "서버 에러 발생"), data)
+                return response(req, res, -110, (api_result?.message || "서버 에러 발생"), data)
             }
             data.tid = api_result.data?.tid;
             let update_virtual_account = await updateQuery(`${table_name}`, {
@@ -277,7 +277,7 @@ const virtualAccountV1Ctrl = {
                 guid: virtual_account?.guid,
             })
             if (api_result2.code != 100) {
-                return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), data)
+                return response(req, res, -110, (api_result2?.message || "서버 에러 발생"), data)
             }
             data = {
                 bank_id: api_result2.data?.bank_id,
