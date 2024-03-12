@@ -59,6 +59,10 @@ const virtualAccountV3Ctrl = {
             virtual_account = virtual_account?.result[0];
 
             if (virtual_account) {
+                if (virtual_account?.status == 0) {
+                    await db.rollback();
+                    return response(req, res, -100, "이미 등록된 유저 입니다.", {})
+                }
                 virtual_account_id = virtual_account?.id;
             } else {
                 if (user_type == 1 || user_type == 2) {
@@ -97,7 +101,7 @@ const virtualAccountV3Ctrl = {
                     company_name,
                     ceo_name,
                     company_phone_num,
-                    guid: `${generateRandomString(10)}${new Date().getTime()}`,
+                    guid: `${generateRandomString(20)}${new Date().getTime()}`,
                 });
                 virtual_account_id = insert_virtual_account?.result?.insertId;
             }

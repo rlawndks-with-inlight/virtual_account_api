@@ -32,8 +32,9 @@ const pushKoreaPaySystemCtrl = {
                 udf2,
                 stlDay,
                 stlAmount,
-                stlFee,
-                stlFeeVat,
+                stlFee = 0,
+                stlFeeVat = 0,
+                resultMsg,
             } = req.body;
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data?.result[0];
@@ -56,40 +57,52 @@ const pushKoreaPaySystemCtrl = {
             let deposit_bank_code = virtual_account?.deposit_bank_code
             let deposit_acct_num = virtual_account?.deposit_acct_num
             let deposit_acct_name = virtual_account?.deposit_acct_name
-            let pay_type = trxType == 'deposit' ? 0 : 2;
+
+            let pay_type = 0;
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
                 virtual_account_id: virtual_account?.id,
-                amount,
-                expect_amount: amount,
+                amount: (trxType == 'deposit' || trxType == 'depositback') ? amount : 0,
+                expect_amount: trxType == 'depositback' ? (-1) * amount : amount,
                 deposit_bank_code,
                 deposit_acct_num,
                 deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
-                head_office_fee: dns_data?.head_office_fee,
-                deposit_fee: mcht?.deposit_fee ?? 0
+                note: resultMsg || '',
+                trans_date: trxDay,
+                trans_time: trxTime,
+                top_office_amount: stlFee + stlFeeVat,
             };
-            let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
-            obj = {
-                ...obj,
-                ...deposit_setting,
+            if (trxType == 'deposit' || trxType == 'depositback') {
+                let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
+                if (trxType == 'depositback') {
+                    let deposit_setting_keys = Object.keys(deposit_setting);
+                    for (var i = 0; i < deposit_setting_keys.length; i++) {
+                        if (deposit_setting_keys[i].includes('amount')) {
+                            deposit_setting[deposit_setting_keys[i]] = (-1) * deposit_setting[deposit_setting_keys[i]];
+                        }
+                    }
+                }
+                obj = {
+                    ...obj,
+                    head_office_fee: dns_data?.head_office_fee,
+                    deposit_fee: mcht?.deposit_fee ?? 0,
+                    ...deposit_setting,
+                }
             }
             let deposit_id = 0;
-
-            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
-                trx_id,
-                mcht?.brand_id
-            ])
-            exist_deposit = exist_deposit?.result[0];
-            console.log(obj)
-            if (exist_deposit) {
-                deposit_id = exist_deposit?.id;
-            } else {
-                exist_deposit = {};
-                let result = await insertQuery(`deposits`, obj);
-                deposit_id = result?.result?.insertId;
+            if (trx_id) {
+                let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                    trx_id,
+                    mcht?.brand_id,
+                ])
+                exist_deposit = exist_deposit?.result[0];
+                if (!exist_deposit) {
+                    let result = await insertQuery(`deposits`, obj);
+                    deposit_id = result?.result?.insertId;
+                }
             }
 
             insertResponseLog(req, '0000');

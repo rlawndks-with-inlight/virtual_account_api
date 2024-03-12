@@ -96,7 +96,7 @@ export const koreaPaySystemApi = {
                 } else if (user_type == 1) {
                     user_type = '2';
                 } else if (user_type == 2) {
-                    user_type = 'PERSONAL_BIZ';
+                    user_type = '2';
                 }
                 let query = {
                     trxType: '0',
@@ -108,6 +108,7 @@ export const koreaPaySystemApi = {
                     ci,
                     name: deposit_acct_name,
                     holderName: deposit_acct_name,
+                    regType: user_type,
                 }
                 query = processBodyObj(query, dns_data, pay_type);
                 let { data: result } = await axios.post(`${API_URL}/api/vact/regcerti`, query, {
