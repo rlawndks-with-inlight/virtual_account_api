@@ -175,10 +175,12 @@ const withdrawV3Ctrl = {
             if (api_withdraw_request_result.code != 100) {
                 return response(req, res, -100, (api_withdraw_request_result?.message || "서버 에러 발생"), false)
             }
+            console.log(api_withdraw_request_result)
             let result3 = await updateQuery(`deposits`, {
                 trx_id: api_withdraw_request_result.data?.tid,
                 top_office_amount: api_withdraw_request_result.data?.fee,
             }, withdraw_id);
+
             /*
             let trx_id = `${new Date().getTime()}${decode_dns?.id}${user?.id}5`;
             let deposit_obj = {
