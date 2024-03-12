@@ -14,6 +14,7 @@ const pushKoreaPaySystemCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
+            const { response } = req.body;
             const {
                 vactId,
                 retry,
@@ -35,7 +36,7 @@ const pushKoreaPaySystemCtrl = {
                 stlFee = 0,
                 stlFeeVat = 0,
                 resultMsg,
-            } = req.body;
+            } = response;
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
@@ -103,8 +104,10 @@ const pushKoreaPaySystemCtrl = {
                     let result = await insertQuery(`deposits`, obj);
                     deposit_id = result?.result?.insertId;
                 }
-            }
+            } else {
 
+            }
+            sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {
