@@ -3,7 +3,9 @@ import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, selectQueryByColumn, updateQuery } from "../utils.js/query-util.js";
-import { checkDns, checkLevel, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
+import { emitSocket } from "../utils.js/socket/index.js";
+import { sendTelegramBot } from "../utils.js/telegram/index.js";
+import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
