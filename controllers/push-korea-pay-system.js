@@ -133,6 +133,10 @@ const pushKoreaPaySystemCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
+            console.log('################')
+            console.log(req.body)
+            console.log('$$$$$$$$$$$$$$$$$$$$$$')
+            console.log(req.query)
             const {
                 trxId,
                 mchtId,
