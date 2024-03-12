@@ -178,7 +178,7 @@ const withdrawV3Ctrl = {
             console.log(api_withdraw_request_result)
             let result3 = await updateQuery(`deposits`, {
                 trx_id: api_withdraw_request_result.data?.tid,
-                top_office_amount: api_withdraw_request_result.data?.fee,
+                top_office_amount: api_withdraw_request_result.data?.top_amount,
             }, withdraw_id);
 
             /*
