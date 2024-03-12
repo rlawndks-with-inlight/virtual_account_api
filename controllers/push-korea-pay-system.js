@@ -15,6 +15,7 @@ const pushKoreaPaySystemCtrl = {
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
             const { response } = req.body;
+            console.log(req.body);
             const {
                 vactId,
                 retry,
