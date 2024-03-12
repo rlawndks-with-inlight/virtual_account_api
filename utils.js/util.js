@@ -601,6 +601,7 @@ export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data 
     let result = {};
     let operator_list = getOperatorList(dns_data);
     result['amount'] = (-1) * (amount + user?.withdraw_fee);
+    result['expect_amount'] = (-1) * (amount + user?.withdraw_fee);
     result['withdraw_fee'] = user?.withdraw_fee;
     if (user?.level == 10) {
         let mcht_columns = [
@@ -648,11 +649,9 @@ export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data 
 export function generateRandomString(length = 1) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let randomString = '';
-
     for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         randomString += characters.charAt(randomIndex);
     }
-
     return randomString;
 }

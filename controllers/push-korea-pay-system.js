@@ -2,8 +2,8 @@
 import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
-import { insertQuery, updateQuery } from "../utils.js/query-util.js";
-import { checkDns, checkLevel, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting } from "../utils.js/util.js";
+import { insertQuery, selectQueryByColumn, updateQuery } from "../utils.js/query-util.js";
+import { checkDns, checkLevel, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 
 //노티 받기
@@ -120,10 +120,10 @@ const pushKoreaPaySystemCtrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
-            const { brand_id } = req.params;
             const {
                 trxId,
                 mchtId,
+                trackId = "",
                 status,
                 trxDay,
                 trxTime,
@@ -131,8 +131,58 @@ const pushKoreaPaySystemCtrl = {
                 resultMsg,
                 amount,
             } = req.body;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data?.result[0];
+            dns_data['operator_list'] = getOperatorList(dns_data);
+
+            let user = await pool.query(`SELECT * FROM users WHERE id=?`, [
+                parseInt(trackId.split('-')[1] ?? 0),
+            ])
+            user = user?.result[0];
+            let virtual_account = await selectQueryByColumn(`virtual_accounts`, {
+                id: user?.virtual_account_id,
+            })
+            virtual_account = virtual_account?.result[0];
+
+            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                trxId,
+                dns_data?.id,
+            ])
+            exist_deposit = exist_deposit?.result[0];
+            let withdraw_id = exist_deposit?.id ?? 0;
+            let withdraw_status = status == '출금완료' ? 0 : 10;
+            let top_office_amount = status == '출금완료' ? (exist_deposit?.top_office_amount || dns_data?.withdraw_head_office_fee) : 0;
+            let withdraw_amount = amount;
+            let obj = {
+                withdraw_status,
+                top_office_amount,
+                trans_date: trxDay,
+                trans_time: trxTime,
+            }
+
+            if (exist_deposit) {
+                let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                obj = {
+                    ...obj,
+                    ...withraw_obj,
+                }
+                let result = await updateQuery(`deposits`, obj, withdraw_id);
+            } else {
+                let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                obj = {
+                    ...obj,
+                    ...withraw_obj,
+                    brand_id: dns_data?.id,
+                    trx_id: trxId,
+                    pay_type: 5,
+                    settle_bank_code: virtual_account?.deposit_bank_code,
+                    settle_acct_num: virtual_account?.deposit_acct_num,
+                    settle_acct_name: virtual_account?.deposit_acct_name,
+                }
+                let result = await insertQuery(`deposits`, obj);
+            }
+
+
             insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {

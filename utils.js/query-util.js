@@ -58,6 +58,23 @@ export const selectQuerySimple = async (table, id) => {
     let result = await pool.query(`SELECT * FROM ${table} WHERE id=${id}`);
     return result;
 }
+export const selectQueryByColumn = async (table, column = {}) => {
+    let sql = `SELECT * FROM ${table} `;
+    let keys = Object.keys(column);
+    let values = [];
+    sql += ` WHERE `;
+    for (var i = 0; i < keys.length; i++) {
+        if (i != 0) {
+            sql += ` AND `
+        }
+        sql += ` ${keys[i]}=? `
+        values.push(column[keys[i]]);
+    }
+    console.log(sql)
+    console.log(values)
+    let result = await pool.query(sql, values);
+    return result;
+}
 export const getTableNameBySelectQuery = (sql) => {// select query 가지고 불러올 메인 table명 불러오기 select * from user as asd
     let sql_split_list = sql.split(' FROM ')[1].split(' ');
     let table = '';

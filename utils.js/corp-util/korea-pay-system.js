@@ -262,10 +262,17 @@ export const koreaPaySystemApi = {
         request: async (data) => {//출금신청
             try {
                 let { dns_data, pay_type, decode_user,
-
+                    guid, amount,
+                    bank_code,
+                    acct_num,
+                    acct_name,
                 } = data;
                 let query = {
-
+                    account: acct_num,
+                    bankCd: bank_code,
+                    amount: amount,
+                    trackId: `${dns_data?.id ?? 0}-${decode_user?.id ?? 0}-${new Date().getTime()}`,
+                    ecordInfo: acct_name,
                 }
                 query = processBodyObj(query, dns_data, pay_type, "transfer");
                 let { data: result } = await axios.post(`${API_URL}/api/settle/transfer`, query, {
@@ -282,7 +289,8 @@ export const koreaPaySystemApi = {
                     code: 100,
                     message: result?.message,
                     data: {
-                        withdraw_acct_name: result?.accnt?.holder,
+                        tid: result?.transfer?.trxId,
+                        top_amount: result?.transfer?.fee,
                     },
                 };
             } catch (err) {
