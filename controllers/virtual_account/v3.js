@@ -28,7 +28,7 @@ const virtualAccountV3Ctrl = {
                 company_name,
                 ceo_name,
                 company_phone_num,
-                user_name = "",
+                virtual_user_name = "",
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -103,7 +103,7 @@ const virtualAccountV3Ctrl = {
                     ceo_name,
                     company_phone_num,
                     guid: `${generateRandomString(20)}${new Date().getTime()}`,
-                    user_name,
+                    virtual_user_name,
                 });
                 virtual_account_id = insert_virtual_account?.result?.insertId;
             }
