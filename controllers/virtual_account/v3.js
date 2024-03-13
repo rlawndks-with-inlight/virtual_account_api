@@ -51,10 +51,9 @@ const virtualAccountV3Ctrl = {
                 tid: '',
             };
             let virtual_account_id = 0;
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=? AND deposit_acct_num=? AND is_delete=0`, [
+            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0`, [
                 phone_num,
                 birth,
-                mcht?.id,
                 account,
             ])
             virtual_account = virtual_account?.result[0];
