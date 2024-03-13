@@ -128,20 +128,22 @@ export const koreaPaySystemApi = {
                     virtual_acct_num = new_virtual_account.data?.virtual_acct_num;
                     virtual_issue_time = new_virtual_account.data?.virtual_issue_time;
                 }
-
+                let auth_num = birth.substring(2, birth.length);
                 if (user_type == 0) {
                     user_type = '1';
                 } else if (user_type == 1) {
                     user_type = '2';
+                    auth_num = business_num;
                 } else if (user_type == 2) {
                     user_type = '2';
+                    auth_num = business_num;
                 }
                 let query = {
                     trxType: '0',
                     account: virtual_acct_num,
                     withdrawBankCd: deposit_bank_code,
                     withdrawAccount: deposit_acct_num,
-                    identity: birth.substring(2, birth.length),
+                    identity: auth_num,
                     phoneNo: phone_num,
                     ci,
                     name: deposit_acct_name,
