@@ -59,8 +59,8 @@ const virtualAccountV3Ctrl = {
             }
             let check_account = await corpApi.account.info({
                 pay_type: 'withdraw',
-                dns_data: dns_data,
-                decode_user: user,
+                dns_data: brand,
+                decode_user: { id: 0 },
                 bank_code,
                 acct_num: account,
                 birth: birth,
