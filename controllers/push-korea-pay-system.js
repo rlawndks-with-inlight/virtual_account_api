@@ -77,7 +77,7 @@ const pushKoreaPaySystemCtrl = {
                 note: resultMsg || '',
                 trans_date: trxDay,
                 trans_time: trxTime,
-                top_office_amount: stlFee + stlFeeVat,
+                top_office_amount: parseInt(stlFee) + parseInt(stlFeeVat),
             };
             if (trxType == 'deposit' || trxType == 'depositback') {
                 let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
