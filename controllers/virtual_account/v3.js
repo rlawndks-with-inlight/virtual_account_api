@@ -49,6 +49,9 @@ const virtualAccountV3Ctrl = {
             ) {
                 return response(req, res, -100, "필수값을 입력해 주세요.", {});
             }
+            if (birth?.length != 8) {
+                return response(req, res, -100, "생년월일은 8자리 입니다.", {});
+            }
             if (user_type > 0 && (
                 !business_num ||
                 !company_name ||
