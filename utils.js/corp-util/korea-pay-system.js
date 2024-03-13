@@ -275,6 +275,7 @@ export const koreaPaySystemApi = {
                     ecordInfo: acct_name,
                 }
                 query = processBodyObj(query, dns_data, pay_type, "transfer");
+                console.log(query);
                 let { data: result } = await axios.post(`${API_URL}/api/settle/transfer`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
                 });
