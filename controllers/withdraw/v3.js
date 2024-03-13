@@ -159,6 +159,21 @@ const withdrawV3Ctrl = {
             if (withdraw_amount > mother_account?.real_amount) {
                 return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
             }
+
+            let check_account = await corpApi.account.info({
+                pay_type: 'withdraw',
+                dns_data: dns_data,
+                decode_user: user,
+                bank_code: virtual_account?.deposit_bank_code,
+                acct_num: virtual_account?.deposit_acct_num,
+                birth: virtual_account?.birth,
+            })
+            if (check_account.code != 100) {
+                return response(req, res, -100, (check_account?.message || "서버 에러 발생"), false)
+            }
+            if (virtual_account?.deposit_acct_name != check_account.data?.withdraw_acct_name) {
+                return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
+            }
             let result = await insertQuery(`deposits`, deposit_obj);
             let withdraw_id = result?.result?.insertId;
 

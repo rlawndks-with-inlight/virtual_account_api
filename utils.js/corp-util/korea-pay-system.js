@@ -267,6 +267,7 @@ export const koreaPaySystemApi = {
                     acct_num,
                     acct_name,
                 } = data;
+
                 let query = {
                     amount: amount,
                     trackId: `${dns_data?.id ?? 0}-${decode_user?.id ?? 0}-${new Date().getTime()}`,
