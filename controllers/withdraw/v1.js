@@ -87,6 +87,7 @@ const withdrawV1Ctrl = {
                 otp_num,
                 deposit_acct_name = "",
             } = req.body;
+            withdraw_amount = parseInt(withdraw_amount);
             if (!(withdraw_amount > 0)) {
                 return response(req, res, -100, "금액을 0원 이상 입력해주세요.", false);
             }
