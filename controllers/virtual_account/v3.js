@@ -57,6 +57,23 @@ const virtualAccountV3Ctrl = {
             )) {
                 return response(req, res, -100, "필수값을 입력해 주세요.", {});
             }
+            let check_account = await corpApi.account.info({
+                pay_type: 'withdraw',
+                dns_data: dns_data,
+                decode_user: user,
+                bank_code,
+                acct_num: account,
+                birth: birth,
+                business_num: business_num,
+                user_type: user_type,
+            })
+            if (check_account.code != 100) {
+                return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
+            }
+            if (virtual_account?.deposit_acct_name != check_account.data?.withdraw_acct_name) {
+                return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
+            }
+
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
