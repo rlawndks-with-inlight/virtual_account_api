@@ -186,7 +186,7 @@ const pushKoreaPaySystemCtrl = {
                     ...withraw_obj,
                 }
                 if (withdraw_status != 0) {
-                    delete obj['amount'];
+                    obj['amount'] = 0;
                 }
                 let result = await updateQuery(`deposits`, obj, withdraw_id);
             } else {
@@ -202,7 +202,7 @@ const pushKoreaPaySystemCtrl = {
                     settle_acct_name: virtual_account?.deposit_acct_name,
                 }
                 if (withdraw_status != 0) {
-                    delete obj['amount'];
+                    obj['amount'] = 0;
                 }
                 let result = await insertQuery(`deposits`, obj);
             }
