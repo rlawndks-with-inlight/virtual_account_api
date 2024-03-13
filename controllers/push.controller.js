@@ -194,6 +194,9 @@ const pushCtrl = {
                     ...obj,
                     ...withraw_obj,
                 }
+                if (withdraw_status != 0) {
+                    obj['amount'] = 0;
+                }
                 let result = await insertQuery(`deposits`, obj);
             }
             insertResponseLog(req, '0000');
