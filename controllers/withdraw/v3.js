@@ -166,7 +166,7 @@ const withdrawV3Ctrl = {
                 decode_user: user,
                 bank_code: virtual_account?.deposit_bank_code,
                 acct_num: virtual_account?.deposit_acct_num,
-                birth: virtual_account?.birth,
+                birth: virtual_account?.user_type == 0 ? virtual_account?.birth : virtual_account?.business_num,
             })
             if (check_account.code != 100) {
                 return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
