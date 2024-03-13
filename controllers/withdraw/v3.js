@@ -169,7 +169,7 @@ const withdrawV3Ctrl = {
                 birth: virtual_account?.birth,
             })
             if (check_account.code != 100) {
-                return response(req, res, -100, (check_account?.message || "서버 에러 발생"), false)
+                return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
             }
             if (virtual_account?.deposit_acct_name != check_account.data?.withdraw_acct_name) {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
@@ -192,7 +192,7 @@ const withdrawV3Ctrl = {
                 acct_name: virtual_account?.deposit_acct_name,
             })
             if (api_withdraw_request_result.code != 100) {
-                return response(req, res, -100, (api_withdraw_request_result?.message || "서버 에러 발생"), false)
+                return response(req, res, -120, (api_withdraw_request_result?.message || "서버 에러 발생"), false)
             }
             console.log(api_withdraw_request_result)
             let result3 = await updateQuery(`deposits`, {
