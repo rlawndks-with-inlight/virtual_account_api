@@ -106,20 +106,20 @@ const pushKoreaPaySystemCtrl = {
                 if (!exist_deposit) {
                     let result = await insertQuery(`deposits`, obj);
                     deposit_id = result?.result?.insertId;
-                    sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
-                    let bell_data = {
-                        amount,
-                        user_id: mcht?.id,
-                        deposit_acct_name,
-                        nickname: mcht?.nickname,
-                    }
-                    emitSocket({
-                        method: 'deposit',
-                        brand_id: dns_data?.id,
-                        data: bell_data
-                    })
                 }
             }
+            sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+            let bell_data = {
+                amount,
+                user_id: mcht?.id,
+                deposit_acct_name,
+                nickname: mcht?.nickname,
+            }
+            emitSocket({
+                method: 'deposit',
+                brand_id: dns_data?.id,
+                data: bell_data
+            })
             insertResponseLog(req, '0000');
             return res.status(200).send('0000');
         } catch (err) {
