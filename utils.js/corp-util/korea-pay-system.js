@@ -223,12 +223,12 @@ export const koreaPaySystemApi = {
         info: async (data) => {//예금주명조회
             try {
                 let { dns_data, pay_type, decode_user,
-                    bank_code, acct_num, birth
+                    bank_code, acct_num, acct_name, birth, business_num, user_type
                 } = data;
                 let query = {
                     account: acct_num,
                     bankCd: bank_code,
-                    identity: birth,
+                    identity: user_type == 0 ? birth : business_num,
                 }
                 query = processBodyObj(query, dns_data, pay_type, "accnt");
                 let { data: result } = await axios.post(`${API_URL}/api/settle/accnt`, query, {
@@ -241,13 +241,34 @@ export const koreaPaySystemApi = {
                         data: {},
                     };
                 }
-                return {
-                    code: 100,
-                    message: result?.message,
-                    data: {
-                        withdraw_acct_name: result?.accnt?.holder,
-                    },
-                };
+                if (acct_name) {
+                    if (acct_name == result?.accnt?.holder) {
+                        return {
+                            code: 100,
+                            message: result?.message,
+                            data: {
+                                withdraw_acct_name: result?.accnt?.holder,
+                            },
+                        };
+                    } else {
+                        return {
+                            code: -100,
+                            message: '예금주명이 일치하지 않습니다.',
+                            data: {
+                                withdraw_acct_name: result?.accnt?.holder,
+                            },
+                        };
+                    }
+                } else {
+                    return {
+                        code: 100,
+                        message: result?.message,
+                        data: {
+                            withdraw_acct_name: result?.accnt?.holder,
+                        },
+                    };
+                }
+
             } catch (err) {
                 console.log(err)
                 console.log(err?.response?.data)
