@@ -278,6 +278,7 @@ export const koreaPaySystemApi = {
                 let { data: result } = await axios.post(`${API_URL}/api/settle/transfer`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
                 });
+                console.log(result);
                 if (result?.result?.resultCd != '0000') {
                     return {
                         code: -100,
