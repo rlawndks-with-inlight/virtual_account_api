@@ -26,6 +26,7 @@ const withdrawV3Ctrl = {
                 note = "",
                 api_sign_val,
             } = req.body;
+            withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
