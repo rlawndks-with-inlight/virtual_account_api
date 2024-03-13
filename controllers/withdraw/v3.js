@@ -122,7 +122,7 @@ const withdrawV3Ctrl = {
                 note: note,
                 withdraw_fee_type: dns_data?.withdraw_fee_type,
             }
-
+            console.log(deposit_obj);
             let settle_amount_sql = ``;
             if (user?.level == 10) {
                 settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${user?.id}`;

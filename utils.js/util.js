@@ -594,12 +594,13 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
     }
 }
 
-export const setWithdrawAmountSetting = async (amount = 0, user_ = {}, dns_data = {}) => {
+export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data = {}) => {
+    let amount = parseInt(amount_);
     let user = user_;
     let result = {};
     let operator_list = getOperatorList(dns_data);
-    result['amount'] = (-1) * (amount + user?.withdraw_fee);
-    result['expect_amount'] = (-1) * (amount + user?.withdraw_fee);
+    result['amount'] = (-1) * (parseInt(amount) + parseInt(user?.withdraw_fee));
+    result['expect_amount'] = result['amount'];
     result['withdraw_fee'] = user?.withdraw_fee;
     if (user?.level == 10) {
         let mcht_columns = [
