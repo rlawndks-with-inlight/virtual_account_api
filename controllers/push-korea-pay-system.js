@@ -44,7 +44,7 @@ const pushKoreaPaySystemCtrl = {
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
 
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id}`, [
+            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0`, [
                 issueId,
             ]);
             virtual_account = virtual_account?.result[0];
