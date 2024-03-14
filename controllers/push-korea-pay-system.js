@@ -66,7 +66,7 @@ const pushKoreaPaySystemCtrl = {
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
-                virtual_account_id: virtual_account?.id,
+                virtual_account_id: virtual_account?.id ?? 0,
                 amount: (trxType == 'deposit' || trxType == 'depositback') ? amount : 0,
                 expect_amount: trxType == 'depositback' ? (-1) * amount : amount,
                 deposit_bank_code,
