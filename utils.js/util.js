@@ -299,7 +299,7 @@ export const operatorLevelList = [
     { level: 13, num: '0' },
 ]
 export const getNumberByPercent = (num = 0, percent = 0) => {
-    return Math.round(num * (percent).toFixed(2) / 100);
+    return Math.round(num * (percent).toFixed(3) / 100);
 }
 export const commarNumber = (num) => {
     if (!num) {
