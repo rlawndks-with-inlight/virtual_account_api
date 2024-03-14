@@ -80,7 +80,7 @@ const withdrawV3Ctrl = {
                 }
             }
 
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0`, [
+            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0 AND status=0`, [
                 guid
             ]);
             virtual_account = virtual_account?.result[0];
