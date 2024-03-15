@@ -9,6 +9,7 @@ import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
 //쿠콘활용api
 const withdrawV1Ctrl = {
+
     check: async (req, res, next) => {
         try {
             let {
@@ -70,7 +71,8 @@ const withdrawV1Ctrl = {
 
         }
     },
-    request: async (req, res, next) => {//출금요청
+    request: async (req_, res, next) => {//출금요청
+        let req = req_;
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
@@ -100,6 +102,7 @@ const withdrawV1Ctrl = {
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", false);
             }
+            req.body.brand_id = dns_data?.id;
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
 
             let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;

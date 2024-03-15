@@ -9,7 +9,8 @@ import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
 //뱅크너스 활용 api
 const virtualAccountV1Ctrl = {
-    request: async (req, res, next) => {//발급요청
+    request: async (req_, res, next) => {//발급요청
+        let req = req_;
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
@@ -38,6 +39,7 @@ const virtualAccountV1Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
+            req.body.brand_id = brand?.id;
             if (
                 !bank_code ||
                 !account ||
@@ -183,7 +185,8 @@ const virtualAccountV1Ctrl = {
 
         }
     },
-    check: async (req, res, next) => {// 1원인증
+    check: async (req_, res, next) => {// 1원인증
+        let req = req_;
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
@@ -204,7 +207,7 @@ const virtualAccountV1Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-
+            req.body.brand_id = brand?.id;
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {

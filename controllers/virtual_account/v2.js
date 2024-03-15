@@ -6,7 +6,8 @@ import { checkDns, checkLevel, response } from "../../utils.js/util.js";
 //페이투스활용api
 const virtualAccountV2Ctrl = {
     account: {
-        request: async (req, res, next) => {// 1원인증
+        request: async (req_, res, next) => {// 1원인증
+            let req = req_;
             try {
 
                 const decode_user = checkLevel(req.cookies.token, 0);
@@ -27,7 +28,7 @@ const virtualAccountV2Ctrl = {
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
-
+                req.body.brand_id = brand?.id;
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
                 if (!mcht) {

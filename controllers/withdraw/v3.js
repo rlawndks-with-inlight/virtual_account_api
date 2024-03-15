@@ -15,7 +15,8 @@ export const makeSignValueSha256 = (text) => {
     return api_sign_val;
 }
 const withdrawV3Ctrl = {
-    request: async (req, res, next) => {
+    request: async (req_, res, next) => {
+        let req = req_;
         try {
             let {
                 api_key,
@@ -36,7 +37,7 @@ const withdrawV3Ctrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
             dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
-
+            req.body.brand_id = dns_data?.id;
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }

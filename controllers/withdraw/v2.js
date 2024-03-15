@@ -15,7 +15,8 @@ export const makeSignValueSha256 = (text) => {
     return api_sign_val;
 }
 const withdrawV2Ctrl = {
-    request: async (req, res, next) => {
+    request: async (req_, res, next) => {
+        let req = req_;
         try {
             let {
                 api_key,
@@ -40,7 +41,7 @@ const withdrawV2Ctrl = {
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-
+            req.body.brand_id = dns_data?.id;
             let pay_type_name = '';
             if (pay_type == 'withdraw') {
                 pay_type_name = '출금';
