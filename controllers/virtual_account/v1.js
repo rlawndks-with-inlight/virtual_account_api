@@ -38,6 +38,27 @@ const virtualAccountV1Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
+            if (
+                !bank_code ||
+                !account ||
+                !name ||
+                !birth ||
+                !phone_num ||
+                !user_type
+            ) {
+                return response(req, res, -100, "필수값을 입력해 주세요.", {});
+            }
+            if (birth?.length != 8) {
+                return response(req, res, -100, "생년월일은 8자리 입니다.", {});
+            }
+            if (user_type > 0 && (
+                !business_num ||
+                !company_name ||
+                !ceo_name ||
+                !company_phone_num
+            )) {
+                return response(req, res, -100, "필수값을 입력해 주세요.", {});
+            }
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
