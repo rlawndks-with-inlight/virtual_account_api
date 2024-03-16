@@ -46,7 +46,7 @@ const virtualAccountV1Ctrl = {
                 !name ||
                 !birth ||
                 !phone_num ||
-                !user_type
+                (!user_type && user_type != 0)
             ) {
                 return response(req, res, -100, "필수값을 입력해 주세요.", {});
             }
