@@ -123,7 +123,6 @@ const withdrawV3Ctrl = {
                 note: note,
                 withdraw_fee_type: dns_data?.withdraw_fee_type,
             }
-            console.log(deposit_obj);
             let settle_amount_sql = ``;
             if (user?.level == 10) {
                 settle_amount_sql = `SELECT SUM(mcht_amount) AS settle_amount FROM deposits WHERE mcht_id=${user?.id}`;
@@ -177,12 +176,23 @@ const withdrawV3Ctrl = {
             if (virtual_account?.deposit_acct_name != check_account.data?.withdraw_acct_name) {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
             }
+            await db.beginTransaction();
             let result = await insertQuery(`deposits`, deposit_obj);
             let withdraw_id = result?.result?.insertId;
-
+            //인설트후 체크
+            let settle_amount_2 = await pool.query(settle_amount_sql);
+            settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
+            if (settle_amount_2 < 0) {
+                await db.rollback();
+                return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
+            } else {
+                await db.commit();
+            }
+            //
             if (user?.is_withdraw_hold == 1) {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
             }
+
 
             let api_withdraw_request_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
