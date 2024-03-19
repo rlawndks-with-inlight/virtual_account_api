@@ -43,11 +43,16 @@ const pushKoreaPaySystemCtrl = {
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0 AND deposit_acct_name=? `, [
+            let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0 AND deposit_acct_name=? `;
+            let virtual_account_values = [
                 issueId,
-                sender
-            ]);
+                sender,
+            ]
+            if (trackId) {
+                virtual_account_sql += ` AND guid=? `;
+                virtual_account_values.push(trackId)
+            }
+            let virtual_account = await pool.query(virtual_account_sql, virtual_account_values);
             virtual_account = virtual_account?.result[0];
 
             let mcht_columns = [

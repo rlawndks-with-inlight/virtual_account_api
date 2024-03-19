@@ -17,6 +17,7 @@ const pushDoznCtrl = {
             } = req.body;
             for (var i = 0; i < list.length; i++) {
                 const {
+                    accountId,
                     acctNo,
                     finCode,
                     tranNum,
