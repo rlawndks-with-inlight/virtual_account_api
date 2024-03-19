@@ -256,6 +256,9 @@ const withdrawV1Ctrl = {
                     }
                 }
             }
+            if (user?.is_withdraw_hold == 1) {
+                first_obj['is_withdraw_hold'] = 1;
+            }
             await db.beginTransaction();
             let first_result = await insertQuery(`deposits`, first_obj);
             let withdraw_id = first_result?.result?.insertId;

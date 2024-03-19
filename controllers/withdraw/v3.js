@@ -8,7 +8,7 @@ import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDe
 import 'dotenv/config';
 import crypto from 'crypto';
 
-//뱅크너스출금
+//코리아결제출금
 
 export const makeSignValueSha256 = (text) => {
     let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
