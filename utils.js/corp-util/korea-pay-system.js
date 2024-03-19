@@ -94,7 +94,7 @@ export const koreaPaySystemApi = {
     user: {
         account: async (data) => {
             let { dns_data, pay_type, decode_user,
-                email, name, phone_num, birth,
+                email, name, phone_num, birth, guid,
                 user_type,
                 business_num, company_name, ceo_name, company_phone_num,
                 deposit_bank_code, deposit_acct_num, deposit_acct_name,
@@ -149,6 +149,7 @@ export const koreaPaySystemApi = {
                     name: deposit_acct_name,
                     holderName: deposit_acct_name,
                     regType: user_type,
+                    trackId: guid,
                 }
                 query = processBodyObj(query, dns_data, pay_type);
                 let { data: result } = await axios.post(`${API_URL}/api/vact/regcerti`, query, {

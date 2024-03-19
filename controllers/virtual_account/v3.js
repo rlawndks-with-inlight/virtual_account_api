@@ -89,6 +89,7 @@ const virtualAccountV3Ctrl = {
             await db.beginTransaction();
             let data = {
                 tid: '',
+                guid: '',
             };
             let virtual_account_id = 0;
             let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0`, [
@@ -104,7 +105,9 @@ const virtualAccountV3Ctrl = {
                     return response(req, res, -100, "이미 등록된 유저 입니다.", {})
                 }
                 virtual_account_id = virtual_account?.id;
+                data.guid = virtual_account?.guid;
             } else {
+                let guid = `${generateRandomString(20)}${new Date().getTime()}`;
                 if (user_type == 1 || user_type == 2) {
                     if (!business_num) {
                         await db.rollback();
@@ -141,9 +144,10 @@ const virtualAccountV3Ctrl = {
                     company_name,
                     ceo_name,
                     company_phone_num,
-                    guid: `${generateRandomString(20)}${new Date().getTime()}`,
+                    guid,
                     virtual_user_name,
                 });
+                data.guid = guid;
                 virtual_account_id = insert_virtual_account?.result?.insertId;
             }
             let api_result2 = await corpApi.user.account({
@@ -160,6 +164,7 @@ const virtualAccountV3Ctrl = {
                 virtual_bank_code: virtual_account?.virtual_bank_code,
                 virtual_acct_num: virtual_account?.virtual_acct_num,
                 virtual_issue_time: virtual_account?.virtual_issue_time,
+                guid: data.guid,
             })
             if (api_result2?.code != 100) {
                 await db.commit();
