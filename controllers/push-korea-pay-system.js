@@ -31,7 +31,7 @@ const pushKoreaPaySystemCtrl = {
                 rootVactId,
                 trxDay,
                 trxTime,
-                trackId,
+                trackId = "",
                 udf1,
                 udf2,
                 stlDay,
