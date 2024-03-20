@@ -313,7 +313,7 @@ const withdrawV1Ctrl = {
                 } else if (api_result2.data?.status == 6) {
                     continue;
                 }
-                if (api_result2.code == 100) {
+                if (api_result2.code == 100 || status == 10) {
                     let update_obj = {
                         withdraw_status: status,
                         amount: (status == 0 ? ((-1) * amount) : 0),
@@ -396,7 +396,7 @@ const withdrawV1Ctrl = {
             } else if (api_result.data?.status == 6) {
                 status = 20;
             }
-            if (api_result.code == 100) {
+            if (api_result.code == 100 || status == 10) {
                 let update_obj = {
                     withdraw_status: status,
                     amount: (status == 0 ? trx?.expect_amount : 0),
