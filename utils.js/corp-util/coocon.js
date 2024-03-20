@@ -217,7 +217,7 @@ export const cooconApi = {
         request: async (data) => {//출금요청
             let {
                 dns_data, pay_type, decode_user,
-                bank_code, acct_num, amount, deposit_acct_name, trx_id
+                bank_code, acct_num, amount, acct_name, trx_id
             } = data;
             let default_body = getDefaultBody(dns_data, pay_type);
             default_body = {
@@ -233,7 +233,7 @@ export const cooconApi = {
                     RCV_ACCT_NO: acct_num,
                     WDRW_ACCT_NO: dns_data[`${pay_type}_virtual_acct_num`],
                     TRSC_AMT: amount,
-                    WDRW_ACCT_NM: deposit_acct_name,
+                    WDRW_ACCT_NM: acct_name,
                 }))
                 let { data: response } = await axios.post(`${API_URL}/sol/gateway/vapg_wapi.jsp`, query, {
                     headers: getDefaultHeader(),

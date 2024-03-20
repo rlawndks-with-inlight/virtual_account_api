@@ -279,7 +279,7 @@ const withdrawV1Ctrl = {
                 bank_code: withdraw_bank_code,
                 acct_num: withdraw_acct_num,
                 amount: withdraw_amount - (dns_data?.withdraw_fee_type == 0 ? 0 : user?.withdraw_fee),
-                deposit_acct_name: deposit_acct_name || withdraw_acct_name,
+                acct_name: deposit_acct_name || withdraw_acct_name,
                 trx_id,
             })
             let tid = api_result.data?.tid;
