@@ -311,10 +311,13 @@ const withdrawV1Ctrl = {
                         amount: (status == 0 ? ((-1) * amount) : 0),
                     }
                     let withdraw_obj = await setWithdrawAmountSetting(amount, user, dns_data)
-                    update_obj = {
-                        ...update_obj,
-                        ...withdraw_obj,
+                    if (status == 0) {
+                        update_obj = {
+                            ...update_obj,
+                            ...withdraw_obj,
+                        }
                     }
+
                     let result = await updateQuery(`deposits`, update_obj, withdraw_id)
                     break;
                 }
@@ -386,10 +389,19 @@ const withdrawV1Ctrl = {
                 status = 20;
             }
             if (api_result.code == 100) {
-                let result = await updateQuery(`deposits`, {
+                let update_obj = {
                     withdraw_status: status,
                     amount: (status == 0 ? trx?.expect_amount : 0),
-                }, trx?.id)
+                }
+                let withdraw_obj = await setWithdrawAmountSetting(trx?.expect_amount * (-1), user, dns_data)
+                if (status == 0) {
+                    update_obj = {
+                        ...update_obj,
+                        ...withdraw_obj,
+                    }
+                }
+                let result = await updateQuery(`deposits`, update_obj, trx?.id)
+
                 return response(req, res, 100, "success", {})
             } else {
                 return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
