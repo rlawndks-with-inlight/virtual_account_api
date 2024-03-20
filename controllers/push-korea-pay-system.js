@@ -73,6 +73,8 @@ const pushKoreaPaySystemCtrl = {
             let deposit_acct_name = virtual_account?.deposit_acct_name
 
             let pay_type = 0;
+            let trans_date = `${trxDay.substring(0, 4)}-${trxDay.substring(4, 6)}-${trxDay.substring(6, 8)}`;
+            let trans_time = `${trxTime.substring(0, 2)}:${trxTime.substring(2, 4)}:${trxTime.substring(4, 6)}`;
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
@@ -85,8 +87,8 @@ const pushKoreaPaySystemCtrl = {
                 pay_type,
                 trx_id: trx_id,
                 note: resultMsg || '',
-                trans_date: trxDay,
-                trans_time: trxTime,
+                trans_date,
+                trans_time,
                 top_office_amount: parseInt(stlFee) + parseInt(stlFeeVat),
             };
             if (trxType == 'deposit' || trxType == 'depositback') {
