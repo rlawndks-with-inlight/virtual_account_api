@@ -210,6 +210,14 @@ const withdrawV1Ctrl = {
             if (get_balance.data?.amount < withdraw_amount) {
                 return response(req, res, -100, "출금가능금액 부족\n 본사에 문의하세요.", false)
             }
+
+            let last_deposit_same_acct_num = await pool.query(`SELECT id FROM deposits WHERE brand_id=${dns_data?.id} AND settle_acct_num=? AND user_id=${user?.id} AND created_at >= NOW() - INTERVAL 3 MINUTE `, [
+                withdraw_acct_num
+            ])
+            last_deposit_same_acct_num = last_deposit_same_acct_num?.result[0];
+            if (last_deposit_same_acct_num) {
+                return response(req, res, -100, "3분내 동일계좌 출금이 불가합니다.", false)
+            }
             // let account_info = await corpApi.account.info({
             //     pay_type: 'withdraw',
             //     dns_data: dns_data,
