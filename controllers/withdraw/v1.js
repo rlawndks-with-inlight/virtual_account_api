@@ -310,7 +310,7 @@ const withdrawV1Ctrl = {
                         withdraw_status: status,
                         amount: (status == 0 ? ((-1) * amount) : 0),
                     }
-                    let withdraw_obj = await setWithdrawAmountSetting(amount, user, dns_data)
+                    let withdraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data)
                     if (status == 0) {
                         update_obj = {
                             ...update_obj,
@@ -393,7 +393,7 @@ const withdrawV1Ctrl = {
                     withdraw_status: status,
                     amount: (status == 0 ? trx?.expect_amount : 0),
                 }
-                let withdraw_obj = await setWithdrawAmountSetting(trx?.expect_amount * (-1), user, dns_data)
+                let withdraw_obj = await setWithdrawAmountSetting(trx?.expect_amount * (-1) - user?.withdraw_fee, user, dns_data)
                 if (status == 0) {
                     update_obj = {
                         ...update_obj,
