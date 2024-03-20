@@ -18,21 +18,7 @@ const getDefaultHeader = () => {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 }
-const axiosIns = () => {
-    let dns_info = {
-        // You can add your headers here
-        // ================================
-        timeout: 10000,
-        headers: {
-            "Accept": undefined,
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-    }
 
-    const axiosIns = axios.create(dns_info)
-
-    return axiosIns;
-}
 
 export const cooconApi = {
     balance: {
