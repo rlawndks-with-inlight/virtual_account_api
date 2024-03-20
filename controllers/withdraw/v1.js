@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, setWithdrawAmountSetting, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
@@ -240,13 +240,6 @@ const withdrawV1Ctrl = {
             if (user?.level == 10) {
                 first_obj['mcht_amount'] = (-1) * amount;
                 first_obj['mcht_id'] = user?.id;
-                for (var i = 0; i < operator_list.length; i++) {
-                    first_obj['head_office_amount'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
-                    if (user[`sales${operator_list[i].num}_id`] > 0) {
-                        first_obj[`sales${operator_list[i].num}_amount`] = parseFloat(getUserWithDrawFee(user, operator_list[i].value, operator_list, dns_data?.withdraw_head_office_fee));
-                        first_obj[`sales${operator_list[i].num}_id`] = user[`sales${operator_list[i].num}_id`];
-                    }
-                }
             } else if (user?.level < 40 && user?.level > 10) {
                 for (var i = 0; i < operator_list.length; i++) {
                     if (operator_list[i]?.value == user?.level) {
@@ -313,10 +306,16 @@ const withdrawV1Ctrl = {
                     continue;
                 }
                 if (api_result2.code == 100) {
-                    let result = await updateQuery(`deposits`, {
+                    let update_obj = {
                         withdraw_status: status,
                         amount: (status == 0 ? ((-1) * amount) : 0),
-                    }, withdraw_id)
+                    }
+                    let withdraw_obj = await setWithdrawAmountSetting(amount, user, dns_data)
+                    update_obj = {
+                        ...update_obj,
+                        ...withdraw_obj,
+                    }
+                    let result = await updateQuery(`deposits`, update_obj, withdraw_id)
                     break;
                 }
             }

@@ -50,6 +50,8 @@ const pushDoznCtrl = {
                 } else if (finCode == '088') {
                     acct_name = tranDetail;
                 }
+                let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
+                let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
                     let obj = {
@@ -59,8 +61,8 @@ const pushDoznCtrl = {
                         deposit_status: 0,
                         trx_id: tranNum || `${dns_data?.id}${new Date().getTime()}`,
                         corp_account_id: corp_account?.id,
-                        trans_date: `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`,
-                        trans_time: `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`,
+                        trans_date,
+                        trans_time,
                     };
                     let deposit_columns = [
                         `deposits.*`,
