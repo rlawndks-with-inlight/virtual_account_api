@@ -1,0 +1,21 @@
+{
+    "vactId": "V240320416148",
+        "retry": 0,
+            "mchtId": "1878102677E",
+                "issueId": "VI240315652551",
+                    "bankCd": "007",
+                        "account": "49101402377757",
+                            "sender": "권봉재",
+                                "amount": 30000,
+                                    "trxType": "deposit",
+                                        "rootVactId": "",
+                                            "trxDay": "20240320",
+                                                "trxTime": "224119",
+                                                    "trackId": "",
+                                                        "udf1": "",
+                                                            "udf2": "",
+                                                                "stlDay": "20240320",
+                                                                    "stlAmount": 29918,
+                                                                        "stlFee": 75,
+                                                                            "stlFeeVat": 7
+}
