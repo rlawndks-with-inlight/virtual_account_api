@@ -1,7 +1,7 @@
 import { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { insertQuery, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, response } from "../../utils.js/util.js";
+import { checkDns, checkLevel, getDnsData, response } from "../../utils.js/util.js";
 
 //페이투스활용api
 const virtualAccountV2Ctrl = {
@@ -27,6 +27,10 @@ const virtualAccountV2Ctrl = {
                 brand = brand?.result[0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
                 req.body.brand_id = brand?.id;
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
@@ -99,7 +103,10 @@ const virtualAccountV2Ctrl = {
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
-
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+                }
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
                 if (!mcht) {
@@ -176,6 +183,11 @@ const virtualAccountV2Ctrl = {
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+                }
+
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
                 if (!mcht) {
@@ -258,7 +270,10 @@ const virtualAccountV2Ctrl = {
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
-
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+                }
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
                 if (!mcht) {
@@ -317,7 +332,10 @@ const virtualAccountV2Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-
+            brand = await getDnsData(brand);
+            if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+            }
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {

@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, generateRandomString, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, generateRandomString, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
@@ -39,6 +39,10 @@ const virtualAccountV3Ctrl = {
             brand = brand?.result[0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
+            }
+            brand = await getDnsData(brand);
+            if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
             req.body.brand_id = brand?.id;
             if (
@@ -220,6 +224,10 @@ const virtualAccountV3Ctrl = {
             brand = brand?.result[0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
+            }
+            brand = await getDnsData(brand);
+            if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
             req.body.brand_id = brand?.id;
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
