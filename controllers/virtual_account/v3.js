@@ -40,9 +40,6 @@ const virtualAccountV3Ctrl = {
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-            if (brand?.id == 79) {
-                return response(req, res, -100, "점검중입니다.", {});
-            }
             req.body.brand_id = brand?.id;
             if (
                 !bank_code ||
@@ -223,9 +220,6 @@ const virtualAccountV3Ctrl = {
             brand = brand?.result[0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
-            }
-            if (brand?.id == 79) {
-                return response(req, res, -100, "점검중입니다.", {});
             }
             req.body.brand_id = brand?.id;
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
