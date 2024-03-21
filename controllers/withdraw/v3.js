@@ -173,7 +173,7 @@ const withdrawV3Ctrl = {
             if (check_account.code != 100) {
                 return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
             }
-            if (virtual_account?.deposit_acct_name != check_account.data?.withdraw_acct_name) {
+            if (virtual_account?.deposit_acct_name.replaceAll(" ", "") != check_account.data?.withdraw_acct_name) {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
             }
             await db.beginTransaction();
