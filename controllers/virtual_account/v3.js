@@ -185,6 +185,7 @@ const virtualAccountV3Ctrl = {
                 deposit_acct_name: name,
                 phone_num: phone_num,
                 birth: birth,
+                guid: data.guid,
             }, virtual_account_id)
 
             await db.commit();
