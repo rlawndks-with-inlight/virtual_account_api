@@ -15,6 +15,7 @@ const virtualAccountV3Ctrl = {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
+            return;
             let {
                 api_key,
                 mid,
@@ -202,6 +203,7 @@ const virtualAccountV3Ctrl = {
     check: async (req_, res, next) => {// 1원인증 확인 및 발급
         let req = req_;
         try {
+            return;
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
             const decode_dns = checkDns(req.cookies.dns);
