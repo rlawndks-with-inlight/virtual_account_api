@@ -20,7 +20,7 @@ const virtualAccountV3Ctrl = {
                 mid,
                 bank_code,
                 account,
-                name,
+                name = "",
                 birth,
                 phone_num,
                 user_id = 0,
@@ -75,7 +75,7 @@ const virtualAccountV3Ctrl = {
             if (check_account.code != 100) {
                 return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
             }
-            if (name != check_account.data?.withdraw_acct_name) {
+            if (name.replaceAll(" ", "") != check_account.data?.withdraw_acct_name) {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
             }
 
@@ -180,6 +180,11 @@ const virtualAccountV3Ctrl = {
                 virtual_acct_name: name,
                 virtual_issue_time: api_result2.data?.virtual_issue_time,
                 ci: api_result2.data?.ci,
+                deposit_bank_code: bank_code,
+                deposit_acct_num: account,
+                deposit_acct_name: name,
+                phone_num: phone_num,
+                birth: birth,
             }, virtual_account_id)
 
             await db.commit();
