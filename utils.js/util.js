@@ -93,7 +93,6 @@ const logRequestResponse = async (req, res, decode_user, decode_dns) => {//ë¡œê·
 
     let request = {
         url: req.originalUrl,
-        headers: req.headers,
         query: req.query,
         params: req.params,
         body: req.body,
