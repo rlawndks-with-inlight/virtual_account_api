@@ -89,36 +89,41 @@ export const checkDns = (token) => { //dns 정보 뿌려주기
 }
 
 const logRequestResponse = async (req, res, decode_user, decode_dns) => {//로그찍기
-    let requestIp = getReqIp(req);
+    try {
+        let requestIp = getReqIp(req);
 
-    let request = {
-        url: req.originalUrl,
-        query: req.query,
-        params: req.params,
-        body: req.body,
-        method: req.method,
-        file: req.file || req.files || null
+        let request = {
+            url: req.originalUrl,
+            query: req.query,
+            params: req.params,
+            body: req.body,
+            method: req.method,
+            file: req.file || req.files || null
+        }
+        if (request.url.includes('/logs')) {
+            return true;
+        }
+        request = JSON.stringify(request)
+        let user_id = 0;
+        if (decode_user && !isNaN(parseInt(decode_user?.id))) {
+            user_id = decode_user?.id;
+        } else {
+            user_id = -1;
+        }
+        let brand_id = -1;
+        if (decode_dns) {
+            brand_id = decode_dns?.id;
+        } else {
+            brand_id = req.body?.brand_id || req.query?.brand_id || req.params?.brand_id || - 1;
+        }
+        let result = await pool.query(
+            "INSERT INTO logs (request, response_data, response_result, response_message, request_ip, user_id, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [request, JSON.stringify(res?.data), res?.result, res?.message, requestIp, user_id, brand_id]
+        )
+    } catch (err) {
+        console.log(err)
     }
-    if (request.url.includes('/logs')) {
-        return true;
-    }
-    request = JSON.stringify(request)
-    let user_id = 0;
-    if (decode_user && !isNaN(parseInt(decode_user?.id))) {
-        user_id = decode_user?.id;
-    } else {
-        user_id = -1;
-    }
-    let brand_id = -1;
-    if (decode_dns) {
-        brand_id = decode_dns?.id;
-    } else {
-        brand_id = req.body?.brand_id || req.query?.brand_id || req.params?.brand_id || - 1;
-    }
-    let result = await pool.query(
-        "INSERT INTO logs (request, response_data, response_result, response_message, request_ip, user_id, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [request, JSON.stringify(res?.data), res?.result, res?.message, requestIp, user_id, brand_id]
-    )
+
 }
 export const response = async (req, res, code, message, data) => { //응답 포맷
     var resDict = {
