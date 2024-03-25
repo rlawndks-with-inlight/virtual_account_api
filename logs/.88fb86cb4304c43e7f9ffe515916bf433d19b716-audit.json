@@ -6,16 +6,6 @@
     "auditLog": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\.88fb86cb4304c43e7f9ffe515916bf433d19b716-audit.json",
     "files": [
         {
-            "date": 1707979362561,
-            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-02-15.log",
-            "hash": "03b0547e73ea2d602811fd46c5e42717ca6ef2ba251a18db6bbb1ccd933b48ce"
-        },
-        {
-            "date": 1708010174470,
-            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-02-16.log",
-            "hash": "57af1cb088604cf99aa0ebede64b5b32d0a04d5cec3d35ac6324ae620ac9d7ce"
-        },
-        {
             "date": 1708098796132,
             "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-02-17.log",
             "hash": "ba1bc732c2a8c912148d5246cfe56b72f4f57761542ddfc2404fd8f46d3848db"
@@ -154,6 +144,16 @@
             "date": 1710912105739,
             "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-03-20.log",
             "hash": "fb7522c6849de2a6d39535223a386a3b394a0b671dcd040f5c87e89fad5a9cc1"
+        },
+        {
+            "date": 1711095463522,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-03-22.log",
+            "hash": "f0cf4cfc19cacb1a93e5c477d5031b43c1dac77e7e5f1fab66bab9c3b12fc642"
+        },
+        {
+            "date": 1711294939055,
+            "name": "C:\\Users\\pc\\Desktop\\project\\virtual-account\\api-server\\logs\\2024-03-25.log",
+            "hash": "29c7d3c25213aa430a8a0a905c6026cf52c26a2dbe057f8a55204c8a8b4b3f94"
         }
     ],
     "hashType": "sha256"

@@ -215,7 +215,7 @@ const withdrawV1Ctrl = {
                 withdraw_acct_num
             ])
             last_deposit_same_acct_num = last_deposit_same_acct_num?.result[0];
-            if (last_deposit_same_acct_num) {
+            if (last_deposit_same_acct_num && user?.is_not_same_acct_withdraw_minute == 1) {
                 return response(req, res, -100, "1분내 동일계좌 출금이 불가합니다.", false)
             }
             // let account_info = await corpApi.account.info({
