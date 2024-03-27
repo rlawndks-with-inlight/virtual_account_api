@@ -6,6 +6,7 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
+import crypto from 'crypto';
 const table_name = 'virtual_accounts';
 
 export const makeSignValueSha256 = (text) => {
@@ -17,6 +18,7 @@ export const makeSignValueSha256 = (text) => {
 const virtualAccountV1Ctrl = {
     request: async (req_, res, next) => {//발급요청
         let req = req_;
+        console.log(req.cookies)
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
