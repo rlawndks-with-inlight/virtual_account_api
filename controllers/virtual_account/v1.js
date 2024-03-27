@@ -7,6 +7,12 @@ import { checkDns, checkLevel, getDnsData, isItemBrandIdSameDnsId, response, set
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
+
+export const makeSignValueSha256 = (text) => {
+    let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
+    return api_sign_val;
+}
+
 //뱅크너스 활용 api
 const virtualAccountV1Ctrl = {
     request: async (req_, res, next) => {//발급요청
@@ -29,6 +35,7 @@ const virtualAccountV1Ctrl = {
                 company_name,
                 ceo_name,
                 company_phone_num,
+                api_sign_val,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -71,6 +78,12 @@ const virtualAccountV1Ctrl = {
             if (!mcht) {
                 mcht = {
                     id: 0,
+                }
+            }
+            if (brand?.is_use_sign_key == 1) {
+                let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
+                if (user_api_sign_val != api_sign_val) {
+                    return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }
             }
             await db.beginTransaction();
@@ -202,6 +215,7 @@ const virtualAccountV1Ctrl = {
                 tid,
                 vrf_word,
                 guid,
+                api_sign_val,
             } = req.body;
 
             if (!api_key) {
@@ -225,7 +239,12 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
-
+            if (brand?.is_use_sign_key == 1) {
+                let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
+                if (user_api_sign_val != api_sign_val) {
+                    return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
+                }
+            }
 
             let data = {};
 
@@ -272,6 +291,7 @@ const virtualAccountV1Ctrl = {
                 api_key,
                 mid,
                 guid,
+                api_sign_val,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -293,7 +313,12 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
-
+            if (brand?.is_use_sign_key == 1) {
+                let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
+                if (user_api_sign_val != api_sign_val) {
+                    return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
+                }
+            }
             let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
                 brand?.id,
                 guid,
