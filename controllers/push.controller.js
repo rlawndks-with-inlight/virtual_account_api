@@ -155,24 +155,33 @@ const pushCtrl = {
             let withdraw_amount = Math.abs(parseInt(trx_amt));
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
+            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
+            virtual_account = virtual_account?.result[0];
+            let brand_id = virtual_account?.brand_id ?? 0;
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+            dns_data = dns_data?.result[0];
+            let user = {};
+            if (dns_data) {
+                user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                    virtual_account?.mcht_id
+                ]);
+                user = user?.result[0];
+            }
+
             if (trx) {
-                let update_trx = await updateQuery(`deposits`, {
+                let obj = {
                     withdraw_status,
                     amount: amount,
-                }, trx?.id);
-            } else {
-                let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
-                virtual_account = virtual_account?.result[0];
-                let brand_id = virtual_account?.brand_id ?? 0;
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
-                dns_data = dns_data?.result[0];
-                let user = {};
-                if (dns_data) {
-                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
-                        virtual_account?.mcht_id
-                    ]);
-                    user = user?.result[0];
                 }
+                let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                if (withdraw_status == 0) {
+                    obj = {
+                        ...obj,
+                        ...withraw_obj,
+                    }
+                }
+                let update_trx = await updateQuery(`deposits`, obj, trx?.id);
+            } else {
 
                 amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + user?.withdraw_fee)) : 0;
                 let obj = {

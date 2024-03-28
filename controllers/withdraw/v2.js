@@ -82,7 +82,7 @@ const withdrawV2Ctrl = {
             }
 
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0`, [
-                guid
+                guid,
             ]);
             virtual_account = virtual_account?.result[0];
             if (!virtual_account) {
