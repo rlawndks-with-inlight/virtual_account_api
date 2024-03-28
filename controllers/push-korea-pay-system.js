@@ -193,9 +193,11 @@ const pushKoreaPaySystemCtrl = {
 
             if (exist_deposit) {
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
-                obj = {
-                    ...obj,
-                    ...withraw_obj,
+                if (withdraw_status == 0) {
+                    obj = {
+                        ...obj,
+                        ...withraw_obj,
+                    }
                 }
                 if (withdraw_status != 0) {
                     obj['amount'] = 0;
@@ -205,13 +207,18 @@ const pushKoreaPaySystemCtrl = {
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
                 obj = {
                     ...obj,
-                    ...withraw_obj,
                     brand_id: dns_data?.id,
                     trx_id: trxId,
                     pay_type: 5,
                     settle_bank_code: virtual_account?.deposit_bank_code,
                     settle_acct_num: virtual_account?.deposit_acct_num,
                     settle_acct_name: virtual_account?.deposit_acct_name,
+                }
+                if (withdraw_status == 0) {
+                    obj = {
+                        ...obj,
+                        ...withraw_obj,
+                    }
                 }
                 if (withdraw_status != 0) {
                     obj['amount'] = 0;

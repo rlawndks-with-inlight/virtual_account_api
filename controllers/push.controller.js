@@ -190,9 +190,11 @@ const pushCtrl = {
                     settle_acct_name: virtual_account?.deposit_acct_name,
                 }
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
-                obj = {
-                    ...obj,
-                    ...withraw_obj,
+                if (withdraw_status == 0) {
+                    obj = {
+                        ...obj,
+                        ...withraw_obj,
+                    }
                 }
                 if (withdraw_status != 0) {
                     obj['amount'] = 0;
