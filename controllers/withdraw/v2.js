@@ -181,14 +181,12 @@ const withdrawV2Ctrl = {
                     amount: withdraw_amount,
                 }
                 emitSocket({
-                    method: 'deposit',
+                    method: 'withdraw_request',
                     brand_id: dns_data?.id,
                     data: bell_data
                 })
             }
             //
-
-
 
             if (user?.is_withdraw_hold == 1) {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
