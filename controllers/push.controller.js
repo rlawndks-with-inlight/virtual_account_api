@@ -160,20 +160,33 @@ const pushCtrl = {
             let brand_id = virtual_account?.brand_id ?? 0;
             let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
             dns_data = dns_data?.result[0];
-            let user = {};
-            if (dns_data) {
-                user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
-                    virtual_account?.mcht_id
-                ]);
-                user = user?.result[0];
-            }
+            let operator_list = getOperatorList(dns_data);
 
             if (trx) {
+                let user = {};
+                if (trx?.mcht_id > 0) {
+                    user.id = trx?.mcht_id;
+                } else {
+                    for (var i = 0; i < operator_list.length; i++) {
+                        if (trx[`sales${operator_list[i]?.num}_id`] > 0) {
+                            user.id = trx[`sales${operator_list[i]?.num}_id`];
+                            break;
+                        }
+                    }
+                }
+                if (dns_data) {
+                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                        user?.id
+                    ]);
+                    user = user?.result[0];
+                }
                 let obj = {
                     withdraw_status,
                     amount: amount,
                 }
+                console.log(user)
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                console.log(withraw_obj)
                 if (withdraw_status == 0) {
                     obj = {
                         ...obj,
@@ -183,6 +196,13 @@ const pushCtrl = {
                 let update_trx = await updateQuery(`deposits`, obj, trx?.id);
             } else {
 
+                let user = {};
+                if (dns_data) {
+                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                        virtual_account?.mcht_id
+                    ]);
+                    user = user?.result[0];
+                }
                 amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + user?.withdraw_fee)) : 0;
                 let obj = {
                     trx_id: tid,
