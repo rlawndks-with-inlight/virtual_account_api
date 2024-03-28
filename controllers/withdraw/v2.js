@@ -7,6 +7,7 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
+import { emitSocket } from "../../utils.js/socket/index.js";
 
 //뱅크너스출금
 
@@ -171,8 +172,23 @@ const withdrawV2Ctrl = {
                 return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
             } else {
                 await db.commit();
+                let bell_data = {
+                    settle_bank_code: virtual_account?.deposit_bank_code,
+                    settle_acct_num: virtual_account?.deposit_acct_num,
+                    settle_acct_name: virtual_account?.deposit_acct_name,
+                    user_id: user?.id,
+                    nickname: user?.nickname,
+                    amount: withdraw_amount,
+                }
+                emitSocket({
+                    method: 'deposit',
+                    brand_id: dns_data?.id,
+                    data: bell_data
+                })
             }
             //
+
+
 
             if (user?.is_withdraw_hold == 1) {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});

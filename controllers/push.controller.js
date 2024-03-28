@@ -155,6 +155,7 @@ const pushCtrl = {
             let withdraw_amount = Math.abs(parseInt(trx_amt));
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
+
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
             virtual_account = virtual_account?.result[0];
             let brand_id = virtual_account?.brand_id ?? 0;
@@ -184,9 +185,7 @@ const pushCtrl = {
                     withdraw_status,
                     amount: amount,
                 }
-                console.log(user)
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
-                console.log(withraw_obj)
                 if (withdraw_status == 0) {
                     obj = {
                         ...obj,
