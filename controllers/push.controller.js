@@ -181,6 +181,7 @@ const pushCtrl = {
                     ]);
                     user = user?.result[0];
                 }
+
                 let obj = {
                     withdraw_status,
                     amount: amount,
