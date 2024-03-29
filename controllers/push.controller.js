@@ -187,6 +187,7 @@ const pushCtrl = {
                     amount: amount,
                 }
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
+                console.log(withraw_obj);
                 if (withdraw_status == 0) {
                     obj = {
                         ...obj,
