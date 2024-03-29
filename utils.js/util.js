@@ -624,9 +624,10 @@ export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data
             ...user,
             ...mcht,
         }
+        console.log(user)
         result['mcht_amount'] = (-1) * (amount + user?.withdraw_fee);
         result['mcht_id'] = user?.id;
-        if (dns_data?.is_use_deposit_operator == 1) {
+        if (dns_data?.is_use_withdraw_operator == 1) {
             result['head_office_amount'] = result['head_office_amount'] ?? 0;
             result['head_office_amount'] = parseFloat(getUserWithDrawFee(user, 40, operator_list, dns_data?.withdraw_head_office_fee));
             for (var i = 0; i < operator_list.length; i++) {
