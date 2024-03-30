@@ -447,13 +447,20 @@ export const getMotherDeposit = async (decode_dns) => {
     let operator_list = getOperatorList(decode_dns);
 
     let sum_columns = [
-        `SUM(CASE WHEN pay_type=15 THEN 0 ELSE amount END) AS total_amount`,
+        `SUM(CASE WHEN (pay_type=15 OR is_hand=1) THEN 0 ELSE amount END) AS total_amount`,
         `SUM(CASE WHEN withdraw_status=0 THEN withdraw_fee ELSE 0 END) AS total_withdraw_fee`,
         `SUM(deposit_fee) AS total_deposit_fee`,
         `SUM(mcht_amount) AS total_mcht_amount`,
+        `SUM(CASE WHEN withdraw_status=0 THEN 0 ELSE mcht_amount END) AS total_attempt_mcht_withdraw_amount`,
+        `SUM(CASE WHEN pay_type=25 THEN mcht_amount ELSE 0 END) AS total_manager_mcht_give_amount`,
+        `(SELECT SUM(amount) FROM deposits WHERE pay_type=0 AND deposit_status=0 AND brand_id=${decode_dns?.id}) AS total_deposit_amount`,
+        `(SELECT COUNT(*) FROM deposits WHERE pay_type=0 AND deposit_status=0 AND brand_id=${decode_dns?.id}) AS total_deposit_count`,
+        `(SELECT COUNT(*) FROM deposits WHERE pay_type IN (5, 20) AND withdraw_status=0 AND brand_id=${decode_dns?.id}) AS total_withdraw_count`,
     ]
     for (var i = 0; i < operator_list.length; i++) {
         sum_columns.push(`SUM(sales${operator_list[i].num}_amount) AS total_sales${operator_list[i].num}_amount`);
+        sum_columns.push(`SUM(CASE WHEN withdraw_status=0 THEN 0 ELSE sales${operator_list[i].num}_amount END) AS total_attempt_sales${operator_list[i].num}_withdraw_amount`);
+        sum_columns.push(`SUM(CASE WHEN pay_type=25 THEN sales${operator_list[i].num}_amount ELSE 0 END) AS total_manager_sales${operator_list[i].num}_give_amount`);
     }
     let sum_sql = `SELECT ${sum_columns.join()} FROM deposits WHERE brand_id=${decode_dns?.id} `;
     let sql_list = [
@@ -464,8 +471,12 @@ export const getMotherDeposit = async (decode_dns) => {
     data['brand'] = data['brand'][0];
     data['sum'] = data['sum'][0];
     data['sum'].total_oper_amount = 0;
+    data['sum'].total_attempt_oper_withdraw_amount = 0;
+    data['sum'].total_manager_oper_give_amount = 0;
     for (var i = 0; i < operator_list.length; i++) {
         data['sum'].total_oper_amount += data['sum'][`total_sales${operator_list[i].num}_amount`];
+        data['sum'].total_attempt_oper_withdraw_amount += data['sum'][`total_attempt_sales${operator_list[i].num}_withdraw_amount`];
+        data['sum'].total_manager_oper_give_amount += data['sum'][`total_manager_sales${operator_list[i].num}_give_amount`];
     }
     let real_amount = {
         data: {},
@@ -481,7 +492,13 @@ export const getMotherDeposit = async (decode_dns) => {
         })
     }
     data['real_amount'] = real_amount.data?.amount ?? 0;
-
+    data['childrens'] = [];
+    let children_brands = await pool.query(`SELECT * FROM brands WHERE parent_id=${decode_dns?.id}`);
+    children_brands = children_brands?.result;
+    for (var i = 0; i < children_brands.length; i++) {
+        let children_mother_deposit = await getMotherDeposit(children_brands[i]);
+        data['childrens'].push(children_mother_deposit);
+    }
     return data;
 }
 let defaultAmountResult = {
