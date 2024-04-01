@@ -90,6 +90,9 @@ const virtualAccountV3Ctrl = {
                     id: 0,
                 }
             }
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+            }
             await db.beginTransaction();
             let data = {
                 tid: '',
@@ -237,7 +240,9 @@ const virtualAccountV3Ctrl = {
                     id: 0,
                 }
             }
-
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+            }
             let data = {};
 
             let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND deposit_tid=? AND is_delete=0`, [
