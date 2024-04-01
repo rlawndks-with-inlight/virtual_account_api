@@ -7,7 +7,7 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
-
+import speakeasy from 'speakeasy';
 //코리아결제출금
 
 export const makeSignValueSha256 = (text) => {
@@ -73,7 +73,16 @@ const withdrawV3Ctrl = {
             if (user?.level < 40 && (!ip_list.map(itm => { return itm?.ip }).includes(requestIp)) && ip_list.length > 0) {
                 return response(req, res, -150, "ip 권한이 없습니다.", false)
             }
-
+            if (dns_data?.is_use_otp == 1) {
+                var verified = speakeasy.totp.verify({
+                    secret: user?.otp_token,
+                    encoding: 'base32',
+                    token: otp_num
+                });
+                if (!verified) {
+                    return response(req, res, -100, "OTP번호가 잘못되었습니다.", false);
+                }
+            }
             if (dns_data?.is_use_sign_key == 1) {
                 let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${user?.sign_key}`);
                 if (user_api_sign_val != api_sign_val) {
