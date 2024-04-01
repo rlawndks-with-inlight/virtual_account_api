@@ -82,6 +82,9 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+            }
             if (brand?.is_use_sign_key == 1) {
                 let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
                 if (user_api_sign_val != api_sign_val) {
@@ -241,6 +244,9 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+            }
             if (brand?.is_use_sign_key == 1) {
                 let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
                 if (user_api_sign_val != api_sign_val) {
@@ -314,6 +320,9 @@ const virtualAccountV1Ctrl = {
                 mcht = {
                     id: 0,
                 }
+            }
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             if (brand?.is_use_sign_key == 1) {
                 let user_api_sign_val = makeSignValueSha256(`${api_key}${mid}${mcht?.sign_key ?? ""}`);
