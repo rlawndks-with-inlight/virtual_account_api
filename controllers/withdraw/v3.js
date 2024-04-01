@@ -26,6 +26,7 @@ const withdrawV3Ctrl = {
                 pay_type = 'withdraw',
                 note = "",
                 api_sign_val,
+                otp_num,
             } = req.body;
             withdraw_amount = parseInt(withdraw_amount);
             if (!api_key) {
