@@ -1,5 +1,5 @@
 'use strict';
-import db, { pool } from "../config/db.js";
+import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
@@ -85,7 +85,6 @@ const pushCtrl = {
                 deposit_id = result?.result?.insertId;
             }
             if (exist_deposit?.is_move_mother == 1) {
-                await db.commit();
                 return res.send('0000');
             }
             let mother_to_result = await corpApi.transfer.pass({
@@ -129,7 +128,6 @@ const pushCtrl = {
             })
 
             insertResponseLog(req, '0000');
-            await db.commit();
             return res.send('0000');
         } catch (err) {
             console.log(err)
@@ -234,7 +232,6 @@ const pushCtrl = {
                 let result = await insertQuery(`deposits`, obj);
             }
             insertResponseLog(req, '0000');
-            await db.commit();
             return res.send('0000');
         } catch (err) {
             console.log(err)
@@ -268,7 +265,6 @@ const pushCtrl = {
                 amount: amount,
             }, trx?.id);
             insertResponseLog(req, '0000');
-            await db.commit();
             return res.send('0000');
         } catch (err) {
             console.log(err)
