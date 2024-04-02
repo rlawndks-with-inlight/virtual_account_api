@@ -316,13 +316,13 @@ const virtualAccountV1Ctrl = {
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
-            if (!mid) {
-                return response(req, res, -100, "가맹점을 선택해 주세요.", {});
-            }
+
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                mcht = {
+                    id: 0,
+                }
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
