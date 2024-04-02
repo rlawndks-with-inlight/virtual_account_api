@@ -167,7 +167,7 @@ const withdrawV3Ctrl = {
 
             let mother_account = await getMotherDeposit(dns_data);
             if (withdraw_amount > mother_account?.real_amount) {
-                return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
+                //return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
             }
 
             let check_account = await corpApi.account.info({
@@ -187,16 +187,22 @@ const withdrawV3Ctrl = {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
             }
             await db.beginTransaction();
-            let result = await insertQuery(`deposits`, deposit_obj);
-            let withdraw_id = result?.result?.insertId;
-            //인설트후 체크
-            let settle_amount_2 = await pool.query(settle_amount_sql);
-            settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
-            if (settle_amount_2 < 0) {
+            let withdraw_id = 0;
+            try {
+                await db.beginTransaction();
+                let first_result = await insertQuery(`deposits`, deposit_obj);
+                withdraw_id = first_result?.result?.insertId;
+                //인설트후 체크
+                let settle_amount_2 = await pool.query(settle_amount_sql);
+                settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
+                if (settle_amount_2 < 0) {
+                    await db.rollback();
+                    return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
+                } else {
+                    await db.commit();
+                }
+            } catch (err) {
                 await db.rollback();
-                return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
-            } else {
-                await db.commit();
             }
             //
             if (user?.is_withdraw_hold == 1) {
