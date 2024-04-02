@@ -82,13 +82,13 @@ const virtualAccountV3Ctrl = {
             if (name.replaceAll(" ", "") != check_account.data?.withdraw_acct_name) {
                 return response(req, res, -100, "예금주명이 일치하지 않습니다.", false)
             }
-
+            if (!mid) {
+                return response(req, res, -100, "가맹점을 선택해 주세요.", {});
+            }
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                mcht = {
-                    id: 0,
-                }
+                return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
@@ -233,12 +233,13 @@ const virtualAccountV3Ctrl = {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
             req.body.brand_id = brand?.id;
+            if (!mid) {
+                return response(req, res, -100, "가맹점을 선택해 주세요.", {});
+            }
             let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
             mcht = mcht?.result[0];
             if (!mcht) {
-                mcht = {
-                    id: 0,
-                }
+                return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
