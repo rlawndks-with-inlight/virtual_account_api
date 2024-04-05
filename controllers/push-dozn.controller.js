@@ -107,6 +107,13 @@ const pushDoznCtrl = {
                         bell_data['deposit_acct_name'] = deposit?.deposit_acct_name;
                         bell_data['nickname'] = deposit?.deposit_acct_name;
                         let result = await updateQuery(`deposits`, obj, deposit?.id);
+                        if (deposit?.deposit_status != 0) {
+                            emitSocket({
+                                method: 'deposit',
+                                brand_id: dns_data?.id,
+                                data: bell_data
+                            })
+                        }
                     } else {
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
@@ -123,12 +130,13 @@ const pushDoznCtrl = {
                         obj['brand_id'] = dns_data?.id;
                         bell_data['deposit_acct_name'] = acct_name;
                         let result = await insertQuery(`deposits`, obj);
+                        emitSocket({
+                            method: 'deposit',
+                            brand_id: dns_data?.id,
+                            data: bell_data
+                        })
                     }
-                    emitSocket({
-                        method: 'deposit',
-                        brand_id: dns_data?.id,
-                        data: bell_data
-                    })
+
                 } else if (withdrawAmnt > 0) {
 
                 }
