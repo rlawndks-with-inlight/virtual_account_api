@@ -52,6 +52,8 @@ const pushDoznCtrl = {
                 }
                 let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                 let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
+                let trx_id = `${acctNo}${tranDate}${tranTime}${depositAmnt}${withdrawAmnt}${balance}`;
+
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
                     let obj = {
@@ -59,7 +61,7 @@ const pushDoznCtrl = {
                         head_office_fee: dns_data?.head_office_fee,
                         corp_account_balance: balance,
                         deposit_status: 0,
-                        trx_id: tranNum || `${dns_data?.id}${new Date().getTime()}`,
+                        trx_id: trx_id,
                         corp_account_id: corp_account?.id,
                         trans_date,
                         trans_time,
@@ -70,11 +72,10 @@ const pushDoznCtrl = {
                     ]
                     let deposit_sql = `SELECT ${deposit_columns.join()} FROM deposits`;
                     deposit_sql += ` LEFT JOIN users ON deposits.mcht_id=users.id `
-                    deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.expect_amount=? AND deposits.deposit_acct_name=? AND deposits.deposit_status=5  `;
+                    deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND trx_id=? `;
 
                     let deposit = await pool.query(deposit_sql, [
-                        amount,
-                        acct_name
+                        trx_id
                     ])
                     deposit = deposit?.result[0];
                     let bell_data = {
