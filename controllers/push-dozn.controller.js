@@ -45,7 +45,7 @@ const pushDoznCtrl = {
                     return res.send('9999');
                 }
                 let acct_name = tranName;
-                if (finCode == '011' || finCode == '012') {
+                if (finCode == '011' || finCode == '012' || finCode == 'NH0011F') {
                     acct_name = memo;
                 } else if (finCode == '088') {
                     acct_name = tranDetail;
