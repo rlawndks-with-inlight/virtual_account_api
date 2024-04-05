@@ -79,6 +79,7 @@ const pushCtrl = {
             exist_deposit = exist_deposit?.result[0];
             if (exist_deposit) {
                 deposit_id = exist_deposit?.id;
+                let result = await updateQuery(`deposits`, obj, deposit_id);
             } else {
                 exist_deposit = {};
                 let result = await insertQuery(`deposits`, obj);
