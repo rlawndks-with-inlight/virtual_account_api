@@ -72,7 +72,7 @@ const pushDoznCtrl = {
                     ]
                     let deposit_sql = `SELECT ${deposit_columns.join()} FROM deposits`;
                     deposit_sql += ` LEFT JOIN users ON deposits.mcht_id=users.id `
-                    deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND trx_id=? `;
+                    deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.trx_id=? `;
 
                     let deposit = await pool.query(deposit_sql, [
                         trx_id
