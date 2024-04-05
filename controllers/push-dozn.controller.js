@@ -106,8 +106,8 @@ const pushDoznCtrl = {
                         }
                         bell_data['deposit_acct_name'] = deposit?.deposit_acct_name;
                         bell_data['nickname'] = deposit?.deposit_acct_name;
-                        let result = await updateQuery(`deposits`, obj, deposit?.id);
                         if (deposit?.deposit_status != 0) {
+                            let result = await updateQuery(`deposits`, obj, deposit?.id);
                             emitSocket({
                                 method: 'deposit',
                                 brand_id: dns_data?.id,
