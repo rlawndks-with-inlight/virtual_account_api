@@ -89,13 +89,13 @@ const pushDoznCtrl = {
                         let sql = `SELECT ${mcht_columns.join()} FROM users `;
                         sql += ` WHERE users.id=${deposit?.mcht_id} `;
                         let mcht = await pool.query(sql);
-                        mcht = mcht?.result[0];
+                        mcht = mcht?.result[0] ?? {};
                         let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
                         obj = {
                             ...obj,
                             ...deposit_setting,
                         }
-                        if (mcht[`deposit_noti_url`]) {
+                        if (mcht?.deposit_noti_url) {
                             obj[`deposit_noti_status`] = 5;
                             obj[`deposit_noti_obj`] = JSON.stringify({
                                 amount,
