@@ -31,13 +31,20 @@ export const insertQueryMultiRow = async (table, list) => {// 개발예정
     let result = await pool.query(`INSERT INTO ${table} (${keys.join()}) VALUES (${question_list.join()})`, values);
     return result;
 }
-export const deleteQuery = async (table, where_obj) => {
+export const deleteQuery = async (table, where_obj, delete_true) => {
     let keys = Object.keys(where_obj);
     let where_list = [];
     for (var i = 0; i < keys.length; i++) {
         where_list.push(` ${keys[i]}=${where_obj[keys[i]]} `);
     }
-    let result = await pool.query(`UPDATE ${table} SET is_delete=1 WHERE ${where_list.join('AND')} `);
+    if (where_list.length == 0) {
+        return true;
+    }
+    let sql = `UPDATE ${table} SET is_delete=1 WHERE ${where_list.join('AND')} `;
+    if (delete_true) {
+        sql = `DELETE FROM ${table} WHERE ${where_list.join('AND')}`
+    }
+    let result = await pool.query(sql);
     return result;
 }
 export const updateQuery = async (table, obj, id, id_column) => {
