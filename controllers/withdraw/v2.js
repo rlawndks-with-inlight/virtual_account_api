@@ -173,38 +173,29 @@ const withdrawV2Ctrl = {
                 return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
             }
             let withdraw_id = 0;
-            try {
-                await db.beginTransaction();
-                let result = await insertQuery(`deposits`, deposit_obj);
-                withdraw_id = result?.result?.insertId;
-                //인설트후 체크
-                let settle_amount_2 = await pool.query(settle_amount_sql);
-                settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
-                if (settle_amount_2 < 0) {
-                    await db.rollback();
-                    return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
-                } else {
-                    await db.commit();
-                    let bell_data = {
-                        settle_bank_code: virtual_account?.deposit_bank_code,
-                        settle_acct_num: virtual_account?.deposit_acct_num,
-                        settle_acct_name: virtual_account?.deposit_acct_name,
-                        user_id: user?.id,
-                        nickname: user?.nickname,
-                        amount: withdraw_amount,
-                    }
-                    emitSocket({
-                        method: 'withdraw_request',
-                        brand_id: dns_data?.id,
-                        data: bell_data
-                    })
+            let result = await insertQuery(`deposits`, deposit_obj);
+            withdraw_id = result?.result?.insertId;
+            //인설트후 체크
+            let settle_amount_2 = await pool.query(settle_amount_sql);
+            settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
+            if (settle_amount_2 < 0) {
+                let delete_result = await deleteQuery(`deposits`, { id: withdraw_id }, true);
+                return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
+            } else {
+                let bell_data = {
+                    settle_bank_code: virtual_account?.deposit_bank_code,
+                    settle_acct_num: virtual_account?.deposit_acct_num,
+                    settle_acct_name: virtual_account?.deposit_acct_name,
+                    user_id: user?.id,
+                    nickname: user?.nickname,
+                    amount: withdraw_amount,
                 }
-            } catch (err) {
-                console.log(err)
-                await db.rollback();
-                return response(req, res, -100, `${pay_type_name} 요청중 내부에러.`, false)
+                emitSocket({
+                    method: 'withdraw_request',
+                    brand_id: dns_data?.id,
+                    data: bell_data
+                })
             }
-
             //
 
             if (user?.is_withdraw_hold == 1) {

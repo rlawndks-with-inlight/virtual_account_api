@@ -257,27 +257,14 @@ const withdrawV1Ctrl = {
                     }
                 }
             }
-            if (user?.is_withdraw_hold == 1) {
-                first_obj['is_withdraw_hold'] = 1;
-            }
-            let withdraw_id = 0;
-            try {
-                await db.beginTransaction();
-                let first_result = await insertQuery(`deposits`, first_obj);
-                withdraw_id = first_result?.result?.insertId;
-                //인설트후 체크
-                let settle_amount_2 = await pool.query(settle_amount_sql);
-                settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
-                if (settle_amount_2 < 0) {
-                    await db.rollback();
-                    return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
-                } else {
-                    await db.commit();
-                }
-            } catch (err) {
-                console.log(err)
-                await db.rollback();
-                return response(req, res, -100, `${pay_type_name} 요청중 내부에러.`, false)
+            let first_result = await insertQuery(`deposits`, first_obj);
+            withdraw_id = first_result?.result?.insertId;
+            //인설트후 체크
+            let settle_amount_2 = await pool.query(settle_amount_sql);
+            settle_amount_2 = settle_amount_2?.result[0]?.settle_amount ?? 0;
+            if (settle_amount_2 < 0) {
+                let delete_result = await deleteQuery(`deposits`, { id: withdraw_id }, true);
+                return response(req, res, -100, `${pay_type_name} 요청금이 보유정산금보다 많습니다.`, false)
             }
 
             //
