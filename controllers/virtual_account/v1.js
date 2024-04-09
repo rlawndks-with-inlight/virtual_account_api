@@ -146,7 +146,6 @@ const virtualAccountV1Ctrl = {
                 }
 
                 let api_result = await corpApi.user.create(create_user_obj);
-                console.log(api_result)
 
                 if (api_result?.code != 100) {
                     await db.rollback();

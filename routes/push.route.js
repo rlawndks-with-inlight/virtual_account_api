@@ -20,6 +20,7 @@ router
 router
     .route('/dozn/:brand_id')
     .post(pushDoznCtrl.deposit);
+
 //페이투스
 router
     .route('/paytus')
