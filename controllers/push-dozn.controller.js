@@ -141,12 +141,12 @@ const pushDoznCtrl = {
 
                 }
             }
-            //  insertResponseLog(req, '0000');
+            insertResponseLog(req, '0000');
             return res.send('0000');
 
         } catch (err) {
             console.log(err)
-            //  insertResponseLog(req, '9999');
+            insertResponseLog(req, '9999');
             return res.send('9999');
         } finally {
 
