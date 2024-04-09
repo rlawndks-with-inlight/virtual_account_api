@@ -257,6 +257,7 @@ const withdrawV1Ctrl = {
                     }
                 }
             }
+            let withdraw_id = 0;
             let first_result = await insertQuery(`deposits`, first_obj);
             withdraw_id = first_result?.result?.insertId;
             //인설트후 체크
