@@ -284,6 +284,7 @@ const withdrawV1Ctrl = {
                 acct_name: deposit_acct_name || withdraw_acct_name,
                 trx_id,
             })
+            console.log(api_result)
             let tid = api_result.data?.tid;
 
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;
@@ -301,6 +302,8 @@ const withdrawV1Ctrl = {
                     date,
                     tid,
                 })
+                console.log(api_result2)
+
                 let status = 0;
                 if (api_result2.data?.status == 3) {
                     status = 10;
