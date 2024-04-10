@@ -92,7 +92,6 @@ const virtualAccountV1Ctrl = {
                     return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }
             }
-            await db.beginTransaction();
             let data = {
                 guid: '',
                 tid: '',
@@ -121,19 +120,15 @@ const virtualAccountV1Ctrl = {
                 }
                 if (user_type == 1 || user_type == 2) {
                     if (!business_num) {
-                        await db.rollback();
                         return response(req, res, -100, "사업자등록번호는 필수입니다.", {})
                     }
                     if (!company_name) {
-                        await db.rollback();
                         return response(req, res, -100, "회사명(상호)는 필수입니다.", {})
                     }
                     if (!ceo_name) {
-                        await db.rollback();
                         return response(req, res, -100, "대표자명은 필수입니다.", {})
                     }
                     if (!company_phone_num) {
-                        await db.rollback();
                         return response(req, res, -100, "회사 전화번호는 필수입니다.", {})
                     }
                     create_user_obj = {
@@ -148,7 +143,6 @@ const virtualAccountV1Ctrl = {
                 let api_result = await corpApi.user.create(create_user_obj);
 
                 if (api_result?.code != 100) {
-                    await db.rollback();
                     return response(req, res, -110, (api_result?.message || "서버 에러 발생"), data)
                 }
 
@@ -187,7 +181,6 @@ const virtualAccountV1Ctrl = {
                 user_type: user_type,
             })
             if (api_result2?.code != 100) {
-                await db.commit();
                 return response(req, res, -120, (api_result2?.message || "서버 에러 발생"), data)
             } else {
                 data.tid = api_result2.data?.tid;
@@ -199,12 +192,10 @@ const virtualAccountV1Ctrl = {
                 deposit_tid: data.tid,
             }, virtual_account_id)
 
-            await db.commit();
             return response(req, res, 100, "success", data)
 
         } catch (err) {
             console.log(err)
-            await db.rollback();
             return response(req, res, -200, "서버 에러 발생", {})
         } finally {
 

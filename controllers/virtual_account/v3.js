@@ -93,7 +93,6 @@ const virtualAccountV3Ctrl = {
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
-            await db.beginTransaction();
             let data = {
                 tid: '',
                 guid: '',
@@ -108,7 +107,6 @@ const virtualAccountV3Ctrl = {
 
             if (virtual_account) {
                 if (virtual_account?.status == 0) {
-                    await db.rollback();
                     return response(req, res, -100, "이미 등록된 유저 입니다.", {})
                 }
                 virtual_account_id = virtual_account?.id;
@@ -117,19 +115,15 @@ const virtualAccountV3Ctrl = {
                 let guid = `${generateRandomString(20)}${new Date().getTime()}`;
                 if (user_type == 1 || user_type == 2) {
                     if (!business_num) {
-                        await db.rollback();
                         return response(req, res, -100, "사업자등록번호는 필수입니다.", {})
                     }
                     if (!company_name) {
-                        await db.rollback();
                         return response(req, res, -100, "회사명(상호)는 필수입니다.", {})
                     }
                     if (!ceo_name) {
-                        await db.rollback();
                         return response(req, res, -100, "대표자명은 필수입니다.", {})
                     }
                     if (!company_phone_num) {
-                        await db.rollback();
                         return response(req, res, -100, "회사 전화번호는 필수입니다.", {})
                     }
 
@@ -174,7 +168,6 @@ const virtualAccountV3Ctrl = {
                 guid: data.guid,
             })
             if (api_result2?.code != 100) {
-                await db.commit();
                 return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), data)
             } else {
                 data.tid = api_result2.data?.tid;
@@ -195,12 +188,10 @@ const virtualAccountV3Ctrl = {
                 guid: data.guid,
             }, virtual_account_id)
 
-            await db.commit();
             return response(req, res, 100, "success", data)
 
         } catch (err) {
             console.log(err)
-            await db.rollback();
             return response(req, res, -200, "서버 에러 발생", {})
         } finally {
 
