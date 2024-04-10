@@ -85,6 +85,9 @@ const pushCtrl = {
                 let result = await insertQuery(`deposits`, obj);
                 deposit_id = result?.result?.insertId;
             }
+            if (!(deposit_id > 0)) {
+                return res.send('9999');
+            }
             if (exist_deposit?.is_move_mother == 1) {
                 return res.send('0000');
             }
@@ -128,7 +131,7 @@ const pushCtrl = {
                 data: bell_data
             })
 
-            insertResponseLog(req, '0000');
+            insertResponseLog({ ...req }, '0000');
             return res.send('0000');
         } catch (err) {
             console.log(err)
