@@ -414,7 +414,6 @@ const withdrawV1Ctrl = {
             }
         } catch (err) {
             console.log(err)
-            await db.rollback();
             return response(req, res, -200, "서버 에러 발생", false)
         } finally {
 

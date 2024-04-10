@@ -86,9 +86,11 @@ const pushCtrl = {
                 deposit_id = result?.result?.insertId;
             }
             if (!(deposit_id > 0)) {
+                insertResponseLog(req, '9999');
                 return res.send('9999');
             }
             if (exist_deposit?.is_move_mother == 1) {
+                insertResponseLog(req, '0000');
                 return res.send('0000');
             }
             let mother_to_result = await corpApi.transfer.pass({
@@ -132,7 +134,6 @@ const pushCtrl = {
             })
 
             insertResponseLog({ ...req }, '0000');
-            await db.commit();
             return res.send('0000');
         } catch (err) {
             console.log(err)
