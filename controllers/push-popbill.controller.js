@@ -8,14 +8,13 @@ import { checkDns, checkLevel, getNumberByPercent, getOperatorList, insertRespon
 import 'dotenv/config';
 //노티 받기
 
-const pushDoznCtrl = {
+const pushPopbillCtrl = {
     deposit: async (req, res, next) => {
         try {
             const { brand_id } = req.params;
             const {
                 list = [],
             } = req.body;
-            console.log(list)
             for (var i = 0; i < list.length; i++) {
                 const {
                     accountId,
@@ -49,7 +48,7 @@ const pushDoznCtrl = {
                 let acct_name = tranName;
                 let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                 let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
-                let trx_id = `${acctNo}${tranDate}${tranTime}${depositAmnt}${withdrawAmnt}${balance}`;
+                let trx_id = trxId;
 
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
@@ -151,4 +150,4 @@ const pushDoznCtrl = {
     },
 };
 
-export default pushDoznCtrl;
+export default pushPopbillCtrl;
