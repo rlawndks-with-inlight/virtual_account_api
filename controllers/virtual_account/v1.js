@@ -167,7 +167,6 @@ const virtualAccountV1Ctrl = {
                 data.guid = api_result.data?.guid;
             }
 
-
             let api_result2 = await corpApi.user.account({
                 pay_type: 'deposit',
                 dns_data: brand,
@@ -180,6 +179,7 @@ const virtualAccountV1Ctrl = {
                 business_num: business_num,
                 user_type: user_type,
             })
+
             if (api_result2?.code != 100) {
                 return response(req, res, -120, (api_result2?.message || "서버 에러 발생"), data)
             } else {

@@ -15,6 +15,7 @@ const pushDoznCtrl = {
             const {
                 list = [],
             } = req.body;
+            console.log(list)
             for (var i = 0; i < list.length; i++) {
                 const {
                     accountId,
@@ -32,6 +33,7 @@ const pushDoznCtrl = {
                     recvAccntNo,
                     memo,
                     crnCd,
+                    trxId,
                 } = list[i];
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
                 dns_data = dns_data?.result[0];
@@ -45,11 +47,6 @@ const pushDoznCtrl = {
                     return res.send('9999');
                 }
                 let acct_name = tranName;
-                if (finCode == '011' || finCode == '012' || finCode == 'NH0011F') {
-                    acct_name = memo;
-                } else if (finCode == '088') {
-                    acct_name = tranDetail;
-                }
                 let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                 let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
                 let trx_id = `${acctNo}${tranDate}${tranTime}${depositAmnt}${withdrawAmnt}${balance}`;
