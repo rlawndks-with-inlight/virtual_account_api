@@ -150,4 +150,4 @@ const pushPopbillCtrl = {
     },
 };
 
-export default pushDoznCtrl;
+export default pushPopbillCtrl;
