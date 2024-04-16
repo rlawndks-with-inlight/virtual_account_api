@@ -48,7 +48,7 @@ const pushPopbillCtrl = {
                 let acct_name = tranName;
                 let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                 let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
-                let trx_id = trxId;
+                let trx_id = `${acctNo}${tranDate}${tranTime}${depositAmnt}${withdrawAmnt}${balance}`;
 
                 if (depositAmnt > 0) {
                     let amount = parseInt(depositAmnt);
@@ -150,4 +150,4 @@ const pushPopbillCtrl = {
     },
 };
 
-export default pushPopbillCtrl;
+export default pushDoznCtrl;
