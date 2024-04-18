@@ -1,7 +1,7 @@
 'use strict';
 import db, { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
-import { checkIsManagerUrl } from "../utils.js/function.js";
+import { checkIsManagerUrl, returnMoment } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
@@ -112,6 +112,7 @@ const pushCtrl = {
                     bank_code: deposit_bank_code,
                     acct_num: deposit_acct_num,
                     acct_name: deposit_acct_name,
+                    created_at: returnMoment(),
                     tid: tid,
                 }
                 if (dns_data?.is_use_sign_key == 1) {
