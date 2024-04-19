@@ -121,7 +121,7 @@ const pushCtrl = {
                 obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
                 let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
             }
-            sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+            sendTelegramBot(dns_data, `${returnMoment()} ${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             let bell_data = {
                 amount,
                 user_id: mcht?.id,
