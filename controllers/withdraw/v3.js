@@ -169,7 +169,7 @@ const withdrawV3Ctrl = {
             }
 
             let mother_account = await getMotherDeposit(dns_data);
-            if (withdraw_amount > mother_account?.real_amount) {
+            if (withdraw_amount > mother_account?.real_amount - mother_account?.hold_amount) {
                 return response(req, res, -100, "출금 요청금이 모계좌잔액보다 많습니다.", false)
             }
 
