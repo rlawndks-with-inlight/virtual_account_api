@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, setWithdrawAmountSetting, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, setWithdrawAmountSetting, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
@@ -172,6 +172,10 @@ const withdrawV1Ctrl = {
                 if (return_time >= dns_data?.setting_obj?.not_withdraw_s_time && return_time <= dns_data?.setting_obj?.not_withdraw_e_time) {
                     return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
                 }
+            }
+            let black_item = await findBlackList(withdraw_acct_num, 0, dns_data);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", false);
             }
             // 여기부터 출금로직
             withdraw_amount = parseInt(withdraw_amount);

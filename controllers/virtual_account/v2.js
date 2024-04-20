@@ -1,7 +1,7 @@
 import { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { insertQuery, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, getDnsData, response } from "../../utils.js/util.js";
+import { checkDns, checkLevel, findBlackList, getDnsData, response } from "../../utils.js/util.js";
 
 //페이투스활용api
 const virtualAccountV2Ctrl = {
@@ -39,6 +39,10 @@ const virtualAccountV2Ctrl = {
                     mcht = {
                         id: 0,
                     }
+                }
+                let black_item = await findBlackList(account, 0, brand);
+                if (black_item) {
+                    return response(req, res, -100, "블랙리스트 유저입니다.", {});
                 }
                 let data = {};
                 let api_result = await corpApi.user.account({

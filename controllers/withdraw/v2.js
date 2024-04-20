@@ -4,7 +4,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
 import { emitSocket } from "../../utils.js/socket/index.js";
@@ -113,7 +113,10 @@ const withdrawV2Ctrl = {
                     return response(req, res, -100, `출금 불가 시간입니다. ${dns_data?.setting_obj?.not_withdraw_s_time} ~ ${dns_data?.setting_obj?.not_withdraw_e_time}`, false);
                 }
             }
-
+            let black_item = await findBlackList(virtual_account?.deposit_acct_num, 0, dns_data);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", false);
+            }
             if (pay_type == 20 && user?.can_return_ago_pay == 1) {
                 let deposit_count = await pool.query(`SELECT COUNT(*) AS count FROM deposits WHERE pay_type=0 AND virtual_account_id=${virtual_account?.id}`);
                 deposit_count = deposit_count?.result[0];

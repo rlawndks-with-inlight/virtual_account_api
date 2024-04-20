@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, findBlackList, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 import crypto from 'crypto';
@@ -52,7 +52,6 @@ const virtualAccountV1Ctrl = {
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
-
             req.body.brand_id = brand?.id;
             if (
                 !bank_code ||
@@ -91,6 +90,10 @@ const virtualAccountV1Ctrl = {
                 if (user_api_sign_val != api_sign_val) {
                     return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }
+            }
+            let black_item = await findBlackList(account, 0, brand);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", {});
             }
             let data = {
                 guid: '',

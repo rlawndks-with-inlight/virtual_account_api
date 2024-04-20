@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, generateRandomString, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, findBlackList, generateRandomString, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
@@ -92,6 +92,10 @@ const virtualAccountV3Ctrl = {
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+            }
+            let black_item = await findBlackList(account, 0, brand);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", {});
             }
             let data = {
                 tid: '',

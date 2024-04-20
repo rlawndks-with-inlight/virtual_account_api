@@ -676,3 +676,12 @@ export function generateRandomString(length = 1) {
     }
     return randomString;
 }
+export const findBlackList = async (word, type, decode_dns = {}) => {
+    try {
+        let black_item = await pool.query(`SELECT * FROM black_lists WHERE is_delete=0 AND acct_num=? AND brand_id=${decode_dns?.id}`, [word]);
+        return black_item?.result[0];
+
+    } catch (err) {
+        console.log(err);
+    }
+}
