@@ -66,6 +66,10 @@ const virtualAccountV3Ctrl = {
             )) {
                 return response(req, res, -100, "필수값을 입력해 주세요.", {});
             }
+            let black_item = await findBlackList(account, 0, brand);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", {});
+            }
             let check_account = await corpApi.account.info({
                 pay_type: 'withdraw',
                 dns_data: brand,
@@ -93,10 +97,7 @@ const virtualAccountV3Ctrl = {
             if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
-            let black_item = await findBlackList(account, 0, brand);
-            if (black_item) {
-                return response(req, res, -100, "블랙리스트 유저입니다.", {});
-            }
+
             let data = {
                 tid: '',
                 guid: '',
