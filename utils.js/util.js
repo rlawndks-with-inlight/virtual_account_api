@@ -501,33 +501,7 @@ export const getMotherDeposit = async (decode_dns) => {
     }
     return data;
 }
-let defaultAmountResult = {
-    head_office_fee: 0,
-    head_office_amount: 0,
-    mcht_id: 0,
-    mcht_fee: 0,
-    mcht_amount: 0,
-    sales5_id: 0,
-    sales5_fee: 0,
-    sales5_amount: 0,
-    sales4_id: 0,
-    sales4_fee: 0,
-    sales4_amount: 0,
-    sales3_id: 0,
-    sales3_fee: 0,
-    sales3_amount: 0,
-    sales2_id: 0,
-    sales2_fee: 0,
-    sales2_amount: 0,
-    sales1_id: 0,
-    sales1_fee: 0,
-    sales1_amount: 0,
-    sales0_id: 0,
-    sales0_fee: 0,
-    sales0_amount: 0,
-    deposit_fee: 0,
-    withdraw_fee: 0,
-}
+
 export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data = {}) => {
     let user = user_;
     let result = {};
