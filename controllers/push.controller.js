@@ -63,7 +63,8 @@ const pushCtrl = {
                 pay_type,
                 trx_id: trx_id,
                 head_office_fee: dns_data?.head_office_fee,
-                deposit_fee: mcht?.deposit_fee ?? 0
+                deposit_fee: mcht?.deposit_fee ?? 0,
+                is_hand: 0,
             };
             let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
             obj = {
@@ -225,6 +226,7 @@ const pushCtrl = {
                     settle_bank_code: virtual_account?.deposit_bank_code,
                     settle_acct_num: virtual_account?.deposit_acct_num,
                     settle_acct_name: virtual_account?.deposit_acct_name,
+                    is_hand: 0,
                 }
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
                 if (withdraw_status == 0) {
