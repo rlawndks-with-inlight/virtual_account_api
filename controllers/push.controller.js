@@ -272,6 +272,7 @@ const pushCtrl = {
             let update_trx = await updateQuery(`deposits`, {
                 withdraw_status,
                 amount: amount,
+                is_hand: 0,
             }, trx?.id);
             insertResponseLog(req, '0000');
             return res.send('0000');
