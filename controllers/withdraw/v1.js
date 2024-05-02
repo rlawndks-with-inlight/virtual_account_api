@@ -10,7 +10,8 @@ const table_name = 'virtual_accounts';
 //쿠콘활용api
 const withdrawV1Ctrl = {
 
-    check: async (req, res, next) => {
+    check: async (req_, res, next) => {//발급요청
+        let req = req_;
         try {
             let {
                 api_key,
@@ -21,6 +22,8 @@ const withdrawV1Ctrl = {
 
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
+            req.body.brand_id = dns_data?.id;
+
             let operator_list = getOperatorList(dns_data);
             let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
             mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
@@ -375,16 +378,19 @@ const withdrawV1Ctrl = {
                 mcht_columns.push(`sales${operator_list[i]?.num}.nickname AS sales${operator_list[i]?.num}_nickname`);
                 mcht_sql += ` LEFT JOIN users AS sales${operator_list[i]?.num} ON sales${operator_list[i]?.num}.id=merchandise_columns.sales${operator_list[i]?.num}_id `;
             }
-            mcht_sql += ` WHERE users.mid=? AND users.brand_id=? `;
+            mcht_sql += ` WHERE users.user_id=? AND users.brand_id=? `;
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
-            let user = await pool.query(mcht_sql, [mid, dns_data?.id]);
-            user = user?.result[0];
+
 
             let trx = await pool.query(`SELECT * FROM deposits WHERE brand_id=? AND trx_id=? `, [
                 dns_data?.id,
                 tid,
             ])
             trx = trx?.result[0];
+
+            let user = await pool.query(mcht_sql, [trx?.user_id, dns_data?.id]);
+            user = user?.result[0];
+
             let api_result = await corpApi.withdraw.request_check({
                 pay_type: 'withdraw',
                 dns_data: dns_data,
