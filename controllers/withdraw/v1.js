@@ -22,6 +22,9 @@ const withdrawV1Ctrl = {
 
             let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
             dns_data = dns_data?.result[0];
+            if (!dns_data) {
+                return response(req, res, -100, "api key가 잘못되었습니다.", false);
+            }
             req.body.brand_id = dns_data?.id;
 
             let operator_list = getOperatorList(dns_data);
@@ -345,7 +348,8 @@ const withdrawV1Ctrl = {
 
         }
     },
-    check_withdraw: async (req, res, next) => {
+    check_withdraw: async (req_, res, next) => {//출금요청
+        let req = req_;
         try {
             let {
                 api_key,
@@ -362,6 +366,7 @@ const withdrawV1Ctrl = {
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", false);
             }
+            req.body.brand_id = dns_data?.id;
 
             let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
             mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
