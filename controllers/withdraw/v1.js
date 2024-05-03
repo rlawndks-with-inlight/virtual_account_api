@@ -8,8 +8,13 @@ import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
 //쿠콘활용api
-const withdrawV1Ctrl = {
+const makeUserIdMax12 = (user_id) => {
+    let user_id_str = `${user_id}`;
+    let unix_time = `${(new Date().getTime()).toString().substring(1, 13)}`;
+    return `${user_id_str}${unix_time.substring(user_id_str.length, 12)}`
+}
 
+const withdrawV1Ctrl = {
     check: async (req_, res, next) => {//발급요청
         let req = req_;
         try {
@@ -241,7 +246,7 @@ const withdrawV1Ctrl = {
             // }
 
 
-            let trx_id = (new Date().getTime()).toString().substring(1, 13);
+            let trx_id = makeUserIdMax12(user?.id);
             let first_obj = {
                 brand_id: dns_data?.id,
                 pay_type: pay_type,
