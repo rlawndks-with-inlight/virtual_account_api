@@ -196,7 +196,7 @@ const pushCtrl = {
                 }
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
 
-                if (withdraw_status == 0) {
+                if (withdraw_status == 0 && [5, 20].includes(trx?.pay_type)) {
                     obj = {
                         ...obj,
                         ...withraw_obj,
@@ -223,13 +223,13 @@ const pushCtrl = {
                     virtual_account_id: virtual_account?.id,
                     user_id: user?.id ?? 0,
                     withdraw_fee_type: dns_data?.withdraw_fee_type,
-                    settle_bank_code: virtual_account?.deposit_bank_code,
-                    settle_acct_num: virtual_account?.deposit_acct_num,
-                    settle_acct_name: virtual_account?.deposit_acct_name,
+                    settle_bank_code: virtual_account?.deposit_bank_code ?? "",
+                    settle_acct_num: virtual_account?.deposit_acct_num ?? "",
+                    settle_acct_name: virtual_account?.deposit_acct_name ?? "",
                     is_hand: 0,
                 }
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
-                if (withdraw_status == 0) {
+                if (withdraw_status == 0 && [5, 20].includes(trx?.pay_type)) {
                     obj = {
                         ...obj,
                         ...withraw_obj,
