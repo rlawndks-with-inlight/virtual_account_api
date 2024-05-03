@@ -173,7 +173,7 @@ const withdrawV2Ctrl = {
 
             let mother_account = await getMotherDeposit(dns_data);
             if (withdraw_amount > mother_account?.real_amount - mother_account?.hold_amount) {
-                return response(req, res, -100, "출금 실패 A", false)
+                //return response(req, res, -100, "출금 실패 A", false)
             }
             let withdraw_id = 0;
             let result = await insertQuery(`deposits`, deposit_obj);

@@ -164,11 +164,20 @@ const pushCtrl = {
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
 
+
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
             virtual_account = virtual_account?.result[0];
             let brand_id = virtual_account?.brand_id ?? 0;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
-            dns_data = dns_data?.result[0];
+            let dns_data = {};
+            if (trx_tp == 'MERCHANT_WITHDRAW') {
+                dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_guid=?`, [guid]);
+                dns_data = dns_data?.result[0];
+            } else {
+                dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+                dns_data = dns_data?.result[0];
+            }
+            brand_id = dns_data?.id;
+
             let operator_list = getOperatorList(dns_data);
 
             if (trx) {
@@ -212,11 +221,12 @@ const pushCtrl = {
                     ]);
                     user = user?.result[0];
                 }
-                amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + user?.withdraw_fee)) : 0;
+                console.log(withdraw_amount)
+                amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + (user?.withdraw_fee ?? 0))) : 0;
                 let obj = {
                     trx_id: tid,
                     brand_id,
-                    pay_type: 5,
+                    pay_type: trx_tp == 'USER_WITHDRAW' ? 5 : 10,
                     amount,
                     expect_amount: amount,
                     withdraw_status,
@@ -228,8 +238,9 @@ const pushCtrl = {
                     settle_acct_name: virtual_account?.deposit_acct_name ?? "",
                     is_hand: 0,
                 }
+                console.log(obj)
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
-                if (withdraw_status == 0 && [5, 20].includes(trx?.pay_type)) {
+                if (withdraw_status == 0 && trx_tp == 'USER_WITHDRAW') {
                     obj = {
                         ...obj,
                         ...withraw_obj,
