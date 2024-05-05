@@ -15,6 +15,7 @@ import { getReqIp, imageFieldList, insertResponseLog } from "./utils.js/util.js"
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import io from "socket.io-client";
+import { limiter } from "./utils.js/limiter/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,7 +31,7 @@ app.use(cookieParser());
 app.use('/files', express.static(__dirname + '/files'));
 //app.post('/api/upload/multiple', upload.array('post_file'), uploadMultipleFiles);
 
-app.use('/api', upload.fields(imageFieldList), routes);
+app.use('/api', limiter, upload.fields(imageFieldList), routes);
 
 app.get('/', (req, res) => {
   let ip = getReqIp(req);
