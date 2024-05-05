@@ -238,7 +238,6 @@ const pushCtrl = {
                     settle_acct_name: virtual_account?.deposit_acct_name ?? "",
                     is_hand: 0,
                 }
-                console.log(obj)
                 let withraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data);
                 if (withdraw_status == 0 && trx_tp == 'USER_WITHDRAW') {
                     obj = {

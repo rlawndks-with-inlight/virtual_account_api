@@ -33,6 +33,7 @@ const pushPopbillCtrl = {
                     memo,
                     crnCd,
                     trxId,
+                    uniqueId,
                 } = list[i];
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
                 dns_data = dns_data?.result[0];
@@ -132,7 +133,9 @@ const pushPopbillCtrl = {
                             data: bell_data
                         })
                     }
-
+                    let update_corp_account = await updateQuery('corp_accounts', {
+                        process_tid: trx_id,
+                    }, uniqueId);
                 } else if (withdrawAmnt > 0) {
 
                 }
