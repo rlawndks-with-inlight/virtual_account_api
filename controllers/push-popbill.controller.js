@@ -15,6 +15,7 @@ const pushPopbillCtrl = {
             const {
                 list = [],
             } = req.body;
+            console.log(req.body)
             for (var i = 0; i < list.length; i++) {
                 const {
                     accountId,
@@ -135,6 +136,7 @@ const pushPopbillCtrl = {
                     }
                     let update_corp_account = await updateQuery('corp_accounts', {
                         process_tid: trx_id,
+                        is_process: 0,
                     }, uniqueId);
                 } else if (withdrawAmnt > 0) {
 
