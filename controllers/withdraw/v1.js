@@ -388,7 +388,7 @@ const withdrawV1Ctrl = {
                 mcht_columns.push(`sales${operator_list[i]?.num}.nickname AS sales${operator_list[i]?.num}_nickname`);
                 mcht_sql += ` LEFT JOIN users AS sales${operator_list[i]?.num} ON sales${operator_list[i]?.num}.id=merchandise_columns.sales${operator_list[i]?.num}_id `;
             }
-            mcht_sql += ` WHERE users.user_id=? AND users.brand_id=? `;
+            mcht_sql += ` WHERE users.id=? AND users.brand_id=? `;
             mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
 
 
