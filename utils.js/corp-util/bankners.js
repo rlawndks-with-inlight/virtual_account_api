@@ -195,8 +195,11 @@ export const banknersApi = {
                     real_auth_no: user_type == 'PERSON' ? birth : business_num,
                     acnt_holder: deposit_acct_name
                 }
+                console.log(query)
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user/account', query, makeHeaderData(dns_data, pay_type, decode_user));
+                console.log(result)
+
                 if (result?.code != '0000') {
                     return {
                         code: -100,
