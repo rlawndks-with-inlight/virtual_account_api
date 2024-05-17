@@ -273,6 +273,7 @@ const virtualAccountV3Ctrl = {
             data.virtual_bank_code = virtual_account?.virtual_bank_code;
             data.virtual_acct_num = api_result?.data?.virtual_acct_num;
             data.virtual_acct_name = virtual_account?.virtual_acct_name;
+            data.ci = virtual_account?.ci;
 
             return response(req, res, 100, "success", data)
         } catch (err) {
