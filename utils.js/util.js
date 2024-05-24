@@ -407,11 +407,13 @@ export const getDnsData = async (dns_data_) => {
 }
 export const insertResponseLog = (req, res) => {
     try {
+        let requestIp = getReqIp(req);
         logger.info(JSON.stringify({
             uri: req?.originalUrl,
             body: req?.body,
             query: req?.query,
             params: req?.params,
+            request_ip: requestIp,
             res,
         }));
     } catch (err) {
