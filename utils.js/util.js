@@ -413,7 +413,7 @@ export const insertResponseLog = (req, res) => {
             body: req?.body,
             query: req?.query,
             params: req?.params,
-            request_ip: requestIp,
+            ip: requestIp,
             res,
         }));
     } catch (err) {
