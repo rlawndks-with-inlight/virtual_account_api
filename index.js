@@ -41,6 +41,10 @@ app.get('/', (req, res) => {
 });
 app.use((req, res, next) => {
   insertResponseLog(req, '3333');
+  // if (process.env.API_ENV == 'production') {
+  //   let requestIp = getReqIp(req);
+  //   execSSH(`route add -host ${requestIp} reject`);
+  // }
   const err = new APIError('API not found', httpStatus.NOT_FOUND);
   return next(err);
 });
