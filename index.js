@@ -16,6 +16,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import io from "socket.io-client";
 import { limiter } from "./utils.js/limiter/index.js";
+import { execSSH } from "./utils.js/ssh.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,16 +40,13 @@ app.get('/', (req, res) => {
   res.send('api initialized')
 });
 app.use((req, res, next) => {
-  console.log(req.originalUrl)
-  console.log(req.method)
   insertResponseLog(req, '3333');
   const err = new APIError('API not found', httpStatus.NOT_FOUND);
+  let requestIp = getReqIp(req);
+  execSSH(`route add -host ${requestIp} reject`);
   return next(err);
 });
-app.use((req, res, next) => {
-  const err = new APIError('API not found', httpStatus.NOT_FOUND);
-  return next(err);
-});
+
 let server = undefined
 const HTTP_PORT = 2500;
 //const HTTP_PORT = 8080;
