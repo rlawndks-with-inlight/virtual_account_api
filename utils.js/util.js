@@ -414,7 +414,7 @@ export const insertResponseLog = (req, res) => {
             query: req?.query,
             params: req?.params,
             ip: requestIp,
-            method: req.method,
+            method: req?.method,
             res,
 
         }));
