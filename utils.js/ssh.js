@@ -10,7 +10,7 @@ export const execSSH = (exec_text = "") => {
             password: process.env.BACK_PASSWORD,
             readyTimeout: 1000 * 60 * 10 // 타임아웃 시간을 10분으로 설정
         }
-
+        console.log(123)
         const conn = new Client();
         conn.on('ready', () => {
             console.log('Client :: ready');
