@@ -116,9 +116,28 @@ const logRequestResponse = async (req, res, decode_user, decode_dns) => {//ë¡œê·
         } else {
             brand_id = req.body?.brand_id || req.query?.brand_id || req.params?.brand_id || - 1;
         }
+        let return_moment = returnMoment();
+        let date = return_moment.split(' ')[0];
+        let time = return_moment.split(' ')[1];
+        date = date.split('-');
+        time = time.split(':');
         let result = await pool.query(
-            "INSERT INTO logs (request, response_data, response_result, response_message, request_ip, user_id, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [request, JSON.stringify(res?.data), res?.result, res?.message, requestIp, user_id, brand_id]
+            "INSERT INTO logs (request, response_data, response_result, response_message, request_ip, user_id, brand_id, year, month, day, hour, minute, second) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                request,
+                JSON.stringify(res?.data),
+                res?.result,
+                res?.message,
+                requestIp,
+                user_id,
+                brand_id,
+                date[0],
+                date[1],
+                date[2],
+                time[0],
+                time[1],
+                time[2],
+            ]
         )
     } catch (err) {
         console.log(err)
