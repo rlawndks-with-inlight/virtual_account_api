@@ -6,7 +6,7 @@ import https from 'https';
 import { returnMoment } from '../function.js';
 
 const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
-const MCHT_ID = process.env.API_ENV == 'production' ? 'M2421090' : 'M2429693'
+
 const getDefaultHeader = () => {
     return {
         'Content-Type': 'application/json;charset=utf-8',
@@ -17,7 +17,7 @@ const getDefaultBody = (dns_data, pay_type) => {
     let date = return_moment.split(' ')[0].replaceAll('-', '');
     let time = return_moment.split(' ')[1].replaceAll(':', '');
     return {
-        'mchtId': process.env.API_ENV == 'production' ? dns_data?.auth_mcht_id : 'M2429693',
+        'mchtId': dns_data?.auth_mcht_id,
         'reqDt': date,
         'reqTm': time,
     }
@@ -46,14 +46,14 @@ const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     for (var i = 0; i < hash_list.length; i++) {
         pktHash += `${obj[hash_list[i]]}`;
     }
-    pktHash += (process.env.API_ENV == 'production' ? dns_data?.auth_api_id : 'ST190808090913247723');
+    pktHash += dns_data?.auth_api_id;
     const hash = crypto.createHash('sha256');
     hash.update(pktHash);
     const hashedData = hash.digest('hex');
     obj['pktHash'] = hashedData;
 
     for (var i = 0; i < encr_list.length; i++) {
-        obj[encr_list[i]] = process.env.API_ENV == 'production' ? getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv) : getAES256(`${obj[encr_list[i]]}`, 'SETTLEBANKISGOODSETTLEBANKISGOOD');
+        obj[encr_list[i]] = getAES256(`${obj[encr_list[i]]}`, dns_data?.auth_iv);
     }
     return obj;
 }
@@ -374,6 +374,7 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_M100_1.0',
                     ...getDefaultBody(dns_data, pay_type),
+                    mchtId: process.env.API_ENV == 'production' ? 'M2353522' : 'M2358093',
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     uii: birth + (gender == 'M' ? '1' : '2'),
                     telecomCd: parseInt(tel_com),
@@ -383,6 +384,8 @@ export const hectoApi = {
                     pktHash: '',
                     birth: birth,
                 }
+                let auth_iv = '0o83b22401AVZC1HM0Mi3TNV1ER4YIed';
+                let auth_api_id = 'ST2305101028319313874';
                 query = processObj(
                     query,
                     [
@@ -400,8 +403,13 @@ export const hectoApi = {
                         'cphoneNo',
                         'mchtCustNm'
                     ],
-                    dns_data
+                    {
+                        ...dns_data,
+                        auth_iv,
+                        auth_api_id,
+                    }
                 )
+                delete query['birth'];
                 console.log(query)
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/mobile/req`, query, {
                     headers: getDefaultHeader(),
