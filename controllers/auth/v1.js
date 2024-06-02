@@ -71,6 +71,7 @@ const authV1Ctrl = {
                     trd_no: api_result?.data?.trd_no,
                     phone_num: phone_num,
                     name: name,
+                    amount: dns_data?.auth_fee ?? 0,
                 })
                 return response(req, res, 100, "success", {
                     tid: api_result?.data?.tid,
