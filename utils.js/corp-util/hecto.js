@@ -381,7 +381,6 @@ export const hectoApi = {
                     mchtCustNm: name,
                     authMthdCd: 1,
                     pktHash: '',
-                    birth: birth,
                 }
                 query = processObj(
                     query,
@@ -390,7 +389,7 @@ export const hectoApi = {
                         'mchtCustId',
                         'reqDt',
                         'reqTm',
-                        'birth',
+                        'uii',
                         'cphoneNo',
                         'authMthdCd',
                     ],
