@@ -5,7 +5,8 @@ import crypto from 'crypto';
 import https from 'https';
 import { returnMoment } from '../function.js';
 
-const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
+//const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
+const API_URL = "https://tbnpay.settlebank.co.kr";
 
 const getDefaultHeader = () => {
     return {
