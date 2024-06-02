@@ -68,6 +68,8 @@ const authV1Ctrl = {
                     brand_id: dns_data?.id,
                     mcht_id: mcht?.id,
                     tid: api_result?.data?.tid,
+                    phone_num: phone_num,
+                    name: name,
                 })
                 return response(req, res, 100, "success", {
                     tid: api_result?.data?.tid,
