@@ -374,7 +374,6 @@ export const hectoApi = {
                 let query = {
                     hdInfo: 'SPAY_M100_1.0',
                     ...getDefaultBody(dns_data, pay_type),
-                    mchtId: process.env.API_ENV == 'production' ? 'M2353522' : 'M2358093',
                     mchtCustId: `${dns_data?.id}${new Date().getTime()}`,
                     uii: birth + (gender == 'M' ? '1' : '2'),
                     telecomCd: parseInt(tel_com),
@@ -384,8 +383,6 @@ export const hectoApi = {
                     pktHash: '',
                     birth: birth,
                 }
-                let auth_iv = '0o83b22401AVZC1HM0Mi3TNV1ER4YIed';
-                let auth_api_id = 'ST2305101028319313874';
                 query = processObj(
                     query,
                     [
@@ -403,11 +400,7 @@ export const hectoApi = {
                         'cphoneNo',
                         'mchtCustNm'
                     ],
-                    {
-                        ...dns_data,
-                        auth_iv,
-                        auth_api_id,
-                    }
+                    dns_data
                 )
                 delete query['birth'];
                 console.log(query)
