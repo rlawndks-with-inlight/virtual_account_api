@@ -68,6 +68,7 @@ const authV1Ctrl = {
                     brand_id: dns_data?.id,
                     mcht_id: mcht?.id,
                     tid: api_result?.data?.tid,
+                    trd_no: api_result?.data?.trd_no,
                     phone_num: phone_num,
                     name: name,
                 })
