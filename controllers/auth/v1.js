@@ -1,6 +1,7 @@
 'use strict';
 import db, { pool } from "../../config/db.js";
 import { hectoApi } from "../../utils.js/corp-util/hecto.js";
+import { insertQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
@@ -63,7 +64,15 @@ const authV1Ctrl = {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
                 console.log(api_result);
-                return response(req, res, 100, "success", {})
+                let insert_auth_logs = await insertQuery(`phone_auth_histories`, {
+                    brand_id: dns_data?.id,
+                    mcht_id: mcht?.id,
+                    tid: api_result?.data?.tid,
+                })
+                return response(req, res, 100, "success", {
+                    tid: api_result?.data?.tid,
+                    trd_no: api_result?.data?.trd_no,
+                })
 
             } catch (err) {
                 console.log(err)

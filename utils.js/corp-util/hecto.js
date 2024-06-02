@@ -413,7 +413,8 @@ export const hectoApi = {
                         code: 100,
                         message: '',
                         data: {
-
+                            tid: response?.tid,
+                            trd_no: response?.trdNo,
                         },
                     };
                 } else {
