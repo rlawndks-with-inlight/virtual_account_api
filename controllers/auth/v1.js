@@ -106,6 +106,9 @@ const authV1Ctrl = {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
                 dns_data['operator_list'] = getOperatorList(dns_data);
+                if (!mid) {
+                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                }
                 let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
                 mcht = mcht?.result[0];
                 if (!mcht) {
