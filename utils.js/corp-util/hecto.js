@@ -381,6 +381,7 @@ export const hectoApi = {
                     mchtCustNm: name,
                     authMthdCd: 1,
                     pktHash: '',
+                    birth: birth,
                 }
                 query = processObj(
                     query,
@@ -389,7 +390,7 @@ export const hectoApi = {
                         'mchtCustId',
                         'reqDt',
                         'reqTm',
-                        'uii',
+                        'birth',
                         'cphoneNo',
                         'authMthdCd',
                     ],
@@ -401,6 +402,7 @@ export const hectoApi = {
                     ],
                     dns_data
                 )
+                console.log(query)
                 let { data: response } = await axios.post(`${API_URL}/v1/api/auth/mobile/req`, query, {
                     headers: getDefaultHeader(),
                 });

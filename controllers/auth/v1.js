@@ -31,6 +31,12 @@ const authV1Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
+                if (!mid) {
+                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                }
+                if (birth.length != 8) {
+                    return response(req, res, -100, "생년월일 형식은 yyyymmdd 입니다.", false);
+                }
                 let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
                 dns_data = dns_data?.result[0];
                 if (!dns_data) {
@@ -50,7 +56,7 @@ const authV1Ctrl = {
                     phone_num,
                     name,
                     gender,
-                    birth,
+                    birth: birth.substring(2, 8),
                     tel_com,
                 })
                 if (api_result?.code != 100) {
