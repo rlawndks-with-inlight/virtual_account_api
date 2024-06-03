@@ -4,6 +4,7 @@ import pushPaytusCtrl from '../controllers/push-paytus.controller.js';
 import pushCooconCtrl from '../controllers/push-coocon.controller.js';
 import pushKoreaPaySystemCtrl from '../controllers/push-korea-pay-system.js';
 import pushPopbillCtrl from '../controllers/push-popbill.controller.js';
+import pushHectoCtrl from '../controllers/push-hecto.controller.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //뱅크너스
@@ -29,10 +30,10 @@ router
 router
     .route('/coocon')
     .post(pushCooconCtrl.deposit);
-//쿠콘
+//헥토
 router
-    .route('/coocon')
-    .post(pushCooconCtrl.deposit);
+    .route('/hecto')
+    .post(pushHectoCtrl.deposit);
 //코리아결제시스템
 router
     .route('/korea-pay-system/deposit')
