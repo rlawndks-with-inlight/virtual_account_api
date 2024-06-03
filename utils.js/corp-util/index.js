@@ -1,6 +1,7 @@
 import { selectQuerySimple } from "../query-util.js";
 import { banknersApi } from "./bankners.js";
 import { cooconApi } from "./coocon.js";
+import { hectoApi } from "./hecto.js";
 import { koreaPaySystemApi } from "./korea-pay-system.js";
 import { paytusApi } from "./paytus.js";
 
@@ -250,6 +251,9 @@ const corpApi = {
             if (corp_type == 2) {
                 result = await cooconApi.balance.info(data);
             }
+            if (corp_type == 5) {
+                result = await hectoApi.balance.info(data);
+            }
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.balance.info(data);
             }
@@ -388,6 +392,9 @@ const corpApi = {
             if (corp_type == 2) {
                 result = await cooconApi.withdraw.request(data);
             }
+            if (corp_type == 5) {
+                result = await hectoApi.withdraw.request(data);
+            }
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.withdraw.request(data);
             }
@@ -412,6 +419,9 @@ const corpApi = {
 
             if (corp_type == 2) {
                 result = await cooconApi.withdraw.request_check(data);
+            }
+            if (corp_type == 5) {
+                result = await hectoApi.withdraw.request_check(data);
             }
             return result;
         },
