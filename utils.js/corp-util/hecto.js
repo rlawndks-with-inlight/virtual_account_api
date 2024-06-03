@@ -7,6 +7,7 @@ import { returnMoment } from '../function.js';
 
 //const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
 const API_URL = "https://tbnpay.settlebank.co.kr";
+const GW_API_URL = process.env.API_ENV == 'production' ? "https://gw.settlebank.co.kr" : "https://tbgw.settlebank.co.kr"
 
 const getDefaultHeader = () => {
     return {
@@ -59,6 +60,54 @@ const processObj = (obj_ = {}, hash_list = [], encr_list = [], dns_data) => {
     return obj;
 }
 export const hectoApi = {
+    balance: {
+        info: async (data) => {//잔액
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    guid, amount,
+                } = data;
+
+                let query = {
+                    mchtId: dns_data?.withdraw_mid,
+                }
+                //query = processWithdrawObj(query, dns_data);
+
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, query,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 30000 // 30초 타임아웃
+                    });
+                console.log(response)
+                if (response?.outStatCd == '0021') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.blcKrw,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.outRsltMsg,
+                        data: {},
+                    };
+                }
+
+            } catch (err) {
+                console.log(err)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
     account: {
         info: async (data) => {//
             try {
@@ -493,4 +542,51 @@ export const hectoApi = {
             }
         },
     },
+    withdraw: {
+        request: async (data) => {//출금요청
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    bank_code, acct_num, amount, acct_name, trx_id
+                } = data;
+                let query = {
+                    mchtId: dns_data?.withdraw_mid,
+                }
+                //query = processWithdrawObj(query, dns_data);
+
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, query,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 30000 // 30초 타임아웃
+                    });
+                console.log(response)
+                if (response?.outStatCd == '0021') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.blcKrw,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.outRsltMsg,
+                        data: {},
+                    };
+                }
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    }
 }
