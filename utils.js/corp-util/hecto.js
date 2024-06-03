@@ -579,7 +579,7 @@ export const hectoApi = {
                         message: '',
                         data: {
                             amount: response?.TRSC_AMT,
-                            tid: response?.mchtTrdNo,
+                            tid: response?.trdNo,
                             virtual_acct_balance: response?.balance,
                         },
                     };
@@ -600,6 +600,58 @@ export const hectoApi = {
                     message: '',
                     data: {
                         tid: mcht_trd_no,
+                    },
+                };
+
+            }
+        },
+        request_check: async (data) => {//출금요청
+            let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    date, tid
+                } = data;
+                let query = {
+                    mchtId: dns_data?.withdraw_mid,
+                    mchtTrdNo: mcht_trd_no,
+                    trdNo: tid,
+                    orgTrdDt: date,
+                }
+                //query = processWithdrawObj(query, dns_data);
+
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxResult`, query,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 30000 // 30초 타임아웃
+                    });
+                if (response?.outStatCd == '0021') {
+                    return {
+                        code: 100,
+                        message: '',
+                        data: {
+                            amount: response?.TRSC_AMT,
+                            status: response?.status,
+                        },
+                    };
+                } else {
+                    return {
+                        code: -100,
+                        message: response?.outRsltMsg,
+                        data: {
+                            status: response?.status,
+                        },
+                    };
+                }
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {
                     },
                 };
 

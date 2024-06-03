@@ -241,17 +241,45 @@ const withdrawV4Ctrl = {
                 withdraw_status: 5,
                 virtual_acct_balance: virtual_acct_balance,
             };
-            if (api_result.code != 100) {
-                obj['withdraw_status'] = 10;
-            }
+
             let result = await updateQuery(`deposits`, obj, withdraw_id);
-            if (api_result.code == 100) {
-                return response(req, res, 100, "success", {
-                    tid: api_result.data?.tid,
+
+            for (var i = 0; i < 3; i++) {
+                let api_result2 = await corpApi.withdraw.request_check({
+                    pay_type: 'withdraw',
+                    dns_data: dns_data,
+                    decode_user: user,
+                    date,
+                    tid,
                 })
-            } else {
-                return response(req, res, -100, api_result?.message, false)
+                console.log(api_result2)
+
+                let status = 0;
+                if (api_result2.data?.status == '99') {
+                    continue;
+                } else if (api_result2.data?.status != '21') {
+                    status = 10;
+                }
+
+                if (api_result2.code == 100 || status == 10) {
+                    let update_obj = {
+                        withdraw_status: status,
+                        amount: (status == 0 ? ((-1) * amount) : 0),
+                    }
+                    let withdraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data)
+                    if (status == 0) {
+                        update_obj = {
+                            ...update_obj,
+                            ...withdraw_obj,
+                        }
+                    }
+
+                    let result = await updateQuery(`deposits`, update_obj, withdraw_id)
+                    break;
+                }
             }
+
+            return response(req, res, 100, "success", {})
 
         } catch (err) {
             console.log(err)
