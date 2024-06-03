@@ -29,6 +29,10 @@ router
 router
     .route('/coocon')
     .post(pushCooconCtrl.deposit);
+//쿠콘
+router
+    .route('/coocon')
+    .post(pushCooconCtrl.deposit);
 //코리아결제시스템
 router
     .route('/korea-pay-system/deposit')
