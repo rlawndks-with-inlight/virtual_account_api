@@ -544,17 +544,28 @@ export const hectoApi = {
     },
     withdraw: {
         request: async (data) => {//출금요청
+            let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
             try {
                 let {
                     dns_data, pay_type, decode_user,
                     bank_code, acct_num, amount, acct_name, trx_id
                 } = data;
+                let return_moment = returnMoment();
+
                 let query = {
                     mchtId: dns_data?.withdraw_mid,
+                    mchtTrdNo: mcht_trd_no,
+                    encCd: '23',
+                    trdDt: return_moment.split(' ')[0].replaceAll('-', ''),
+                    trdTm: return_moment.split(' ')[1].replaceAll(':', ''),
+                    bankCd: bank_code,
+                    custAcntNo: acct_num,
+                    custAcntSumry: acct_name,
+                    amt: amount,
                 }
                 //query = processWithdrawObj(query, dns_data);
 
-                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, query,
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxTransKrw`, query,
                     {
                         headers: {
                             'Content-Type': 'application/json'
@@ -567,14 +578,18 @@ export const hectoApi = {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.blcKrw,
+                            amount: response?.TRSC_AMT,
+                            tid: response?.mchtTrdNo,
+                            virtual_acct_balance: response?.balance,
                         },
                     };
                 } else {
                     return {
                         code: -100,
                         message: response?.outRsltMsg,
-                        data: {},
+                        data: {
+                            tid: mcht_trd_no,
+                        },
                     };
                 }
             } catch (err) {
@@ -583,7 +598,9 @@ export const hectoApi = {
                 return {
                     code: -100,
                     message: '',
-                    data: {},
+                    data: {
+                        tid: mcht_trd_no,
+                    },
                 };
 
             }
