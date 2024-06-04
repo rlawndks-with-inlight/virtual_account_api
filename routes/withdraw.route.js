@@ -26,5 +26,8 @@ router
 router
     .route('/v4')
     .post(withdrawV4Ctrl.request);
+router
+    .route('/v4/withdraw/check')
+    .post(withdrawV4Ctrl.check_withdraw);
 
 export default router;
