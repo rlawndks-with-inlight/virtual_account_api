@@ -22,9 +22,9 @@ const pushHectoCtrl = {
                 bankCd,
                 vtlAcntNo,
                 treatBankCd,
-                dpstrNm,
+                dpStrNm,
             } = req.body;
-
+            console.log(req.body)
             //console.log(data)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_mid=? `, [
                 mchtId
@@ -40,7 +40,7 @@ const pushHectoCtrl = {
                 expect_amount: amount,
                 deposit_bank_code: treatBankCd,
                 deposit_acct_num: '',
-                deposit_acct_name: dpstrNm,
+                deposit_acct_name: dpStrNm,
                 virtual_bank_code: bankCd,
                 virtual_acct_num: vtlAcntNo,
                 trx_id: trx_id,
@@ -59,7 +59,7 @@ const pushHectoCtrl = {
             let bell_data = {
                 amount: parseInt(amount),
                 user_id: 0,
-                deposit_acct_name: dpstrNm,
+                deposit_acct_name: dpStrNm,
                 nickname: '',
             }
             emitSocket({
