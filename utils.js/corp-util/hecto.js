@@ -649,6 +649,8 @@ export const hectoApi = {
                     response.status = 6;
                 } else if (response?.status != '21') {
                     response.status = 3;
+                } else {
+                    response.status = 0;
                 }
                 if (response?.outStatCd == '0021') {
                     return {
