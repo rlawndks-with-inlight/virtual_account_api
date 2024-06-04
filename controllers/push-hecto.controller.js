@@ -43,7 +43,6 @@ const pushHectoCtrl = {
                 deposit_acct_name: dpstrNm,
                 virtual_bank_code: bankCd,
                 virtual_acct_num: vtlAcntNo,
-                virtual_acct_name: receiver,
                 trx_id: trx_id,
                 is_type_withdraw_acct: 1,
             }
