@@ -24,7 +24,6 @@ const pushHectoCtrl = {
                 treatBankCd,
                 dpStrNm,
             } = req.body;
-            console.log(req.body)
             //console.log(data)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_mid=? `, [
                 mchtId
