@@ -632,11 +632,11 @@ export const hectoApi = {
 
                 let query = {
                     mchtId: dns_data?.withdraw_mid,
-                    mchtTrdNo: mcht_trd_no,
-                    trdNo: tid,
+                    mchtTrdNo: tid,
                     orgTrdDt: date,
                 }
                 query = processWithdrawObj(query, dns_data);
+                console.log(query)
 
                 let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxResult`, new URLSearchParams(query).toString(),
                     {
