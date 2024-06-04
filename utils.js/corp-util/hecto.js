@@ -65,7 +65,7 @@ function processWithdrawObj(obj_ = {}, dns_data = {}, aes_list = []) {
     let keys = Object.keys(obj);
     for (var i = 0; i < keys.length; i++) {
         if (aes_list.includes(keys[i])) {
-            let key = '30303030303030303030303030303030';
+            let key = dns_data?.withdraw_sign_key;
             obj[keys[i]] = getAES256(obj[keys[i]], key);
         }
 
@@ -589,6 +589,7 @@ export const hectoApi = {
                         },
                         timeout: 30000 // 30초 타임아웃
                     });
+                console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
@@ -644,6 +645,7 @@ export const hectoApi = {
                         },
                         timeout: 30000 // 30초 타임아웃
                     });
+                console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
