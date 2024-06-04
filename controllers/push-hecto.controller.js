@@ -30,7 +30,7 @@ const pushHectoCtrl = {
                 mchtId
             ]);
             dns_data = dns_data?.result[0];
-            trx_id = dpTrdNo;
+            let trx_id = dpTrdNo;
             let amount = dpAmt ?? 0;
             let insert_obj = {
                 brand_id: dns_data?.id,
