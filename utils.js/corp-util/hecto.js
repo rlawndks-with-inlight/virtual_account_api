@@ -83,7 +83,8 @@ export const hectoApi = {
                 let query = {
                     mchtId: dns_data?.withdraw_mid,
                 }
-                query = processWithdrawObj(query);
+                query = processWithdrawObj(query, dns_data);
+
                 let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, new URLSearchParams(query).toString(),
                     {
                         headers: {
@@ -574,15 +575,9 @@ export const hectoApi = {
                     custAcntSumry: acct_name,
                     amt: amount,
                 }
-                query = processWithdrawObj(query, dns_data,
-                    [
-                        'encCd',
-                        'custAcntNo',
-                        'amt',
-                    ]);
-                query['custAcntNo'] = encodeURI(query['custAcntNo']);
-                query['amt'] = encodeURI(query['amt']);
-                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, new URLSearchParams(query).toString(),
+                query = processWithdrawObj(query, dns_data);
+
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxTransKrw`, new URLSearchParams(query).toString(),
                     {
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -635,12 +630,9 @@ export const hectoApi = {
                     trdNo: tid,
                     orgTrdDt: date,
                 }
-                query = processWithdrawObj(query, dns_data,
-                    [
+                query = processWithdrawObj(query, dns_data);
 
-                    ]);
-
-                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxBalance`, new URLSearchParams(query).toString(),
+                let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxResult`, new URLSearchParams(query).toString(),
                     {
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
