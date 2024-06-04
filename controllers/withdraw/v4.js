@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, findBlackList, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, setWithdrawAmountSetting, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, generateRandomString, getDailyWithdrawAmount, getOperatorList, getReqIp, isItemBrandIdSameDnsId, response, setWithdrawAmountSetting, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import speakeasy from 'speakeasy';
 const table_name = 'virtual_accounts';
@@ -177,9 +177,8 @@ const withdrawV4Ctrl = {
             // if (account_info?.code != 100) {
             //     return response(req, res, -100, (account_info?.message || "서버 에러 발생"), false)
             // }
+            let trx_id = `OID${dns_data?.id}${new Date().getTime()}${user?.id}${generateRandomString(5)}`;
 
-
-            let trx_id = makeUserIdMax12(user?.id);
             let first_obj = {
                 brand_id: dns_data?.id,
                 pay_type: pay_type,
@@ -233,7 +232,6 @@ const withdrawV4Ctrl = {
                 acct_name: deposit_acct_name || withdraw_acct_name,
                 trx_id,
             })
-            console.log(api_result)
             let tid = api_result.data?.tid;
 
             let virtual_acct_balance = api_result?.data?.virtual_acct_balance ?? 0;

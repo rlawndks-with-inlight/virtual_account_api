@@ -628,7 +628,6 @@ export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data
             ...user,
             ...mcht,
         }
-        console.log(user)
         result['mcht_amount'] = (-1) * (amount + user?.withdraw_fee);
         result['mcht_id'] = user?.id;
         if (dns_data?.is_use_withdraw_operator == 1) {

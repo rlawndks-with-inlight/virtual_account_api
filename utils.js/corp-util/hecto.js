@@ -64,7 +64,7 @@ function processWithdrawObj(obj_ = {}, dns_data = {}, aes_list = []) {
     let keys = Object.keys(obj);
     for (var i = 0; i < keys.length; i++) {
         if (aes_list.includes(keys[i])) {
-            let key = '00000000000000000000000000000000';
+            let key = '30303030303030303030303030303030';
             obj[keys[i]] = getAES256(obj[keys[i]], key);
         }
 
@@ -556,25 +556,26 @@ export const hectoApi = {
     },
     withdraw: {
         request: async (data) => {//출금요청
-            let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
+            let {
+                dns_data, pay_type, decode_user,
+                bank_code, acct_num, amount, acct_name, trx_id
+            } = data;
             try {
-                let {
-                    dns_data, pay_type, decode_user,
-                    bank_code, acct_num, amount, acct_name, trx_id
-                } = data;
+
                 let return_moment = returnMoment();
 
                 let query = {
                     mchtId: dns_data?.withdraw_mid,
-                    mchtTrdNo: mcht_trd_no,
+                    mchtTrdNo: trx_id,
                     encCd: '23',
                     trdDt: return_moment.split(' ')[0].replaceAll('-', ''),
                     trdTm: return_moment.split(' ')[1].replaceAll(':', ''),
                     bankCd: bank_code,
                     custAcntNo: acct_num,
                     custAcntSumry: acct_name,
-                    amt: amount,
+                    amt: amount.toString(),
                 }
+                console.log(query)
                 query = processWithdrawObj(query, dns_data, [
                     'custAcntNo',
                     'amt',
@@ -588,14 +589,15 @@ export const hectoApi = {
                         },
                         timeout: 30000 // 30초 타임아웃
                     });
+                console.log(123)
                 console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
                         message: '',
                         data: {
-                            amount: response?.TRSC_AMT,
-                            tid: response?.trdNo,
+                            amount: response?.amt,
+                            tid: response?.mchtTrdNo,
                             virtual_acct_balance: response?.balance,
                         },
                     };
@@ -604,7 +606,7 @@ export const hectoApi = {
                         code: -100,
                         message: response?.outRsltMsg,
                         data: {
-                            tid: mcht_trd_no,
+                            tid: response?.mchtTrdNo,
                         },
                     };
                 }
@@ -615,19 +617,20 @@ export const hectoApi = {
                     code: -100,
                     message: '',
                     data: {
-                        tid: mcht_trd_no,
+                        tid: trx_id,
                     },
                 };
 
             }
         },
         request_check: async (data) => {//출금요청
+            let {
+                dns_data, pay_type, decode_user,
+                date, tid
+            } = data;
             let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
             try {
-                let {
-                    dns_data, pay_type, decode_user,
-                    date, tid
-                } = data;
+
                 let query = {
                     mchtId: dns_data?.withdraw_mid,
                     mchtTrdNo: mcht_trd_no,
