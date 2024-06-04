@@ -12,8 +12,8 @@ const pushHectoCtrl = {
             const {
                 notiType,
                 mchtId,
-                dpDt,
-                dpTm,
+                dpDt = "",
+                dpTm = "",
                 dpTrdNo,
                 outStatCd,
                 dpCrcCd,
@@ -45,6 +45,8 @@ const pushHectoCtrl = {
                 virtual_acct_num: vtlAcntNo,
                 trx_id: trx_id,
                 is_type_withdraw_acct: 1,
+                trans_date: `${dpDt.substring(0, 4)}-${dpDt.substring(4, 6)}-${dpDt.substring(6, 8)}`,
+                trans_time: `${dpTm.substring(0, 2)}:${dpTm.substring(2, 4)}:${dpTm.substring(4, 6)}`
             }
             let deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
             deposit = deposit?.result[0];
