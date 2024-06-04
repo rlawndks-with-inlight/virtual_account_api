@@ -59,7 +59,7 @@ const pushHectoCtrl = {
             let bell_data = {
                 amount: parseInt(amount),
                 user_id: 0,
-                deposit_acct_name: sender,
+                deposit_acct_name: dpstrNm,
                 nickname: '',
             }
             emitSocket({
