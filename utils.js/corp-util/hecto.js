@@ -4,6 +4,7 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
 import { returnMoment } from '../function.js';
+import { generateRandomString } from '../util.js';
 
 //const API_URL = process.env.API_ENV == 'production' ? "https://npay.settlebank.co.kr" : "https://tbnpay.settlebank.co.kr";
 const API_URL = "https://tbnpay.settlebank.co.kr";
@@ -575,7 +576,6 @@ export const hectoApi = {
                     custAcntSumry: acct_name,
                     amt: amount.toString(),
                 }
-                console.log(query)
                 query = processWithdrawObj(query, dns_data, [
                     'custAcntNo',
                     'amt',
@@ -589,8 +589,6 @@ export const hectoApi = {
                         },
                         timeout: 30000 // 30초 타임아웃
                     });
-                console.log(123)
-                console.log(response)
                 if (response?.outStatCd == '0021') {
                     return {
                         code: 100,
@@ -628,7 +626,7 @@ export const hectoApi = {
                 dns_data, pay_type, decode_user,
                 date, tid
             } = data;
-            let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}`;
+            let mcht_trd_no = `OID${dns_data?.id}${new Date().getTime()}${decode_user?.id}${generateRandomString(5)}`;
             try {
 
                 let query = {
