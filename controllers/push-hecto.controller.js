@@ -4,7 +4,7 @@ import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
 import { emitSocket } from "../utils.js/socket/index.js";
-import { insertLog } from "../utils.js/util.js";
+import { insertLog, insertResponseLog } from "../utils.js/util.js";
 //노티 받기
 const pushHectoCtrl = {
     deposit: async (req, res, next) => {
@@ -50,6 +50,7 @@ const pushHectoCtrl = {
             let deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
             deposit = deposit?.result[0];
             if (deposit) {
+                insertResponseLog(req, '0000');
                 return res.send('OK');
             }
 
@@ -67,13 +68,13 @@ const pushHectoCtrl = {
                 brand_id: dns_data?.id,
                 data: bell_data
             })
-            insertLog(req.body, '0000');
+            insertResponseLog(req, '0000');
 
             return res.send('OK');
 
         } catch (err) {
             console.log(err)
-            insertLog(req.body, '9999');
+            insertResponseLog(req, '9999');
             return res.send('FAIL');
         } finally {
 
