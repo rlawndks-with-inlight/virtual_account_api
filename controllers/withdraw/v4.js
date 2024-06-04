@@ -253,10 +253,10 @@ const withdrawV4Ctrl = {
                 console.log(api_result2)
 
                 let status = 0;
-                if (api_result2.data?.status == '99') {
-                    continue;
-                } else if (api_result2.data?.status != '21') {
+                if (api_result2.data?.status == 3) {
                     status = 10;
+                } else if (api_result2.data?.status == 6) {
+                    continue;
                 }
 
                 if (api_result2.code == 100 || status == 10) {
