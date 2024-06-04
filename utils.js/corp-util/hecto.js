@@ -575,8 +575,12 @@ export const hectoApi = {
                     custAcntSumry: acct_name,
                     amt: amount,
                 }
-                query = processWithdrawObj(query, dns_data);
-
+                query = processWithdrawObj(query, dns_data, [
+                    'custAcntNo',
+                    'amt',
+                ]);
+                query['custAcntNo'] = encodeURI(query['custAcntNo']);
+                query['amt'] = encodeURI(query['amt']);
                 let { data: response } = await axios.post(`${GW_API_URL}/pyag/v1/fxTransKrw`, new URLSearchParams(query).toString(),
                     {
                         headers: {
