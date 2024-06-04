@@ -286,6 +286,92 @@ const withdrawV4Ctrl = {
 
         }
     },
+    check_withdraw: async (req_, res, next) => {//출금요청
+        let req = req_;
+        try {
+            let {
+                api_key,
+                mid,
+                tid = '',
+            } = req.body;
+
+            if (!api_key) {
+                return response(req, res, -100, "api key를 입력해주세요.", false);
+            }
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            dns_data = dns_data?.result[0];
+            let operator_list = getOperatorList(dns_data);
+            if (!dns_data) {
+                return response(req, res, -100, "api key가 잘못되었습니다.", false);
+            }
+            req.body.brand_id = dns_data?.id;
+
+            let mcht_sql = `SELECT ${process.env.SELECT_COLUMN_SECRET} FROM users `;
+            mcht_sql += ` LEFT JOIN merchandise_columns ON merchandise_columns.mcht_id=users.id `;
+            mcht_sql += ` LEFT JOIN virtual_accounts ON users.virtual_account_id=virtual_accounts.id `;
+            let mcht_columns = [
+                `users.*`,
+                `merchandise_columns.mcht_fee`,
+            ]
+            for (var i = 0; i < operator_list.length; i++) {
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_id`);
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_fee`);
+                mcht_columns.push(`merchandise_columns.sales${operator_list[i]?.num}_withdraw_fee`);
+                mcht_columns.push(`sales${operator_list[i]?.num}.user_name AS sales${operator_list[i]?.num}_user_name`);
+                mcht_columns.push(`sales${operator_list[i]?.num}.nickname AS sales${operator_list[i]?.num}_nickname`);
+                mcht_sql += ` LEFT JOIN users AS sales${operator_list[i]?.num} ON sales${operator_list[i]?.num}.id=merchandise_columns.sales${operator_list[i]?.num}_id `;
+            }
+            mcht_sql += ` WHERE users.id=? AND users.brand_id=? `;
+            mcht_sql = mcht_sql.replace(process.env.SELECT_COLUMN_SECRET, mcht_columns.join())
+
+
+            let trx = await pool.query(`SELECT * FROM deposits WHERE brand_id=? AND trx_id=? `, [
+                dns_data?.id,
+                tid,
+            ])
+            trx = trx?.result[0];
+
+            let user = await pool.query(mcht_sql, [trx?.user_id, dns_data?.id]);
+            user = user?.result[0];
+
+            let api_result = await corpApi.withdraw.request_check({
+                pay_type: 'withdraw',
+                dns_data: dns_data,
+                decode_user: user,
+                date: trx?.created_at.substring(0, 10).replaceAll('-', ''),
+                tid,
+            })
+            let status = 0;
+            if (api_result.data?.status == 3) {
+                status = 10;
+            } else if (api_result.data?.status == 6) {
+                status = 20;
+            }
+            if (api_result.code == 100 || status == 10) {
+                let update_obj = {
+                    withdraw_status: status,
+                    amount: (status == 0 ? trx?.expect_amount : 0),
+                }
+                let withdraw_obj = await setWithdrawAmountSetting(trx?.expect_amount * (-1) - user?.withdraw_fee, user, dns_data)
+                if (status == 0) {
+                    update_obj = {
+                        ...update_obj,
+                        ...withdraw_obj,
+                    }
+                }
+                let result = await updateQuery(`deposits`, update_obj, trx?.id)
+
+                return response(req, res, 100, "success", {})
+            } else {
+                return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+            }
+        } catch (err) {
+            console.log(err)
+            return response(req, res, -200, "서버 에러 발생", false)
+        } finally {
+
+        }
+    },
 };
 
 export default withdrawV4Ctrl;
