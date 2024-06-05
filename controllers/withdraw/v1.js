@@ -192,6 +192,17 @@ const withdrawV1Ctrl = {
             withdraw_amount = parseInt(withdraw_amount);
 
             let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
+            if (dns_data?.withdraw_max_price > 0) {
+                let date = returnMoment().substring(0, 10);
+                let today_withdraw_sum_sql = ` SELECT SUM(amount) AS amount FROM deposits WHERE brand_id=${dns_data?.id} `;
+                today_withdraw_sum_sql += ` AND pay_type IN (5, 10, 20) `;
+                today_withdraw_sum_sql += ` AND (created_at BETWEEN '${date} 00:00:00' AND '${date} 23:59:59')  `;
+                let today_withdraw_sum = await pool.query(today_withdraw_sum_sql);
+                today_withdraw_sum = today_withdraw_sum?.result[0]?.amount ?? 0;
+                if (dns_data?.withdraw_max_price < today_withdraw_sum + amount) {
+                    return response(req, res, -100, "출금 실패 B", false)
+                }
+            }
             if (user?.level == 10 && dns_data?.setting_obj?.is_use_daily_withdraw == 1) {
                 let daliy_withdraw_amount = await getDailyWithdrawAmount(user);
                 daliy_withdraw_amount = (daliy_withdraw_amount?.withdraw_amount ?? 0) * (-1);
