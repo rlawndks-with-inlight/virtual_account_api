@@ -147,6 +147,10 @@ const pushPopbillCtrl = {
                         }
                         obj['brand_id'] = dns_data?.id;
                         bell_data['deposit_acct_name'] = acct_name;
+                        if (mcht) {
+                            bell_data['user_id'] = mcht?.id;
+                            bell_data['nickname'] = mcht?.nickname;
+                        }
                         let result = await insertQuery(`deposits`, obj);
                         emitSocket({
                             method: 'deposit',
