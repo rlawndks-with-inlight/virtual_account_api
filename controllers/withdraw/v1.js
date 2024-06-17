@@ -194,13 +194,32 @@ const withdrawV1Ctrl = {
             let amount = parseInt(withdraw_amount) + (dns_data?.withdraw_fee_type == 0 ? user?.withdraw_fee : 0);
             if (dns_data?.withdraw_max_price > 0) {
                 let date = returnMoment().substring(0, 10);
-                let today_withdraw_sum_sql = ` SELECT SUM(amount) AS amount FROM deposits WHERE brand_id=${dns_data?.id} `;
+                let today_withdraw_sum_sql = ` SELECT SUM(amount) AS amount, SUM(withdraw_fee) AS withdraw_fee FROM deposits WHERE brand_id=${dns_data?.id} `;
                 today_withdraw_sum_sql += ` AND pay_type IN (5, 10, 20) `;
+                today_withdraw_sum_sql += ` AND withdraw_status IN (0) `;
                 today_withdraw_sum_sql += ` AND (created_at BETWEEN '${date} 00:00:00' AND '${date} 23:59:59')  `;
                 let today_withdraw_sum = await pool.query(today_withdraw_sum_sql);
-                today_withdraw_sum = today_withdraw_sum?.result[0]?.amount ?? 0;
+                today_withdraw_sum = (today_withdraw_sum?.result[0]?.amount ?? 0) * (-1) - (today_withdraw_sum?.result[0]?.withdraw_fee ?? 0);
                 if (dns_data?.withdraw_max_price < today_withdraw_sum + amount) {
                     return response(req, res, -100, "출금 실패 B", false)
+                }
+            }
+            if (dns_data?.month_withdraw_max_price > 0) {
+                let first_date = returnMoment().substring(0, 10);
+                let first_date_list = first_date.split('-');
+                first_date = `${first_date_list[0]}-${first_date_list[1]}-01`;
+                let month = parseInt(first_date_list[1]);
+                let next_year = (month == 12 ? (parseInt(first_date_list[0]) + 1) : parseInt(first_date_list[0]));
+                let next_month = (month == 12 ? 1 : (month + 1));
+
+                let month_withdraw_sum_sql = ` SELECT SUM(amount) AS amount, SUM(withdraw_fee) AS withdraw_fee FROM deposits WHERE brand_id=${dns_data?.id} `;
+                month_withdraw_sum_sql += ` AND pay_type IN (5, 10, 20) `;
+                month_withdraw_sum_sql += ` AND withdraw_status IN (0) `;
+                month_withdraw_sum_sql += ` AND (created_at BETWEEN '${first_date} 00:00:00' AND '${next_year}-${next_month >= 10 ? '' : '0'}${next_month}-01 00:00:00')  `;
+                let month_withdraw_sum = await pool.query(month_withdraw_sum_sql);
+                month_withdraw_sum = (month_withdraw_sum?.result[0]?.amount ?? 0) * (-1) - (month_withdraw_sum?.result[0]?.withdraw_fee ?? 0);
+                if (dns_data?.month_withdraw_max_price < month_withdraw_sum + amount) {
+                    return response(req, res, -100, "출금 실패 C", false)
                 }
             }
             if (user?.level == 10 && dns_data?.setting_obj?.is_use_daily_withdraw == 1) {
