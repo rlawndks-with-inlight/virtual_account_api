@@ -113,6 +113,26 @@ const pushPopbillCtrl = {
                             })
                         }
                     } else {
+                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND brand_id=${dns_data?.id}`, [
+                            acct_name,
+                        ]);
+                        deposit_account = deposit_account?.result[0];
+                        let mcht = undefined;
+                        if (deposit_account) {
+                            let mcht_columns = [
+                                `users.*`,
+                            ]
+                            let sql = `SELECT ${mcht_columns.join()} FROM users `;
+                            sql += ` WHERE users.id=${deposit_account?.mcht_id} `;
+                            mcht = await pool.query(sql);
+                            mcht = mcht?.result[0] ?? {};
+                            let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
+                            obj = {
+                                ...obj,
+                                ...deposit_setting,
+                            }
+                        }
+
                         delete obj['head_office_fee'];
                         obj['expect_amount'] = amount;
                         obj['deposit_acct_num'] = recvAccntNo;
