@@ -48,6 +48,7 @@ const pushPopbillCtrl = {
                     return res.send('9999');
                 }
                 let acct_name = tranName;
+                let detail = tranDetail;
                 let trans_date = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                 let trans_time = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
                 let trx_id = `${acctNo}${tranDate}${tranTime}${depositAmnt}${withdrawAmnt}${balance}`;
@@ -113,7 +114,8 @@ const pushPopbillCtrl = {
                             })
                         }
                     } else {
-                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND brand_id=${dns_data?.id}`, [
+                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND deposit_detail=? AND brand_id=${dns_data?.id}`, [
+                            detail,
                             acct_name,
                         ]);
                         deposit_account = deposit_account?.result[0];
@@ -137,6 +139,7 @@ const pushPopbillCtrl = {
                         obj['expect_amount'] = amount;
                         obj['deposit_acct_num'] = recvAccntNo;
                         obj['deposit_acct_name'] = acct_name;
+                        obj['deposit_detail'] = detail;
                         obj['trans_date'] = `${tranDate.substring(0, 4)}-${tranDate.substring(4, 6)}-${tranDate.substring(6, 8)}`;
                         obj['trans_time'] = `${tranTime.substring(0, 2)}:${tranTime.substring(2, 4)}:${tranTime.substring(4, 6)}`;
 
