@@ -115,8 +115,8 @@ const pushPopbillCtrl = {
                         }
                     } else {
                         let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND detail=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
-                            detail,
                             acct_name,
+                            detail,
                         ]);
                         deposit_account = deposit_account?.result[0];
                         let mcht = undefined;
