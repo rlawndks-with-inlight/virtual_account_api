@@ -114,7 +114,7 @@ const pushPopbillCtrl = {
                             })
                         }
                     } else {
-                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND deposit_detail=? AND brand_id=${dns_data?.id}`, [
+                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND detail=? AND brand_id=${dns_data?.id}`, [
                             detail,
                             acct_name,
                         ]);
