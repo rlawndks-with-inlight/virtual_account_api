@@ -646,7 +646,7 @@ export const hectoApi = {
                     });
                 console.log(response)
 
-                if (response?.status == '99') {
+                if (response?.status == '99' || response?.status == '29') {
                     response.status = 6;
                 } else if (response?.status != '21') {
                     response.status = 3;
