@@ -10,6 +10,48 @@ const getDefaultHeader = (dns_data, pay_type) => {
     }
 }
 export const icbApi = {
+    balance: {
+        info: async (data) => {
+            try {
+                let {
+                    dns_data,
+                    pay_type,
+                    ci,
+
+                } = data;
+                let query = {
+                    memKey: ci,
+                }
+                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/balance/getInfo`, query, {
+                    headers: getDefaultHeader(dns_data, pay_type,)
+                });
+                if (response?.code != 200) {
+                    return {
+                        code: -100,
+                        message: response?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: response?.message,
+                    data: {
+                        amount: response.data?.balAmt,
+                        hold_deposit_amount: response.data?.depositAmt,
+                    },
+                };
+
+            } catch (err) {
+                console.log(err)
+                return {
+                    code: -200,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
     vaccount: async (data) => {
         try {
             let {
@@ -348,6 +390,90 @@ export const icbApi = {
                 let { data: response } = await axios.post(`${API_URL}/v1/pg/hpCert/confirm`, query, {
                     headers: getDefaultHeader(dns_data, pay_type,)
                 });
+                if (response?.code != 200) {
+                    return {
+                        code: -100,
+                        message: response?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: response?.message,
+                    data: {},
+                };
+
+            } catch (err) {
+                console.log(err)
+                return {
+                    code: -200,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
+    withdraw: {
+        request: async (data) => {//출금신청
+            try {
+                let {
+                    dns_data,
+                    pay_type,
+                    ci,
+                    trx_id,
+                    amount,
+                } = data;
+                let query = {
+                    memKey: ci,
+                    trxAmt: amount,
+                    partnerTrxNo: trx_id,
+                }
+                console.log(query)
+                console.log(getDefaultHeader(dns_data, pay_type,))
+                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/request/amt`, query, {
+                    headers: getDefaultHeader(dns_data, pay_type,)
+                });
+                console.log(response)
+                if (response?.code != 200) {
+                    return {
+                        code: -100,
+                        message: response?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: response?.message,
+                    data: {},
+                };
+
+            } catch (err) {
+                console.log(err)
+                return {
+                    code: -200,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        request_check: async (data) => {//출금확인
+            try {
+                let {
+                    dns_data,
+                    pay_type,
+                    ci,
+                    trx_id,
+                } = data;
+                let query = {
+                    memKey: ci,
+                    partnerTrxNo: trx_id,
+                }
+                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/inquiry`, query, {
+                    headers: getDefaultHeader(dns_data, pay_type,)
+                });
+                console.log(response)
                 if (response?.code != 200) {
                     return {
                         code: -100,

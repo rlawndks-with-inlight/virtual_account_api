@@ -3,6 +3,7 @@ import { withdrawV1Ctrl } from '../controllers/index.js';
 import withdrawV2Ctrl from '../controllers/withdraw/v2.js';
 import withdrawV3Ctrl from '../controllers/withdraw/v3.js';
 import withdrawV4Ctrl from '../controllers/withdraw/v4.js';
+import withdrawV5Ctrl from '../controllers/withdraw/v5.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //쿠콘
@@ -29,5 +30,11 @@ router
 router
     .route('/v4/withdraw/check')
     .post(withdrawV4Ctrl.check_withdraw);
-
+//icb
+router
+    .route('/v5')
+    .post(withdrawV5Ctrl.request)
+router
+    .route('/v5/withdraw/check')
+    .post(withdrawV5Ctrl.check_withdraw)
 export default router;

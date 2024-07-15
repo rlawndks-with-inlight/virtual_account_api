@@ -272,6 +272,9 @@ const corpApi = {
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.balance.info(data);
             }
+            if (corp_type == 7) {
+                result = await icbApi.balance.info(data);
+            }
             return result;
         },
     },
@@ -416,6 +419,9 @@ const corpApi = {
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.withdraw.request(data);
             }
+            if (corp_type == 7) {
+                result = await icbApi.withdraw.request(data);
+            }
             return result;
         },
         request_check: async (data_) => {//출금요청
@@ -440,6 +446,9 @@ const corpApi = {
             }
             if (corp_type == 5) {
                 result = await hectoApi.withdraw.request_check(data);
+            }
+            if (corp_type == 7) {
+                result = await icbApi.withdraw.request_check(data);
             }
             return result;
         },
