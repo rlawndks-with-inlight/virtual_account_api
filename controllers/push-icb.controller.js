@@ -48,10 +48,12 @@ const pushIcbCtrl = {
 
             let trx_id = partnerTrxNo;
             let amount = parseInt(realTrxAmt);
-            let deposit_bank_code = virtual_account?.deposit_bank_code
-            let deposit_acct_num = virtual_account?.deposit_acct_num
-            let deposit_acct_name = virtual_account?.deposit_acct_name
-            let pay_type = 0
+            let deposit_bank_code = virtual_account?.deposit_bank_code;
+            let deposit_acct_num = virtual_account?.deposit_acct_num;
+            let deposit_acct_name = virtual_account?.deposit_acct_name;
+            let pay_type = 0;
+            let trans_date = `${payCmpDts.substring(0, 4)}-${payCmpDts.substring(4, 6)}-${payCmpDts.substring(6, 8)}`;
+            let trans_time = `${payCmpDts.substring(8, 10)}:${payCmpDts.substring(10, 12)}:${payCmpDts.substring(12, 14)}`;
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
@@ -66,6 +68,8 @@ const pushIcbCtrl = {
                 head_office_fee: dns_data?.head_office_fee,
                 deposit_fee: mcht?.deposit_fee ?? 0,
                 is_hand: 0,
+                trans_date,
+                trans_time,
                 status: 0,
             };
             let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
