@@ -69,7 +69,7 @@ const pushIcbCtrl = {
                 is_hand: 0,
                 trans_date,
                 trans_time,
-                status: 0,
+                deposit_status: 0,
             };
             let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
             obj = {
@@ -95,10 +95,6 @@ const pushIcbCtrl = {
                 insertResponseLog(req, '9999');
                 return res.send('9999');
             }
-            if (exist_deposit?.is_move_mother == 1) {
-                insertResponseLog(req, '0000');
-                return res.send('0000');
-            }
 
             let noti_process_obj = {}
             noti_process_obj[`deposit_noti_status`] = 5;
@@ -108,7 +104,7 @@ const pushIcbCtrl = {
                 acct_num: deposit_acct_num,
                 acct_name: deposit_acct_name,
                 created_at: returnMoment(),
-                tid: tid,
+                tid: trx_id,
             }
             noti_process_obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
             let update_mother_to_result = await updateQuery('deposits', noti_process_obj, deposit_id);
