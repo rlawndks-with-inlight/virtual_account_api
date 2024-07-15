@@ -2,6 +2,7 @@ import { selectQuerySimple } from "../query-util.js";
 import { banknersApi } from "./bankners.js";
 import { cooconApi } from "./coocon.js";
 import { hectoApi } from "./hecto.js";
+import { icbApi } from "./icb.js";
 import { koreaPaySystemApi } from "./korea-pay-system.js";
 import { paytusApi } from "./paytus.js";
 
@@ -85,6 +86,9 @@ const corpApi = {
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.user.account(data);
             }
+            if (corp_type == 7) {
+                result = await icbApi.user.account(data);
+            }
             return result;
         },
         account_verify: async (data_) => {//출금계좌등록
@@ -111,6 +115,9 @@ const corpApi = {
             }
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.user.account_verify(data);
+            }
+            if (corp_type == 7) {
+                result = await icbApi.user.account_verify(data);
             }
             return result;
         },
@@ -156,6 +163,9 @@ const corpApi = {
             if (corp_type == 3) {
                 result = await paytusApi.sms.push(data);
             }
+            if (corp_type == 7) {
+                result = await icbApi.sms.push(data);
+            }
             return result;
         },
         check: async (data_) => {//이체
@@ -173,9 +183,11 @@ const corpApi = {
             if (pay_type) {
                 corp_type = dns_data[`${pay_type}_corp_type`];
             }
-
             if (corp_type == 3) {
                 result = await paytusApi.sms.check(data);
+            }
+            if (corp_type == 7) {
+                result = await icbApi.sms.check(data);
             }
             return result;
         },
@@ -202,6 +214,9 @@ const corpApi = {
             }
             if (corp_type == 6) {
                 result = await koreaPaySystemApi.account.info(data);
+            }
+            if (corp_type == 7) {
+                result = await icbApi.account.info(data);
             }
             return result;
         },
@@ -302,6 +317,9 @@ const corpApi = {
         }
         if (corp_type == 3) {
             result = await paytusApi.vaccount(data);
+        }
+        if (corp_type == 7) {
+            result = await icbApi.vaccount(data);
         }
         return result;
     },

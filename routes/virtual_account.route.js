@@ -2,6 +2,7 @@ import express from 'express';
 import { virtualAccountV1Ctrl } from '../controllers/index.js';
 import virtualAccountV2Ctrl from '../controllers/virtual_account/v2.js';
 import virtualAccountV3Ctrl from '../controllers/virtual_account/v3.js';
+import virtualAccountV4Ctrl from '../controllers/virtual_account/v4.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //v1
@@ -37,5 +38,21 @@ router
 router
     .route('/v3/check')
     .post(virtualAccountV3Ctrl.check)
+//
+router
+    .route('/v4/phone/request')
+    .post(virtualAccountV4Ctrl.phone.request)
+router
+    .route('/v4/phone/check')
+    .post(virtualAccountV4Ctrl.phone.check)
+router
+    .route('/v4/request')
+    .post(virtualAccountV4Ctrl.acct.request)
+router
+    .route('/v4/check')
+    .post(virtualAccountV4Ctrl.acct.check)
+router
+    .route('/v4/issuance')
+    .post(virtualAccountV4Ctrl.issuance)
 
 export default router;
