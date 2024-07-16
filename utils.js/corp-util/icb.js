@@ -429,12 +429,10 @@ export const icbApi = {
                     trxAmt: amount,
                     partnerTrxNo: trx_id,
                 }
-                console.log(query)
                 console.log(getDefaultHeader(dns_data, pay_type,))
                 let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/request/amt`, query, {
                     headers: getDefaultHeader(dns_data, pay_type,)
                 });
-                console.log(response)
                 if (response?.code != 200) {
                     return {
                         code: -100,
@@ -445,7 +443,9 @@ export const icbApi = {
                 return {
                     code: 100,
                     message: response?.message,
-                    data: {},
+                    data: {
+                        tid: response?.data?.partnerTrxNo,
+                    },
                 };
 
             } catch (err) {
@@ -464,27 +464,37 @@ export const icbApi = {
                     dns_data,
                     pay_type,
                     ci,
-                    trx_id,
+                    tid,
                 } = data;
                 let query = {
                     memKey: ci,
-                    partnerTrxNo: trx_id,
+                    partnerTrxNos: tid,
                 }
                 let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/inquiry`, query, {
                     headers: getDefaultHeader(dns_data, pay_type,)
                 });
-                console.log(response)
+                let status = 10;
+                let result = response?.data?.result[0];
+                if (result?.trxStat == 'WT' || result?.trxStat == 'IP') {
+                    status = 6;
+                } else if (result?.trxStat == 'RF') {
+                    status = 3;
+                }
                 if (response?.code != 200) {
                     return {
                         code: -100,
                         message: response?.message,
-                        data: {},
+                        data: {
+                            status,
+                        },
                     };
                 }
                 return {
                     code: 100,
                     message: response?.message,
-                    data: {},
+                    data: {
+                        status,
+                    },
                 };
 
             } catch (err) {
@@ -492,7 +502,9 @@ export const icbApi = {
                 return {
                     code: -200,
                     message: '',
-                    data: {},
+                    data: {
+
+                    },
                 };
 
             }

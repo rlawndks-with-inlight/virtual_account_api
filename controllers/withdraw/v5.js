@@ -4,7 +4,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, getUserWithDrawFee, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, findBlackList, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, getDailyWithdrawAmount, getMotherDeposit, getOperatorList, getReqIp, isItemBrandIdSameDnsId, operatorLevelList, response, settingFiles, setWithdrawAmountSetting } from "../../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
@@ -14,6 +14,7 @@ export const makeSignValueSha256 = (text) => {
     let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
     return api_sign_val;
 }
+
 const withdrawV5Ctrl = {
     request: async (req_, res, next) => {
         let req = req_;
@@ -217,7 +218,7 @@ const withdrawV5Ctrl = {
                 return response(req, res, 100, "출금 요청이 완료되었습니다.", {});
             }
 
-            let trx_id = `${dns_data?.id}${virtual_account?.id}${new Date().getTime()}`;
+            let trx_id = `${dns_data?.id}${virtual_account?.id % 1000}${new Date().getTime()}`;
             let api_withdraw_request_result = await corpApi.withdraw.request({
                 pay_type: 'withdraw',
                 dns_data: dns_data,
@@ -226,30 +227,48 @@ const withdrawV5Ctrl = {
                 trx_id: trx_id,
                 amount: withdraw_amount,
             })
-            console.log(api_withdraw_request_result)
             if (api_withdraw_request_result.code != 100) {
                 return response(req, res, -120, (api_withdraw_request_result?.message || "서버 에러 발생"), false)
             }
 
             let result3 = await updateQuery(`deposits`, {
                 trx_id: api_withdraw_request_result.data?.tid,
-                top_office_amount: api_withdraw_request_result.data?.top_amount,
+                top_office_amount: api_withdraw_request_result.data?.top_amount ?? 0,
             }, withdraw_id);
 
-            /*
-            let trx_id = `${new Date().getTime()}${decode_dns?.id}${user?.id}5`;
-            let deposit_obj = {
-                brand_id: decode_dns?.id,
-                pay_type,
-                amount: (-1) * (parseInt(withdraw_amount) + user?.withdraw_fee),
-                settle_bank_code: user?.settle_bank_code,
-                settle_acct_num: user?.settle_acct_num,
-                settle_acct_name: user?.settle_acct_name,
-                trx_id: trx_id,
-                withdraw_fee: user?.withdraw_fee,
-                user_id: user?.id,
+            for (var i = 0; i < 3; i++) {
+                let api_result2 = await corpApi.withdraw.request_check({
+                    pay_type: 'withdraw',
+                    dns_data: dns_data,
+                    decode_user: user,
+                    ci: virtual_account?.ci,
+                    tid: trx_id,
+                })
+
+                let status = 0;
+                if (api_result2.data?.status == 3) {
+                    status = 10;
+                } else if (api_result2.data?.status == 6) {
+                    continue;
+                }
+                if (api_result2.code == 100 || status == 10) {
+                    let update_obj = {
+                        withdraw_status: status,
+                        amount: (status == 0 ? ((-1) * amount) : 0),
+                    }
+                    let withdraw_obj = await setWithdrawAmountSetting(withdraw_amount, user, dns_data)
+                    if (status == 0) {
+                        update_obj = {
+                            ...update_obj,
+                            ...withdraw_obj,
+                        }
+                    }
+
+                    let result = await updateQuery(`deposits`, update_obj, withdraw_id)
+                    break;
+                }
             }
-            */
+
             return response(req, res, 100, "success", {})
         } catch (err) {
             console.log(err)
@@ -305,13 +324,18 @@ const withdrawV5Ctrl = {
 
             let user = await pool.query(mcht_sql, [trx?.user_id, dns_data?.id]);
             user = user?.result[0];
-
+            let ci = 0;
+            if (trx?.virtual_account_id > 0) {
+                ci = await pool.query(`SELECT ci FROM virtual_accounts WHERE id=?`, [trx?.virtual_account_id]);
+                ci = ci?.result[0]?.ci;
+            }
             let api_result = await corpApi.withdraw.request_check({
                 pay_type: 'withdraw',
                 dns_data: dns_data,
                 decode_user: user,
                 date: trx?.created_at.substring(0, 10).replaceAll('-', ''),
                 tid,
+                ci: ci,
             })
             let status = 0;
             if (api_result.data?.status == 3) {
