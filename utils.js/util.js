@@ -375,6 +375,7 @@ export const getDailyWithdrawAmount = async (user) => {
     let sql = `SELECT SUM(mcht_amount) AS withdraw_amount FROM deposits `;
     sql += ` WHERE mcht_id=${user?.id} `;
     sql += ` AND pay_type IN (5, 20) `;
+    sql += ` AND withdraw_status IN (0, 5, 20) `;
     sql += ` AND created_at >='${s_dt}' AND created_at <='${e_dt}' `;
     let result = await pool.query(sql);
     result = result?.result[0];
