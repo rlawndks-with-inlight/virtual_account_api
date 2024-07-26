@@ -7,17 +7,21 @@ import { emitSocket } from "../utils.js/socket/index.js";
 import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
-import { makeSignValueSha256 } from "./withdraw/v2.js";
+import crypto from 'crypto';
 
 //노티 받기
+function decrypt(encryptedData, secretKey, iv) {
+    const decipher = crypto.createDecipheriv(algorithm, secretKey, iv);
+    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+}
 
 const pushIcbCtrl = {
     deposit: async (req, res, next) => {
         try {
-            let is_manager = await checkIsManagerUrl(req);
-            const decode_user = checkLevel(req.cookies.token, 0);
-            const decode_dns = checkDns(req.cookies.dns);
-            const {
+
+            let {
                 mid,
                 memKey,
                 trxNo,
@@ -29,14 +33,18 @@ const pushIcbCtrl = {
                 realTrxAmt,
             } = req.body;
             //trx_amt , guid, tid,
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
+                mid,
+            ]);
+            dns_data = dns_data?.result[0];
+            dns_data['operator_list'] = getOperatorList(dns_data);
+            memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
             virtual_account = virtual_account?.result[0];
 
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
-            dns_data = dns_data?.result[0];
-            dns_data['operator_list'] = getOperatorList(dns_data);
+
 
             let mcht_columns = [
                 `users.*`,
