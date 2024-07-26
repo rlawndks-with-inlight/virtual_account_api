@@ -33,6 +33,7 @@ const pushIcbCtrl = {
                 realTrxAmt,
             } = req.body;
             //trx_amt , guid, tid,
+            console.log(req.body)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
                 mid,
             ]);
