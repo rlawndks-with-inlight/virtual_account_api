@@ -9,12 +9,22 @@ import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList
 import 'dotenv/config';
 import crypto from 'crypto';
 
-//노티 받기
-function decrypt(encryptedData, secretKey, iv) {
-    const decipher = crypto.createDecipheriv(algorithm, secretKey, iv);
-    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+// AES 암호화 설정
+const algorithm = 'aes-256-cbc'; // AES-256 알고리즘으로 변경
+
+function decrypt(encryptedData, keyBase64, ivBase64) {
+    try {
+        const key = Buffer.from(keyBase64, 'base64');
+        const iv = Buffer.from(ivBase64, 'base64');
+
+        const decipher = crypto.createDecipheriv(algorithm, key, iv);
+        let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    } catch (err) {
+        console.error('Decryption error:', err);
+        return null;
+    }
 }
 
 const pushIcbCtrl = {
