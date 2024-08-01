@@ -322,6 +322,7 @@ const virtualAccountV4Ctrl = {
                     deposit_bank_code,
                     deposit_acct_num,
                     user_type,
+                    virtual_user_name,
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
