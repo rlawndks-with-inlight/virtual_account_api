@@ -377,6 +377,9 @@ const virtualAccountV1Ctrl = {
 
         }
     },
+    gift: {
+
+    }
 };
 
 export default virtualAccountV1Ctrl;

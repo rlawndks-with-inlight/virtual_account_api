@@ -159,7 +159,9 @@ const corpApi = {
             if (pay_type) {
                 corp_type = dns_data[`${pay_type}_corp_type`];
             }
-
+            if (corp_type == 1) {
+                result = await banknersApi.sms.push(data);
+            }
             if (corp_type == 3) {
                 result = await paytusApi.sms.push(data);
             }
@@ -182,6 +184,9 @@ const corpApi = {
             }
             if (pay_type) {
                 corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+            if (corp_type == 1) {
+                result = await banknersApi.sms.check(data);
             }
             if (corp_type == 3) {
                 result = await paytusApi.sms.check(data);
@@ -449,6 +454,71 @@ const corpApi = {
             }
             if (corp_type == 7) {
                 result = await icbApi.withdraw.request_check(data);
+            }
+            return result;
+        },
+    },
+    gift: {
+        order: async (data_) => {//출금요청
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+            if (corp_type == 1) {
+                result = await banknersApi.gift.order(data);
+            }
+            return result;
+        },
+        auth: async (data_) => {//출금요청
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+            if (corp_type == 1) {
+                result = await banknersApi.gift.auth(data);
+            }
+            return result;
+        },
+        use: async (data_) => {//출금요청
+            let data = data_;
+            let { dns_data, pay_type } = data;
+            data = await getDnsData(data, dns_data);
+            dns_data = data?.dns_data;
+
+            let result = default_result;
+            let corp_type = dns_data?.deposit_corp_type || dns_data?.withdraw_corp_type;
+            if (dns_data?.setting_obj?.is_use_deposit == 1) {
+                corp_type = dns_data?.deposit_corp_type;
+            } else if (dns_data?.setting_obj?.is_use_withdraw == 1) {
+                corp_type = dns_data?.withdraw_corp_type;
+            }
+            if (pay_type) {
+                corp_type = dns_data[`${pay_type}_corp_type`];
+            }
+            if (corp_type == 1) {
+                result = await banknersApi.gift.use(data);
             }
             return result;
         },

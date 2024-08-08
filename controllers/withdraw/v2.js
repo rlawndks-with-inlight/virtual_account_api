@@ -92,8 +92,8 @@ const withdrawV2Ctrl = {
                     return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }
             }
-
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=? AND is_delete=0`, [
+            let table = dns_data?.deposit_type == 'virtual_account' ? 'virtual_accounts' : 'members'
+            let virtual_account = await pool.query(`SELECT * FROM ${table} WHERE guid=? AND is_delete=0`, [
                 guid,
             ]);
             virtual_account = virtual_account?.result[0];
@@ -161,6 +161,7 @@ const withdrawV2Ctrl = {
                 settle_acct_num: virtual_account?.deposit_acct_num,
                 settle_acct_name: virtual_account?.deposit_acct_name,
                 withdraw_fee: user?.withdraw_fee,
+                virtual_account_id: table == 'virtual_account' ? virtual_account?.id : null,
                 virtual_account_id: virtual_account?.id,
                 user_id: user?.id,
                 withdraw_status: 5,

@@ -9,6 +9,7 @@ const makeHeaderData = (dns_data, pay_type, decode_user) => {
     let cur_time = new Date().getTime();
     let req_uniq_no = `${cur_time}${dns_data?.id}${decode_user?.id}`;
     let api_sign_val = crypto.createHash('sha256').update(`${dns_data[`${pay_type}_api_id`]}${req_uniq_no}${dns_data[`${pay_type}_sign_key`]}`).digest('hex');
+
     return {
         'Content-Type': 'application/json',
         'api_id': dns_data[`${pay_type}_api_id`],
@@ -114,9 +115,11 @@ export const banknersApi = {
                     dns_data, pay_type, decode_user,
                     email, name, phone_num, birth,
                     user_type,
-                    business_num, company_name, ceo_name, company_phone_num,
+                    business_num, company_name, ceo_name, company_phone_num, ci,
                 } = data;
-                let ci = `${new Date().getTime()}` + phone_num + birth;
+                if (!ci) {
+                    ci = `${new Date().getTime()}` + phone_num + birth;
+                }
                 if (user_type == 0) {
                     user_type = 'PERSON';
                 } else if (user_type == 1) {
@@ -144,7 +147,6 @@ export const banknersApi = {
                 }
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user', query, makeHeaderData(dns_data, pay_type, decode_user));
-                console.log(result)
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -195,11 +197,8 @@ export const banknersApi = {
                     real_auth_no: user_type == 'PERSON' ? birth : business_num,
                     acnt_holder: deposit_acct_name
                 }
-                console.log(query)
                 query = makeBody(query, dns_data, pay_type)
                 let result = await postRequest('/api/user/account', query, makeHeaderData(dns_data, pay_type, decode_user));
-                console.log(result)
-
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -634,6 +633,223 @@ export const banknersApi = {
                     data: {
                         tid: result?.data?.tid,
                         uniq_no: result?.data?.req_uniq_no,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
+    sms: {
+        push: async (data) => {
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    name,
+                    tel_com,
+                    phone_num,
+                    birth,
+                    acct_back_one_num,
+                    type,
+                } = data;
+                let query = {
+                    nm: name,
+                    telec_tp: tel_com,
+                    cp_no: phone_num,
+                    idntt_no: birth.substring(2, 8) + acct_back_one_num,
+                    auth_usage_cd: type,
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/cp/auth', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        tid: result?.data?.tid,
+                        uniq_no: result?.data?.req_uniq_no,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        check: async (data) => {
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    tid, vrf_word,
+                } = data;
+                let query = {
+                    tid: tid,
+                    auth_no: vrf_word,
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/cp/verify', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        ci: result?.data?.ci,
+                        di: result?.data?.di,
+                        tid: result?.data?.tid,
+                        auth_date: result?.data?.auth_dt,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
+    gift: {
+        order: async (data) => {
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    guid,
+                    gift_biz,
+                    gift_price,
+                    gift_count,
+                } = data;
+                let query = {
+                    guid: guid,
+                    gift_biz: gift_biz,
+                    gift_cd: gift_price,
+                    gift_cnt: gift_count,
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/gift/order', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        tid: result?.data?.tid,
+                        uniq_no: result?.data?.req_uniq_no,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        auth: async (data) => {
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    guid,
+                    gift_biz,
+                    gift_num,
+                } = data;
+                let query = {
+                    guid,
+                    gift_biz,
+                    gift_no: gift_num,
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/gift/auth', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        use: async (data) => {
+            try {
+                let {
+                    dns_data, pay_type, decode_user,
+                    guid,
+                    gift_biz,
+                    gift_num,
+                    vrf_word,
+                } = data;
+                let query = {
+                    guid,
+                    gift_biz,
+                    gift_no: gift_num,
+                    auth_no: vrf_word,
+                }
+                query = makeBody(query, dns_data, pay_type)
+                let result = await postRequest('/api/gift/use', query, makeHeaderData(dns_data, pay_type, decode_user));
+                if (result?.code != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.message,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: '',
+                    data: {
+                        tid: result?.data?.tid,
+                        curr: result?.data?.curr,
+                        amount: result?.data?.trx_amt,
+                        mamber_balance: result?.data?.bal_tot_amt,
                     },
                 };
             } catch (err) {

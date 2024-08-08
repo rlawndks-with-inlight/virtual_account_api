@@ -167,6 +167,10 @@ const pushCtrl = {
 
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
             virtual_account = virtual_account?.result[0];
+            if (!virtual_account) {
+                virtual_account = await pool.query(`SELECT * FROM members WHERE guid=?`, [guid]);
+                virtual_account = virtual_account?.result[0];
+            }
             let brand_id = virtual_account?.brand_id ?? 0;
             let dns_data = {};
             if (trx_tp == 'MERCHANT_WITHDRAW') {
@@ -230,7 +234,8 @@ const pushCtrl = {
                     amount,
                     expect_amount: amount,
                     withdraw_status,
-                    virtual_account_id: virtual_account?.id,
+                    virtual_account_id: dns_data?.deposit_type == 'virtual_accounts' ? virtual_account?.id : null,
+                    member_id: dns_data?.deposit_type == 'virtual_accounts' ? null : virtual_account?.id,
                     user_id: user?.id ?? 0,
                     withdraw_fee_type: dns_data?.withdraw_fee_type,
                     settle_bank_code: virtual_account?.deposit_bank_code ?? "",
