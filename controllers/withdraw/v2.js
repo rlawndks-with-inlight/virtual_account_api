@@ -147,7 +147,7 @@ const withdrawV2Ctrl = {
                 return response(req, res, -100, "블랙리스트 유저입니다.", false);
             }
             if (pay_type == 20 && user?.can_return_ago_pay == 1) {
-                let deposit_count = await pool.query(`SELECT COUNT(*) AS count FROM deposits WHERE pay_type=0 AND virtual_account_id=${virtual_account?.id}`);
+                let deposit_count = await pool.query(`SELECT COUNT(*) AS count FROM deposits WHERE pay_type=0 AND (virtual_account_id=${virtual_account?.id} OR member_id=${virtual_account?.id})`);
                 deposit_count = deposit_count?.result[0];
                 if (deposit_count?.count < 1) {
                     return response(req, res, -100, "결제한 이력이 없는 유저이므로 반환 불가합니다.", false)
@@ -161,8 +161,8 @@ const withdrawV2Ctrl = {
                 settle_acct_num: virtual_account?.deposit_acct_num,
                 settle_acct_name: virtual_account?.deposit_acct_name,
                 withdraw_fee: user?.withdraw_fee,
-                virtual_account_id: table == 'virtual_account' ? virtual_account?.id : null,
-                virtual_account_id: virtual_account?.id,
+                virtual_account_id: table == 'virtual_accounts' ? virtual_account?.id : null,
+                member_id: table == 'members' ? virtual_account?.id : null,
                 user_id: user?.id,
                 withdraw_status: 5,
                 note: note,
