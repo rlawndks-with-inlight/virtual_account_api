@@ -549,7 +549,7 @@ const giftCardV1Ctrl = {
                 const {
                     tid,
                     amount,
-                    mamber_balance,
+                    member_balance,
                 } = api_result?.data;
                 let obj = {
                     brand_id: brand?.id,
@@ -594,7 +594,7 @@ const giftCardV1Ctrl = {
                     decode_user: mcht,
                     from_guid: member?.guid,
                     to_guid: brand[`deposit_guid`],
-                    amount: mamber_balance,
+                    amount: member_balance,
                 })
                 if (mother_to_result.code == 100) {
                     let obj = {

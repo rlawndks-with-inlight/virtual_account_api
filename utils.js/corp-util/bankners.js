@@ -849,7 +849,7 @@ export const banknersApi = {
                         tid: result?.data?.tid,
                         curr: result?.data?.curr,
                         amount: result?.data?.trx_amt,
-                        mamber_balance: result?.data?.bal_tot_amt,
+                        member_balance: result?.data?.bal_tot_amt,
                     },
                 };
             } catch (err) {
