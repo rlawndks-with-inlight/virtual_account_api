@@ -608,13 +608,13 @@ const giftCardV1Ctrl = {
                         created_at: returnMoment(),
                         tid: tid,
                     }
-                    if (dns_data?.is_use_sign_key == 1) {
-                        noti_data['api_sign_val'] = makeSignValueSha256(`${dns_data?.api_key}${mcht?.mid ?? ""}${mcht?.sign_key ?? ""}`)
+                    if (brand?.is_use_sign_key == 1) {
+                        noti_data['api_sign_val'] = makeSignValueSha256(`${brand?.api_key}${mcht?.mid ?? ""}${mcht?.sign_key ?? ""}`)
                     }
                     obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
                     let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
                 }
-                sendTelegramBot(dns_data, `${returnMoment()} ${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+                sendTelegramBot(brand, `${returnMoment()} ${brand?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
                 let bell_data = {
                     amount,
                     user_id: mcht?.id,
@@ -623,7 +623,7 @@ const giftCardV1Ctrl = {
                 }
                 emitSocket({
                     method: 'deposit',
-                    brand_id: dns_data?.id,
+                    brand_id: brand?.id,
                     data: bell_data
                 })
                 return response(req, res, 100, "success", {})
