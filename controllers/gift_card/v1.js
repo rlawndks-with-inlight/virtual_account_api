@@ -86,7 +86,7 @@ const giftCardV1Ctrl = {
                 let data = {
                     tid: '',
                 };
-                let member = await pool.query(`SELECT id FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
+                let member = await pool.query(`SELECT id, ci FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
                     name,
                     phone_num,
                     birth,
@@ -178,7 +178,7 @@ const giftCardV1Ctrl = {
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                     return response(req, res, -100, "상품권 발급 불가한 가맹점 입니다.", false)
                 }
-                let member = await pool.query(`SELECT id, step FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND is_delete=0`, [
+                let member = await pool.query(`SELECT id, step, ci FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND is_delete=0`, [
                     name,
                     phone_num,
                 ])
