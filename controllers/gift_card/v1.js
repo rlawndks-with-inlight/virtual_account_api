@@ -186,9 +186,6 @@ const giftCardV1Ctrl = {
                 if (!member) {
                     return response(req, res, -110, "휴대폰인증을 요청해 주세요.", false)
                 }
-                if (member?.step > 0) {
-                    return response(req, res, -110, "이미 인증되었습니다.", false)
-                }
                 let api_result = await corpApi.sms.check({
                     pay_type: 'deposit',
                     dns_data: brand,
@@ -257,9 +254,6 @@ const giftCardV1Ctrl = {
                 member = member?.result[0];
                 if (!member) {
                     return response(req, res, -110, "휴대폰인증을 완료해 주세요.", false)
-                }
-                if (member?.step > 1) {
-                    return response(req, res, -110, "이미 인증되었습니다.", false)
                 }
                 let guid = member?.guid;
                 if (!member?.guid) {
