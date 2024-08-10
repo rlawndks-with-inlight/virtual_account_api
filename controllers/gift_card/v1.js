@@ -283,7 +283,6 @@ const giftCardV1Ctrl = {
                     deposit_acct_num: deposit_acct_num,
                     deposit_acct_name: name,
                 })
-                console.log(api_result2)
                 if (api_result2?.code != 100) {
                     return response(req, res, -120, (api_result2?.message || "서버 에러 발생"), false)
                 }
