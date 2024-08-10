@@ -131,7 +131,6 @@ const giftCardV1Ctrl = {
                 })
                 if (member) {
                     let update_member = await insertQuery(`members`, user_obj, member?.id);
-                    return response(req, res, 100, "success", member);
                 } else {
                     let insert_member = await insertQuery(`members`, user_obj)
                 }
@@ -196,6 +195,9 @@ const giftCardV1Ctrl = {
                 });
                 if (api_result?.code != 100) {
                     return response(req, res, -110, (api_result?.message || "서버 에러 발생"), false)
+                }
+                if (member?.ci) {
+                    return response(req, res, 100, "success", member);
                 }
                 let update_member = await updateQuery(`members`, {
                     step: 1,
