@@ -130,7 +130,8 @@ const giftCardV1Ctrl = {
                     amount: brand?.auth_fee ?? 0,
                 })
                 if (member) {
-                    let update_member = await insertQuery(`members`, user_obj, member?.id)
+                    let update_member = await insertQuery(`members`, user_obj, member?.id);
+                    return response(req, res, 100, "success", member);
                 } else {
                     let insert_member = await insertQuery(`members`, user_obj)
                 }
