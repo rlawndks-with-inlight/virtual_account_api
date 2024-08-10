@@ -28,7 +28,8 @@ function decrypt(encryptedData, keyBase64, ivBase64) {
 }
 
 const pushIcbCtrl = {
-    deposit: async (req, res, next) => {
+    deposit: async (req_, res, next) => {
+        let req = req_;
         try {
 
             let {
@@ -43,7 +44,6 @@ const pushIcbCtrl = {
                 realTrxAmt,
             } = req.body;
             //trx_amt , guid, tid,
-            console.log(req.body)
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
                 mid,
             ]);
@@ -53,6 +53,10 @@ const pushIcbCtrl = {
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
+            req.body = {
+                ...req.body,
+                memKey,
+            }
             virtual_account = virtual_account?.result[0];
 
 
