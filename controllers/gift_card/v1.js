@@ -354,7 +354,7 @@ const giftCardV1Ctrl = {
                     vrf_word
                 })
                 if (api_result.code != 100) {
-                    return response(req, res, -110, (api_result?.message || "서버 에러 발생"), data)
+                    return response(req, res, -110, (api_result?.message || "서버 에러 발생"), false)
                 }
                 let update_member = await updateQuery(`members`, {
                     step: 2,
