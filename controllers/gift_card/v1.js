@@ -3,11 +3,12 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, findBlackList, getDnsData, insertResponseLog, isItemBrandIdSameDnsId, response, setDepositAmountSetting, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, getDnsData, insertResponseLog, isItemBrandIdSameDnsId, response, setDepositAmountSetting, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 import crypto from 'crypto';
 import { sendTelegramBot } from "../../utils.js/telegram/index.js";
+import { emitSocket } from "../../utils.js/socket/index.js";
 
 export const makeSignValueSha256 = (text) => {
     let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
@@ -611,7 +612,7 @@ const giftCardV1Ctrl = {
                     obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
                     let update_mother_to_result = await updateQuery('deposits', obj, deposit_id);
                 }
-                sendTelegramBot(brand, `${returnMoment()} ${brand?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+                sendTelegramBot(brand, `${returnMoment()} ${brand?.name}\n${mcht?.nickname} ${member?.name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
                 let bell_data = {
                     amount,
                     user_id: mcht?.id,
