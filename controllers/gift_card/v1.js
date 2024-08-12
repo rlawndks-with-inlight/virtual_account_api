@@ -252,6 +252,10 @@ const giftCardV1Ctrl = {
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                     return response(req, res, -100, "상품권 발급 불가한 가맹점 입니다.", false)
                 }
+                let black_item = await findBlackList(deposit_acct_num, 0, brand);
+                if (black_item) {
+                    return response(req, res, -100, "블랙리스트 유저입니다.", false);
+                }
                 let member = await pool.query(`SELECT * FROM members WHERE brand_id=${brand?.id} AND ci=? AND is_delete=0`, [
                     ci,
                 ])
