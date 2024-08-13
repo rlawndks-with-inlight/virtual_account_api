@@ -63,12 +63,11 @@ const virtualAccountV4Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND deposit_acct_name=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+                virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND deposit_acct_name=? AND is_delete=0 AND brand_id=${brand?.id} AND phone_check=1 `, [
                     phone_num,
                     deposit_acct_name,
                 ])
                 virtual_account = virtual_account?.result[0];
-                console.log(virtual_account)
                 if (virtual_account?.phone_check != 1) {
                     return response(req, res, -100, "휴대폰인증을 완료해 주세요.", false)
                 }
