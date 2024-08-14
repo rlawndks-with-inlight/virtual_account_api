@@ -385,6 +385,7 @@ const giftCardV1Ctrl = {
                     gift_biz,
                     gift_price,
                     gift_count,
+                    is_agree_order,
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -403,7 +404,8 @@ const giftCardV1Ctrl = {
                 if (
                     !gift_biz ||
                     !gift_price ||
-                    !gift_count
+                    !gift_count ||
+                    !is_agree_order
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
@@ -414,6 +416,12 @@ const giftCardV1Ctrl = {
                 if (!member) {
                     return response(req, res, -110, "존재하지 않는 회원입니다.", false)
                 }
+                let insert_agree = await insertQuery(`gift_card_order_agrees`, {
+                    brand_id: brand?.id,
+                    member_id: member?.id,
+                    is_agree_order,
+                })
+
                 let api_result = await corpApi.gift.order({
                     pay_type: 'deposit',
                     dns_data: brand,
