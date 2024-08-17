@@ -82,7 +82,7 @@ const virtualAccountV1Ctrl = {
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
-            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             if (brand?.is_use_sign_key == 1) {
@@ -241,7 +241,7 @@ const virtualAccountV1Ctrl = {
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
-            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             if (brand?.is_use_sign_key == 1) {
@@ -319,7 +319,7 @@ const virtualAccountV1Ctrl = {
                     id: 0,
                 }
             }
-            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             if (brand?.is_use_sign_key == 1) {

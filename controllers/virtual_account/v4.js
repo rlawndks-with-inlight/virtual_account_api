@@ -45,7 +45,7 @@ const virtualAccountV4Ctrl = {
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
             }
-            if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+            if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             if (
@@ -165,7 +165,7 @@ const virtualAccountV4Ctrl = {
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
-                if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (user_type != 0) {
@@ -267,7 +267,7 @@ const virtualAccountV4Ctrl = {
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
-                if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (
@@ -345,7 +345,7 @@ const virtualAccountV4Ctrl = {
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
-                if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (![1, 2].includes(parseInt(user_type))) {
@@ -445,7 +445,7 @@ const virtualAccountV4Ctrl = {
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
-                if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (
