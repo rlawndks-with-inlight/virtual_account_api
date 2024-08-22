@@ -382,7 +382,7 @@ const giftCardV1Ctrl = {
                 let {
                     api_key,
                     guid,
-                    gift_biz,
+                    gift_biz = 'PINPLENET',
                     gift_price,
                     gift_count,
                     is_agree_order,
@@ -450,7 +450,7 @@ const giftCardV1Ctrl = {
                 let {
                     api_key,
                     guid,
-                    gift_biz,
+                    gift_biz = 'PINPLENET',
                     gift_num,
                 } = req.body;
                 if (!api_key) {
