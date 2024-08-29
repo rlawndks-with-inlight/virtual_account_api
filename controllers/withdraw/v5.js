@@ -70,16 +70,11 @@ const withdrawV5Ctrl = {
             }
 
             let requestIp = getReqIp(req);
-            if (requestIp != process.env.BACK_IP) {
-                return response(req, res, -150, "ip 권한이 없습니다.", false)
-            }
-            /*
             let ip_list = await pool.query(`SELECT * FROM permit_ips WHERE user_id=${user?.id} AND is_delete=0`);
             ip_list = ip_list?.result;
             if (user?.level < 40 && (!ip_list.map(itm => { return itm?.ip }).includes(requestIp)) && ip_list.length > 0) {
                 return response(req, res, -150, "ip 권한이 없습니다.", false)
             }
-            */
             if (dns_data?.is_use_otp == 1) {
                 var verified = speakeasy.totp.verify({
                     secret: user?.otp_token,
