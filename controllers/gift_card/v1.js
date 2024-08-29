@@ -513,7 +513,7 @@ const giftCardV1Ctrl = {
                 let {
                     api_key,
                     guid,
-                    gift_biz,
+                    gift_biz = 'PINPLENET',
                     gift_num,
                     vrf_word,
                 } = req.body;

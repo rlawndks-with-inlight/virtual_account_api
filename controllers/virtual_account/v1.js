@@ -18,7 +18,6 @@ export const makeSignValueSha256 = (text) => {
 const virtualAccountV1Ctrl = {
     request: async (req_, res, next) => {//발급요청
         let req = req_;
-        console.log(req.cookies)
         try {
             let is_manager = await checkIsManagerUrl(req);
             const decode_user = checkLevel(req.cookies.token, 0);
