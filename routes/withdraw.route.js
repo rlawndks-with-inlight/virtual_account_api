@@ -7,9 +7,9 @@ import withdrawV5Ctrl from '../controllers/withdraw/v5.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //쿠콘
-router
-    .route('/v1')
-    .post(withdrawV1Ctrl.request)
+// router
+//     .route('/v1')
+//     .post(withdrawV1Ctrl.request)
 router
     .route('/v1/check')
     .post(withdrawV1Ctrl.check)
@@ -17,23 +17,23 @@ router
     .route('/v1/withdraw/check')
     .post(withdrawV1Ctrl.check_withdraw)
 //뱅크너스
-router
-    .route('/v2')
-    .post(withdrawV2Ctrl.request);
+// router
+//     .route('/v2')
+//     .post(withdrawV2Ctrl.request);
 //코리아결제시스템
-router
-    .route('/v3')
-    .post(withdrawV3Ctrl.request);
-router
-    .route('/v4')
-    .post(withdrawV4Ctrl.request);
+// router
+//     .route('/v3')
+//     .post(withdrawV3Ctrl.request);
+// router
+//     .route('/v4')
+//     .post(withdrawV4Ctrl.request);
 router
     .route('/v4/withdraw/check')
     .post(withdrawV4Ctrl.check_withdraw);
 //icb
-router
-    .route('/v5')
-    .post(withdrawV5Ctrl.request)
+// router
+//     .route('/v5')
+//     .post(withdrawV5Ctrl.request)
 router
     .route('/v5/withdraw/check')
     .post(withdrawV5Ctrl.check_withdraw)
