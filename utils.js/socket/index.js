@@ -17,7 +17,7 @@ export const emitSocket = async (item) => {
             link = `/manager/deposit/list`
             let result = await insertQuery(`bell_contents`, {
                 brand_id,
-                user_id: data?.user_id ?? 0,
+                user_id: data?.user_id ?? null,
                 title,
                 message,
                 link,
@@ -31,7 +31,7 @@ export const emitSocket = async (item) => {
             link = `/manager/withdraw/list`
             let result = await insertQuery(`bell_contents`, {
                 brand_id,
-                user_id: data?.user_id ?? 0,
+                user_id: data?.user_id ?? null,
                 title,
                 message,
                 link,
