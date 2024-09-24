@@ -3,7 +3,7 @@ import db, { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../../utils.js/function.js";
 import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuery } from "../../utils.js/query-util.js";
-import { checkDns, checkLevel, commarNumber, findBlackList, getDnsData, insertResponseLog, isItemBrandIdSameDnsId, response, setDepositAmountSetting, settingFiles } from "../../utils.js/util.js";
+import { checkDns, checkLevel, commarNumber, findBlackList, generateRandomString, getDnsData, insertResponseLog, isItemBrandIdSameDnsId, response, setDepositAmountSetting, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 import crypto from 'crypto';
@@ -87,12 +87,18 @@ const giftCardV1Ctrl = {
                 let data = {
                     tid: '',
                 };
-                let member = await pool.query(`SELECT id, ci FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
+                let member = await pool.query(`SELECT id, ci, guid FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
                     name,
                     phone_num,
                     birth,
                 ])
                 member = member?.result[0];
+                if (member) {
+                    if (member?.guid) {
+                        return response(req, res, -100, "이미 등록된 회원입니다.", false)
+                    }
+                }
+                /*
                 let api_result = await corpApi.sms.push({
                     pay_type: 'deposit',
                     dns_data: brand,
@@ -103,7 +109,11 @@ const giftCardV1Ctrl = {
                     birth,
                     acct_back_one_num,
                     type: 'USER_CREATE',
-                });
+                }); 
+                */
+                let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
+                let ci = `ci${generateRandomString(40)}${new Date().getTime()}`;
+                let di = `di${generateRandomString(40)}${new Date().getTime()}`;
                 let user_obj = {
                     mcht_id: mcht?.id,
                     brand_id: brand?.id,
@@ -117,7 +127,30 @@ const giftCardV1Ctrl = {
                     company_name,
                     ceo_name,
                     company_phone_num,
+                    email,
+                    ci,
+                    di,
+                };
+                let member_id = member?.id;
+                if (member?.guid) {
+                    let update_member = await updateQuery(`members`, user_obj, member_id);
+                } else {
+                    let insert_member = await insertQuery(`members`, user_obj);
+                    member_id = insert_member?.result?.insertId;
                 }
+
+                let api_result = await corpApi.user.create({
+                    pay_type: 'deposit',
+                    dns_data: brand,
+                    decode_user: mcht,
+                    ...user_obj,
+                    email,
+                });
+                let update_member = await updateQuery(`members`, {
+                    step: 1,
+                    guid: api_result?.data?.guid,
+                }, member_id);
+                /*
                 if (api_result?.code != 100) {
                     return response(req, res, -110, (api_result?.message || "서버 에러 발생"), false)
                 }
@@ -130,13 +163,10 @@ const giftCardV1Ctrl = {
                     name: name,
                     amount: brand?.auth_fee ?? 0,
                 })
-                if (member) {
-                    let update_member = await updateQuery(`members`, user_obj, member?.id);
-                } else {
-                    let insert_member = await insertQuery(`members`, user_obj)
-                }
-
-                return response(req, res, 100, "success", data);
+                */
+                return response(req, res, 100, "success", {
+                    ci
+                });
             } catch (err) {
                 console.log(err)
                 return response(req, res, -200, "서버 에러 발생", false)
@@ -265,21 +295,7 @@ const giftCardV1Ctrl = {
                 }
                 let guid = member?.guid;
                 if (!member?.guid) {
-                    let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-                    let api_result = await corpApi.user.create({
-                        pay_type: 'deposit',
-                        dns_data: brand,
-                        decode_user: mcht,
-                        ...member,
-                        email,
-                    });
-                    if (api_result?.code != 100) {
-                        return response(req, res, -110, (api_result?.message || "서버 에러 발생"), false)
-                    }
-                    let update_member = await updateQuery(`members`, {
-                        guid: api_result?.data?.guid,
-                    }, member?.id);
-                    guid = api_result?.data?.guid;
+                    return response(req, res, -110, "회원 생성을 먼저 해주세요.", false)
                 }
                 let api_result2 = await corpApi.user.account({
                     pay_type: 'deposit',
