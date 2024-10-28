@@ -229,9 +229,8 @@ export const koreaPaySystemApi = {
                 let query = {
                     account: acct_num,
                     bankCd: bank_code,
-                    identity: user_type == 0 ? birth : business_num,
+                    identity: user_type == 0 ? birth.substring(0, 6) : business_num,
                 }
-                console.log(query)
                 query = processBodyObj(query, dns_data, pay_type, "accnt");
                 let { data: result } = await axios.post(`${API_URL}/api/settle/accnt`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
