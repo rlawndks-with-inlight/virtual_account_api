@@ -151,6 +151,7 @@ export const koreaPaySystemApi = {
                     regType: user_type,
                     trackId: guid,
                 }
+                console.log(query)
                 query = processBodyObj(query, dns_data, pay_type);
                 let { data: result } = await axios.post(`${API_URL}/api/vact/regcerti`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
