@@ -231,6 +231,7 @@ export const koreaPaySystemApi = {
                     bankCd: bank_code,
                     identity: user_type == 0 ? birth : business_num,
                 }
+                console.log(query)
                 query = processBodyObj(query, dns_data, pay_type, "accnt");
                 let { data: result } = await axios.post(`${API_URL}/api/settle/accnt`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
