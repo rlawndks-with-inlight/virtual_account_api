@@ -11,6 +11,76 @@ import 'dotenv/config';
 //노티 받기
 
 const pushKoreaPaySystemCtrl = {
+    issue: async (req, res, next) => {
+        try {
+            const {
+                mchtId,
+                trxType,
+                issueId,
+                account,
+                withdrawBankCd,
+                withdrawAccount,
+                identity,
+                phoneNo,
+                ci,
+                name,
+                trackId,
+                udf1,
+                udf2,
+            } = req.body;
+            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            dns_data = dns_data?.result[0];
+            dns_data['operator_list'] = getOperatorList(dns_data);
+            let virtual_account_sql = `SELECT id FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0  `;
+            let virtual_account_values = [
+                issueId,
+            ]
+            if (trackId) {
+                virtual_account_sql += ` AND guid=? `;
+                virtual_account_values.push(trackId)
+            } else {
+                virtual_account_sql += ` AND deposit_acct_name=? `;
+                virtual_account_values.push(name)
+            }
+            let virtual_account = await pool.query(virtual_account_sql, virtual_account_values);
+            virtual_account = virtual_account?.result[0];
+            let obj = {
+                brand_id: dns_data?.id,
+                deposit_bank_code: withdrawBankCd,
+                deposit_acct_num: withdrawAccount,
+                deposit_acct_name: name,
+                phone_num: phoneNo,
+                birth: identity,
+                guid: trackId,
+                virtual_bank_code: dns_data?.deposit_virtual_bank_code,
+                virtual_acct_num: account,
+
+            }
+            let mcht_columns = [
+                `users.id`,
+            ]
+            let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
+            mcht_sql += ` WHERE users.mid=${udf1} `;
+            let mcht = await pool.query(mcht_sql);
+            mcht = mcht?.result[0];
+            obj['mcht_id'] = mcht?.id;
+            obj['user_id'] = mcht?.id;
+            if (virtual_account) {
+                let result = await updateQuery('virtual_accounts', obj, virtual_account?.id);
+            } else {
+                let result = await insertQuery('virtual_accounts', obj);
+            }
+
+            insertResponseLog(req, '0000');
+            return res.status(200).send('0000');
+        } catch (err) {
+            console.log(err)
+            insertResponseLog(req, '9999');
+            return res.status(500).send('9999');
+        } finally {
+
+        }
+    },
     deposit: async (req, res, next) => {
         try {
             let is_manager = await checkIsManagerUrl(req);
