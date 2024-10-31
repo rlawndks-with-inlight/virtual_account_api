@@ -37,6 +37,9 @@ router
     .post(pushHectoCtrl.deposit);
 //코리아결제시스템
 router
+    .route('/korea-pay-system/issue')
+    .post(pushKoreaPaySystemCtrl.issue);
+router
     .route('/korea-pay-system/deposit')
     .post(pushKoreaPaySystemCtrl.deposit);
 router
