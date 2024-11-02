@@ -10,7 +10,7 @@ export const sendToMother = async () => {
         brands = brands?.result;
         for (var i = 0; i < virtual_accounts.length; i++) {
             let amount_info = await corpApi.balance.info({
-                pay_type: 'deposit',
+                pay_type: 'withdraw',
                 dns_data: _.find(brands, { id: parseInt(virtual_accounts[i]?.brand_id) }),
                 decode_user: {},
                 guid: virtual_accounts[i]?.guid,

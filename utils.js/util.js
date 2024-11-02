@@ -498,7 +498,7 @@ export const getMotherDeposit = async (decode_dns) => {
         real_amount.data.amount = data['sum'].total_amount + data['sum'].total_withdraw_fee;
     } else {
         real_amount = await corpApi.balance.info({
-            pay_type: 'deposit',
+            pay_type: 'withdraw',
             dns_data: data['brand'],
             decode_user: {},
             guid: data['brand']?.deposit_guid,
