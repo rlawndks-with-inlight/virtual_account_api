@@ -165,6 +165,9 @@ const corpApi = {
             if (corp_type == 3) {
                 result = await paytusApi.sms.push(data);
             }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.sms.push(data);
+            }
             if (corp_type == 7) {
                 result = await icbApi.sms.push(data);
             }
@@ -190,6 +193,9 @@ const corpApi = {
             }
             if (corp_type == 3) {
                 result = await paytusApi.sms.check(data);
+            }
+            if (corp_type == 6) {
+                result = await koreaPaySystemApi.sms.check(data);
             }
             if (corp_type == 7) {
                 result = await icbApi.sms.check(data);

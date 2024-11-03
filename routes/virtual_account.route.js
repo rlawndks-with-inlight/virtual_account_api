@@ -33,6 +33,12 @@ router
     .post(virtualAccountV2Ctrl.issuance)
 //
 router
+    .route('/v3/phone/request')
+    .post(virtualAccountV3Ctrl.phone.request)
+router
+    .route('/v3/phone/check')
+    .post(virtualAccountV3Ctrl.phone.check)
+router
     .route('/v3')
     .post(virtualAccountV3Ctrl.request)
 router

@@ -9,6 +9,133 @@ import logger from "../../utils.js/winston/index.js";
 const table_name = 'virtual_accounts';
 //코리아결제활용
 const virtualAccountV3Ctrl = {
+    phone: {
+        request: async (req_, res, next) => {//발급요청
+            let req = req_;
+            try {
+                let is_manager = await checkIsManagerUrl(req);
+                const decode_user = checkLevel(req.cookies.token, 0);
+                const decode_dns = checkDns(req.cookies.dns);
+                let {
+                    api_key,
+                    mid,
+                    tel_com,
+                    phone_num,
+                    birth,
+                    name,
+                    gender,
+                    ntv_frnr,
+                } = req.body;
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
+                let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
+                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand?.result[0];
+                if (!brand) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+                }
+                req.body.brand_id = brand?.id;
+
+                if (!mid) {
+                    return response(req, res, -100, "가맹점을 선택해 주세요.", {});
+                }
+                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht?.result[0];
+                if (!mcht) {
+                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                }
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
+                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                }
+                let phone_request = await corpApi.sms.push({
+                    dns_data: brand,
+                    pay_type: 'deposit',
+                    decode_user: mcht,
+                    birth: birth,
+                    name: name,
+                    gender: gender,
+                    ntv_frnr: ntv_frnr,
+                    tel_com: tel_com,
+                    phone_num: phone_num,
+                })
+                if (phone_request.code != 100) {
+                    return response(req, res, -110, (phone_request?.message || "서버 에러 발생"), false)
+                }
+                return response(req, res, 100, "success", phone_request?.data)
+
+            } catch (err) {
+                console.log(err)
+                return response(req, res, -200, "서버 에러 발생", {})
+            } finally {
+
+            }
+        },
+        check: async (req_, res, next) => {//발급요청
+            let req = req_;
+            try {
+                let is_manager = await checkIsManagerUrl(req);
+                const decode_user = checkLevel(req.cookies.token, 0);
+                const decode_dns = checkDns(req.cookies.dns);
+                let {
+                    api_key,
+                    mid,
+                    tid,
+                    auth_id,
+                    vrf_word,
+                } = req.body;
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", {});
+                }
+                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand?.result[0];
+                if (!brand) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                }
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
+                }
+                req.body.brand_id = brand?.id;
+
+                if (!mid) {
+                    return response(req, res, -100, "가맹점을 선택해 주세요.", {});
+                }
+                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht?.result[0];
+                if (!mcht) {
+                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                }
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
+                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                }
+                let phone_check = await corpApi.sms.check({
+                    dns_data: brand,
+                    pay_type: 'deposit',
+                    decode_user: mcht,
+                    vrf_word,
+                    tid,
+                    auth_id,
+                })
+                if (phone_check.code != 100) {
+                    return response(req, res, -110, (phone_check?.message || "서버 에러 발생"), false)
+                }
+                return response(req, res, 100, "success", {
+                    tid,
+                })
+
+            } catch (err) {
+                console.log(err)
+                return response(req, res, -200, "서버 에러 발생", {})
+            } finally {
+
+            }
+        },
+    },
     request: async (req_, res, next) => {//발급요청
         let req = req_;
         try {
@@ -30,6 +157,7 @@ const virtualAccountV3Ctrl = {
                 ceo_name,
                 company_phone_num,
                 virtual_user_name = "",
+                tid,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
@@ -171,7 +299,9 @@ const virtualAccountV3Ctrl = {
                 virtual_acct_num: virtual_account?.virtual_acct_num,
                 virtual_issue_time: virtual_account?.virtual_issue_time,
                 guid: data.guid,
+                tid,
             })
+
             if (api_result2?.code != 100) {
                 return response(req, res, -100, (api_result2?.message || "서버 에러 발생"), data)
             } else {

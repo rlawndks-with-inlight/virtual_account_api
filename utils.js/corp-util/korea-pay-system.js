@@ -1,5 +1,6 @@
 import axios from "axios";
 import { returnMoment } from "../function.js";
+import { generateRandomString } from "../util.js";
 
 const API_URL = `https://api.kp-pay.com`;
 
@@ -99,6 +100,7 @@ export const koreaPaySystemApi = {
                 business_num, company_name, ceo_name, company_phone_num,
                 deposit_bank_code, deposit_acct_num, deposit_acct_name,
                 virtual_bank_code, virtual_acct_num, virtual_issue_time,
+                tid,
             } = data;
             let ci = `${new Date().getTime()}` + phone_num + birth;
             try {
@@ -150,8 +152,8 @@ export const koreaPaySystemApi = {
                     holderName: deposit_acct_name,
                     regType: user_type,
                     trackId: guid,
+                    totalAuthNo: tid,
                 }
-                console.log(query)
                 query = processBodyObj(query, dns_data, pay_type);
                 let { data: result } = await axios.post(`${API_URL}/api/vact/regcerti`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
@@ -232,7 +234,6 @@ export const koreaPaySystemApi = {
                     bankCd: bank_code,
                     identity: user_type == 0 ? birth.substring(2, 8) : business_num,
                 }
-                console.log(query)
                 query = processBodyObj(query, dns_data, pay_type, "accnt");
                 let { data: result } = await axios.post(`${API_URL}/api/settle/accnt`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
@@ -281,7 +282,6 @@ export const koreaPaySystemApi = {
                     recordInfo: acct_name,
                 }
                 query = processBodyObj(query, dns_data, pay_type, "transfer");
-                console.log(query)
 
                 let { data: result } = await axios.post(`${API_URL}/api/settle/transfer`, query, {
                     headers: makeHeaderData(dns_data, pay_type)
@@ -299,6 +299,108 @@ export const koreaPaySystemApi = {
                     data: {
                         tid: result?.transfer?.trxId,
                         top_amount: result?.transfer?.fee,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+    },
+    sms: {
+        push: async (data) => {
+            try {
+                let {
+                    dns_data,
+                    decode_user,
+                    pay_type,
+                    birth,
+                    name,
+                    gender,
+                    ntv_frnr,
+                    tel_com,
+                    phone_num,
+                } = data;
+
+                let query = {
+                    mchtTrxId: `${generateRandomString(10)}-${decode_user?.id ?? 0}-${new Date().getTime()}`,
+                    telCom: tel_com,
+                    phoneNo: phone_num,
+                    identity: birth,
+                    mchtCustNm: name,
+                    sex: gender,
+                    frnr: ntv_frnr,
+                    agree1: "Y",
+                    agree2: "Y",
+                    agree3: "Y",
+                    agree4: "Y",
+                }
+                query = processBodyObj(query, dns_data, pay_type, "ars");
+
+                let { data: result } = await axios.post(`${API_URL}/api/auth/sms/send`, query, {
+                    headers: makeHeaderData(dns_data, pay_type)
+                });
+                if (result?.result?.resultCd != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.result?.advanceMsg,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: result?.message,
+                    data: {
+                        tid: result?.ars?.totalAuthNo,
+                        auth_id: result?.ars?.authNo,
+                    },
+                };
+            } catch (err) {
+                console.log(err)
+                console.log(err?.response?.data)
+                return {
+                    code: -100,
+                    message: '',
+                    data: {},
+                };
+
+            }
+        },
+        check: async (data) => {
+            try {
+                let {
+                    dns_data,
+                    pay_type,
+                    vrf_word,
+                    auth_id,
+                } = data;
+
+                let query = {
+                    authNo: auth_id,
+                    certiInNo: vrf_word,
+                }
+                query = processBodyObj(query, dns_data, pay_type, "ars");
+
+                let { data: result } = await axios.post(`${API_URL}/api/auth/sms/check`, query, {
+                    headers: makeHeaderData(dns_data, pay_type)
+                });
+                if (result?.result?.resultCd != '0000') {
+                    return {
+                        code: -100,
+                        message: result?.result?.advanceMsg,
+                        data: {},
+                    };
+                }
+                return {
+                    code: 100,
+                    message: result?.message,
+                    data: {
                     },
                 };
             } catch (err) {
