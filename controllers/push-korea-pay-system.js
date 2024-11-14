@@ -235,6 +235,7 @@ const pushKoreaPaySystemCtrl = {
             ])
             user = user?.result[0];
 
+
             let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                 trxId,
                 dns_data?.id,
