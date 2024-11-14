@@ -234,10 +234,6 @@ const pushKoreaPaySystemCtrl = {
                 parseInt(trackId.split('-')[1] ?? 0),
             ])
             user = user?.result[0];
-            let virtual_account = await selectQueryByColumn(`virtual_accounts`, {
-                id: user?.virtual_account_id,
-            })
-            virtual_account = virtual_account?.result[0];
 
             let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                 trxId,
@@ -274,9 +270,9 @@ const pushKoreaPaySystemCtrl = {
                     brand_id: dns_data?.id,
                     trx_id: trxId,
                     pay_type: 5,
-                    settle_bank_code: virtual_account?.deposit_bank_code,
-                    settle_acct_num: virtual_account?.deposit_acct_num,
-                    settle_acct_name: virtual_account?.deposit_acct_name,
+                    settle_bank_code: 'XX',
+                    settle_acct_num: '잘못된 계좌번호',
+                    settle_acct_name: '잘못된 예금주명',
                 }
                 if (withdraw_status == 0) {
                     obj = {
