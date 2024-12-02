@@ -4,6 +4,7 @@ import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, updateQuery } from "../utils.js/query-util.js";
 import { emitSocket } from "../utils.js/socket/index.js";
+import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 //노티 받기
@@ -155,6 +156,7 @@ const pushPopbillCtrl = {
                             bell_data['nickname'] = mcht?.nickname;
                         }
                         let result = await insertQuery(`deposits`, obj);
+                        sendTelegramBot(dns_data, `${returnMoment()} ${dns_data?.name}\n${mcht?.nickname} ${acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
                         emitSocket({
                             method: 'deposit',
                             brand_id: dns_data?.id,
