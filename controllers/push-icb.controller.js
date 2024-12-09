@@ -50,12 +50,14 @@ const pushIcbCtrl = {
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
+            depositNm = decrypt(depositNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
             req.body = {
                 ...req.body,
                 memKey,
+                depositNm,
             }
             virtual_account = virtual_account?.result[0];
 
