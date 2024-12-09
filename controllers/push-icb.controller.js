@@ -42,6 +42,10 @@ const pushIcbCtrl = {
                 depositNm,
                 payCmpDts,
                 realTrxAmt,
+
+                realBankCd,
+                realDepoAcntNo,
+                realDepoNm,
             } = req.body;
             //trx_amt , guid, tid,
             let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
@@ -50,14 +54,16 @@ const pushIcbCtrl = {
             dns_data = dns_data?.result[0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
-            depositNm = decrypt(depositNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
+            realDepoAcntNo = decrypt(realDepoAcntNo, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
+            realDepoNm = decrypt(realDepoNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
             req.body = {
                 ...req.body,
                 memKey,
-                depositNm,
+                realDepoAcntNo,
+                realDepoNm,
             }
             virtual_account = virtual_account?.result[0];
 
@@ -84,9 +90,9 @@ const pushIcbCtrl = {
                 mcht_id: mcht?.id,
                 virtual_account_id: virtual_account?.id,
                 amount,
-                deposit_bank_code,
-                deposit_acct_num,
-                deposit_acct_name: depositNm || deposit_acct_name,
+                deposit_bank_code: realBankCd || deposit_bank_code,
+                deposit_acct_num: realDepoAcntNo || deposit_acct_num,
+                deposit_acct_name: realDepoNm || deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
                 head_office_fee: dns_data?.head_office_fee,
