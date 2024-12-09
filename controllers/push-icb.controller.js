@@ -86,7 +86,7 @@ const pushIcbCtrl = {
                 amount,
                 deposit_bank_code,
                 deposit_acct_num,
-                deposit_acct_name,
+                deposit_acct_name: depositNm || deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
                 head_office_fee: dns_data?.head_office_fee,
