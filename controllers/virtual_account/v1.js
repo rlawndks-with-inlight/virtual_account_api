@@ -7,6 +7,7 @@ import { checkDns, checkLevel, findBlackList, getDnsData, isItemBrandIdSameDnsId
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
 import crypto from 'crypto';
+import { readPool } from "../../config/db-pool.js";
 const table_name = 'virtual_accounts';
 
 export const makeSignValueSha256 = (text) => {
@@ -42,8 +43,8 @@ const virtualAccountV1Ctrl = {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -76,8 +77,8 @@ const virtualAccountV1Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
@@ -99,12 +100,12 @@ const virtualAccountV1Ctrl = {
                 tid: '',
             };
             let virtual_account_id = 0;
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=? AND is_delete=0`, [
+            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND mcht_id=? AND is_delete=0`, [
                 phone_num,
                 birth,
                 mcht?.id,
             ])
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
 
             if (virtual_account) {
                 virtual_account_id = virtual_account?.id;
@@ -221,8 +222,8 @@ const virtualAccountV1Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -235,8 +236,8 @@ const virtualAccountV1Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
@@ -252,11 +253,11 @@ const virtualAccountV1Ctrl = {
 
             let data = {};
 
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
+            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
                 brand?.id,
                 guid,
             ]);
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
             if (!virtual_account) {
                 return response(req, res, -100, "유저를 찾을 수 없습니다.", false)
             }
@@ -300,8 +301,8 @@ const virtualAccountV1Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
 
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
@@ -311,8 +312,8 @@ const virtualAccountV1Ctrl = {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
 
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 mcht = {
                     id: 0,
@@ -327,11 +328,11 @@ const virtualAccountV1Ctrl = {
                     return response(req, res, -100, "서명값이 잘못 되었습니다.", false)
                 }
             }
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
+            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND guid=? AND is_delete=0`, [
                 brand?.id,
                 guid,
             ]);
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
             if (!virtual_account) {
                 return response(req, res, -100, "잘못된 접근입니다.", {})
             }

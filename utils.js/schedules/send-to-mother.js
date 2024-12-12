@@ -1,13 +1,14 @@
 import _ from "lodash";
 import { pool } from "../../config/db.js"
 import corpApi from "../corp-util/index.js";
+import { readPool } from "../../config/db-pool.js";
 
 export const sendToMother = async () => {
     try {
-        let virtual_accounts = await pool.query(`SELECT * FROM virtual_accounts WHERE deposit_acct_check=1 AND status=0 `);
-        virtual_accounts = virtual_accounts?.result;
-        let brands = await pool.query(`SELECT * FROM brands `);
-        brands = brands?.result;
+        let virtual_accounts = await readPool.query(`SELECT * FROM virtual_accounts WHERE deposit_acct_check=1 AND status=0 `);
+        virtual_accounts = virtual_accounts[0];
+        let brands = await readPool.query(`SELECT * FROM brands `);
+        brands = brands[0];
         for (var i = 0; i < virtual_accounts.length; i++) {
             let amount_info = await corpApi.balance.info({
                 pay_type: 'withdraw',

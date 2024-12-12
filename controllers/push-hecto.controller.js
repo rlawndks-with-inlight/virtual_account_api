@@ -5,6 +5,7 @@ import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { insertLog, insertResponseLog } from "../utils.js/util.js";
+import { readPool } from "../config/db-pool.js";
 //노티 받기
 const pushHectoCtrl = {
     deposit: async (req, res, next) => {
@@ -25,10 +26,10 @@ const pushHectoCtrl = {
                 dpStrNm,
             } = req.body;
             //console.log(data)
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_mid=? `, [
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE withdraw_mid=? `, [
                 mchtId
             ]);
-            dns_data = dns_data?.result[0];
+            dns_data = dns_data[0][0];
             let trx_id = dpTrdNo;
             let amount = dpAmt ?? 0;
             let insert_obj = {
@@ -47,8 +48,8 @@ const pushHectoCtrl = {
                 trans_date: `${dpDt.substring(0, 4)}-${dpDt.substring(4, 6)}-${dpDt.substring(6, 8)}`,
                 trans_time: `${dpTm.substring(0, 2)}:${dpTm.substring(2, 4)}:${dpTm.substring(4, 6)}`
             }
-            let deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
-            deposit = deposit?.result[0];
+            let deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
+            deposit = deposit[0][0];
             if (deposit) {
                 insertResponseLog(req, '0000');
                 return res.send('OK');

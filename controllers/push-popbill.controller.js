@@ -1,4 +1,5 @@
 'use strict';
+import { readPool } from "../config/db-pool.js";
 import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl, returnMoment } from "../utils.js/function.js";
@@ -37,13 +38,13 @@ const pushPopbillCtrl = {
                     trxId,
                     uniqueId,
                 } = list[i];
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
-                dns_data = dns_data?.result[0];
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+                dns_data = dns_data[0][0];
                 let operator_list = getOperatorList(dns_data);
-                let corp_account = await pool.query(`SELECT * FROM corp_accounts WHERE acct_num=? AND brand_id=${dns_data?.id}`, [
+                let corp_account = await readPool.query(`SELECT * FROM corp_accounts WHERE acct_num=? AND brand_id=${dns_data?.id}`, [
                     acctNo
                 ])
-                corp_account = corp_account?.result[0];
+                corp_account = corp_account[0][0];
                 if (!corp_account) {
                     insertResponseLog(req, '9999');
                     return res.send('9999');
@@ -74,10 +75,10 @@ const pushPopbillCtrl = {
                     deposit_sql += ` LEFT JOIN users ON deposits.mcht_id=users.id `
                     deposit_sql += ` WHERE deposits.pay_type=0 AND deposits.brand_id=${dns_data?.id} AND deposits.trx_id=? `;
 
-                    let deposit = await pool.query(deposit_sql, [
+                    let deposit = await readPool.query(deposit_sql, [
                         trx_id
                     ])
-                    deposit = deposit?.result[0];
+                    deposit = deposit[0][0];
                     let bell_data = {
                         amount,
                         user_id: deposit?.mcht_id,
@@ -88,8 +89,8 @@ const pushPopbillCtrl = {
                         ]
                         let sql = `SELECT ${mcht_columns.join()} FROM users `;
                         sql += ` WHERE users.id=${deposit?.mcht_id} `;
-                        let mcht = await pool.query(sql);
-                        mcht = mcht?.result[0] ?? {};
+                        let mcht = await readPool.query(sql);
+                        mcht = mcht[0][0] ?? {};
                         let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
                         obj = {
                             ...obj,
@@ -115,11 +116,11 @@ const pushPopbillCtrl = {
                             })
                         }
                     } else {
-                        let deposit_account = await pool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND detail=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                        let deposit_account = await readPool.query(`SELECT mcht_id FROM deposit_accounts WHERE acct_name=? AND detail=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
                             acct_name,
                             detail,
                         ]);
-                        deposit_account = deposit_account?.result[0];
+                        deposit_account = deposit_account[0][0];
                         let mcht = undefined;
                         if (deposit_account) {
                             let mcht_columns = [
@@ -127,8 +128,8 @@ const pushPopbillCtrl = {
                             ]
                             let sql = `SELECT ${mcht_columns.join()} FROM users `;
                             sql += ` WHERE users.id=${deposit_account?.mcht_id} `;
-                            mcht = await pool.query(sql);
-                            mcht = mcht?.result[0] ?? {};
+                            mcht = await readPool.query(sql);
+                            mcht = mcht[0][0] ?? {};
                             let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
                             obj = {
                                 ...obj,

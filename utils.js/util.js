@@ -11,6 +11,7 @@ import { getMultipleQueryByWhen, selectQuerySimple, updateQuery } from './query-
 import { getUserDepositFee, getUserWithDrawFee, returnMoment } from './function.js';
 import logger from './winston/index.js';
 import corpApi from './corp-util/index.js';
+import { readPool, writePool } from '../config/db-pool.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
 const pbkdf2Promise = util.promisify(crypto.pbkdf2);
@@ -116,7 +117,7 @@ const logRequestResponse = async (req, res, decode_user, decode_dns) => {//ë¡œê·
         } else {
             brand_id = req.body?.brand_id || req.query?.brand_id || req.params?.brand_id || - 1;
         }
-        let result = await pool.query(
+        let result = await writePool.query(
             "INSERT INTO logs (request, response_data, response_result, response_message, request_ip, user_id, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
                 request,
@@ -377,8 +378,8 @@ export const getDailyWithdrawAmount = async (user) => {
     sql += ` AND pay_type IN (5, 20) `;
     sql += ` AND withdraw_status IN (0, 5, 20) `;
     sql += ` AND created_at >='${s_dt}' AND created_at <='${e_dt}' `;
-    let result = await pool.query(sql);
-    result = result?.result[0];
+    let result = await readPool.query(sql);
+    result = result[0][0];
     return result;
 }
 export function findChildIds(data, id) {
@@ -405,8 +406,8 @@ export const getDnsData = async (dns_data_) => {
     dns_data['bizppurio_obj'] = JSON.parse(dns_data?.bizppurio_obj ?? '{}');
     dns_data['operator_list'] = getOperatorList(dns_data);
 
-    let brands = await pool.query(`SELECT id, parent_id FROM brands `);
-    brands = brands?.result;
+    let brands = await readPool.query(`SELECT id, parent_id FROM brands `);
+    brands = brands[0];
     let childrens = findChildIds(brands, dns_data?.id);
     childrens.push(dns_data?.id)
     let parents = findParents(brands, dns_data)
@@ -506,8 +507,8 @@ export const getMotherDeposit = async (decode_dns) => {
     }
     data['real_amount'] = real_amount.data?.amount ?? 0;
     data['childrens'] = [];
-    let children_brands = await pool.query(`SELECT * FROM brands WHERE parent_id=${decode_dns?.id}`);
-    children_brands = children_brands?.result;
+    let children_brands = await readPool.query(`SELECT * FROM brands WHERE parent_id=${decode_dns?.id}`);
+    children_brands = children_brands[0];
     for (var i = 0; i < children_brands.length; i++) {
         let children_mother_deposit = await getMotherDeposit(children_brands[i]);
         data['childrens'].push(children_mother_deposit);
@@ -534,8 +535,8 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
         }
         let mcht_sql = `SELECT ${mcht_columns.join()} FROM merchandise_columns `
         mcht_sql += ` WHERE mcht_id=${user?.id} `;
-        let mcht = await pool.query(mcht_sql);
-        mcht = mcht?.result[0];
+        let mcht = await readPool.query(mcht_sql);
+        mcht = mcht[0][0];
         user = {
             ...user,
             ...mcht,
@@ -623,8 +624,8 @@ export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data
         }
         let mcht_sql = `SELECT ${mcht_columns.join()} FROM merchandise_columns `
         mcht_sql += ` WHERE mcht_id=${user?.id} `;
-        let mcht = await pool.query(mcht_sql);
-        mcht = mcht?.result[0];
+        let mcht = await readPool.query(mcht_sql);
+        mcht = mcht[0][0];
         user = {
             ...user,
             ...mcht,
@@ -665,8 +666,8 @@ export function generateRandomString(length = 1) {
 }
 export const findBlackList = async (word, type, decode_dns = {}) => {
     try {
-        let black_item = await pool.query(`SELECT * FROM black_lists WHERE is_delete=0 AND acct_num=? AND brand_id=${decode_dns?.id}`, [word]);
-        return black_item?.result[0];
+        let black_item = await readPool.query(`SELECT * FROM black_lists WHERE is_delete=0 AND acct_num=? AND brand_id=${decode_dns?.id}`, [word]);
+        return black_item[0][0];
 
     } catch (err) {
         console.log(err);

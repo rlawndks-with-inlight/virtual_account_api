@@ -8,6 +8,7 @@ import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 import { makeSignValueSha256 } from "./withdraw/v2.js";
+import { readPool } from "../config/db-pool.js";
 
 //노티 받기
 
@@ -28,13 +29,13 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 guid,
             ]);
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
 
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
+            dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
 
             let mcht_columns = [
@@ -42,8 +43,8 @@ const pushCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
-            let mcht = await pool.query(mcht_sql);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(mcht_sql);
+            mcht = mcht[0][0];
 
             let trx_id = tid;
             let amount = parseInt(trx_amt);
@@ -73,11 +74,11 @@ const pushCtrl = {
             }
             let deposit_id = 0;
 
-            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                 trx_id,
                 mcht?.brand_id
             ])
-            exist_deposit = exist_deposit?.result[0];
+            exist_deposit = exist_deposit[0][0];
             if (exist_deposit) {
                 deposit_id = exist_deposit?.id;
                 let result = await updateQuery(`deposits`, obj, deposit_id);
@@ -156,29 +157,29 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+            let trx = await readPool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 tid,
             ])
-            trx = trx?.result[0];
+            trx = trx[0][0];
             let withdraw_amount = Math.abs(parseInt(trx_amt));
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
 
 
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
-            virtual_account = virtual_account?.result[0];
+            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [guid]);
+            virtual_account = virtual_account[0][0];
             if (!virtual_account) {
-                virtual_account = await pool.query(`SELECT * FROM members WHERE guid=?`, [guid]);
-                virtual_account = virtual_account?.result[0];
+                virtual_account = await readPool.query(`SELECT * FROM members WHERE guid=?`, [guid]);
+                virtual_account = virtual_account[0][0];
             }
             let brand_id = virtual_account?.brand_id ?? 0;
             let dns_data = {};
             if (trx_tp == 'MERCHANT_WITHDRAW') {
-                dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_guid=?`, [guid]);
-                dns_data = dns_data?.result[0];
+                dns_data = await readPool.query(`SELECT * FROM brands WHERE withdraw_guid=?`, [guid]);
+                dns_data = dns_data[0][0];
             } else {
-                dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
-                dns_data = dns_data?.result[0];
+                dns_data = await readPool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+                dns_data = dns_data[0][0];
             }
             brand_id = dns_data?.id;
 
@@ -197,10 +198,10 @@ const pushCtrl = {
                     }
                 }
                 if (dns_data) {
-                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                    user = await readPool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
                         user?.id
                     ]);
-                    user = user?.result[0];
+                    user = user[0][0];
                 }
 
                 let obj = {
@@ -220,10 +221,10 @@ const pushCtrl = {
 
                 let user = {};
                 if (dns_data) {
-                    user = await pool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
+                    user = await readPool.query(`SELECT * FROM users WHERE id=? AND brand_id=${dns_data?.id} AND is_delete=0`, [
                         virtual_account?.mcht_id
                     ]);
-                    user = user?.result[0];
+                    user = user[0][0];
                 }
                 console.log(withdraw_amount)
                 amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(withdraw_amount) + (user?.withdraw_fee ?? 0))) : 0;
@@ -278,10 +279,10 @@ const pushCtrl = {
                 trx_stat,
                 tid,
             } = req.body;
-            let trx = await pool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+            let trx = await readPool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 tid,
             ])
-            trx = trx?.result[0];
+            trx = trx[0][0];
             let amount = trx_stat == 'WITHDRAW_SUCCESS' ? ((-1) * (parseInt(trx_amt) + trx?.withdraw_fee)) : 0;
             let withdraw_status = trx_stat == 'WITHDRAW_SUCCESS' ? 0 : 10;
             let update_trx = await updateQuery(`deposits`, {

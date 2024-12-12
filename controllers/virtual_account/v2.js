@@ -1,3 +1,4 @@
+import { readPool } from "../../config/db-pool.js";
 import { pool } from "../../config/db.js";
 import corpApi from "../../utils.js/corp-util/index.js";
 import { insertQuery, updateQuery } from "../../utils.js/query-util.js";
@@ -23,8 +24,8 @@ const virtualAccountV2Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -33,8 +34,8 @@ const virtualAccountV2Ctrl = {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
                 req.body.brand_id = brand?.id;
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     mcht = {
                         id: 0,
@@ -54,11 +55,11 @@ const virtualAccountV2Ctrl = {
                     deposit_acct_name: name,
                 })
                 if (api_result?.code == 100) {
-                    let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0 `, [
+                    let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0 `, [
                         api_result.data?.verify_tr_dt,
                         api_result.data?.verify_tr_no,
                     ])
-                    virtual_account = virtual_account?.result[0];
+                    virtual_account = virtual_account[0][0];
                     if (!virtual_account) {
                         let result = await insertQuery(`virtual_accounts`, {
                             brand_id: brand?.id,
@@ -102,8 +103,8 @@ const virtualAccountV2Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -111,18 +112,18 @@ const virtualAccountV2Ctrl = {
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     mcht = {
                         id: 0,
                     }
                 }
-                let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
+                let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
                     verify_tr_dt,
                     verify_tr_no,
                 ])
-                virtual_account = virtual_account?.result[0];
+                virtual_account = virtual_account[0][0];
                 if (!virtual_account) {
                     return response(req, res, -100, "1원인증 발송을 해주세요.", {});
                 }
@@ -182,8 +183,8 @@ const virtualAccountV2Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -192,19 +193,19 @@ const virtualAccountV2Ctrl = {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
 
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     mcht = {
                         id: 0,
                     }
                 }
 
-                let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
+                let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
                     verify_tr_dt,
                     verify_tr_no,
                 ])
-                virtual_account = (virtual_account?.result[0] ?? {});
+                virtual_account = (virtual_account[0][0] ?? {});
                 if (virtual_account?.deposit_acct_check != 1) {
                     return response(req, res, -100, "1원인증을 우선 완료해 주세요.", {});
                 }
@@ -269,8 +270,8 @@ const virtualAccountV2Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -278,18 +279,18 @@ const virtualAccountV2Ctrl = {
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     mcht = {
                         id: 0,
                     }
                 }
-                let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
+                let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
                     verify_tr_dt,
                     verify_tr_no,
                 ])
-                virtual_account = (virtual_account?.result[0] ?? {});
+                virtual_account = (virtual_account[0][0] ?? {});
                 if (virtual_account?.deposit_acct_check != 1) {
                     return response(req, res, -100, "1원인증을 우선 완료해 주세요.", {});
                 }
@@ -331,8 +332,8 @@ const virtualAccountV2Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -340,18 +341,18 @@ const virtualAccountV2Ctrl = {
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 mcht = {
                     id: 0,
                 }
             }
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
+            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE verify_tr_dt=? AND verify_tr_no=? AND is_delete=0`, [
                 verify_tr_dt,
                 verify_tr_no,
             ])
-            virtual_account = (virtual_account?.result[0] ?? {});
+            virtual_account = (virtual_account[0][0] ?? {});
             if (virtual_account?.deposit_acct_check != 1) {
                 return response(req, res, -100, "1원인증을 우선 완료해 주세요.", {});
             }

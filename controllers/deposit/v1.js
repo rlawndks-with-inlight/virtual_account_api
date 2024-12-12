@@ -1,4 +1,5 @@
 'use strict';
+import { readPool } from "../../config/db-pool.js";
 import db, { pool } from "../../config/db.js";
 import { hectoApi } from "../../utils.js/corp-util/hecto.js";
 import corpApi from "../../utils.js/corp-util/index.js";
@@ -19,8 +20,8 @@ const depositV1Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            dns_data = dns_data[0][0];
             if (!dns_data) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -28,8 +29,8 @@ const depositV1Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "mid를 입력해주세요.", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+            mcht = mcht[0][0];
             if (
                 !amount ||
                 !deposit_bank_code ||

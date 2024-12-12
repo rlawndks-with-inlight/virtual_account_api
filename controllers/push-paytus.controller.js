@@ -1,4 +1,5 @@
 'use strict';
+import { readPool } from "../config/db-pool.js";
 import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
@@ -34,8 +35,8 @@ const pushPaytusCtrl = {
                 serverType,
                 realCompId,
             } = req.body;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=?`, [brand_id]);
+            dns_data = dns_data[0][0];
             insertResponseLog(req, '0000');
             return res.send('0000');
         } catch (err) {

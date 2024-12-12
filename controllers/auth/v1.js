@@ -1,4 +1,5 @@
 'use strict';
+import { readPool } from "../../config/db-pool.js";
 import db, { pool } from "../../config/db.js";
 import { hectoApi } from "../../utils.js/corp-util/hecto.js";
 import { insertQuery } from "../../utils.js/query-util.js";
@@ -38,15 +39,15 @@ const authV1Ctrl = {
                 if (birth.length != 8) {
                     return response(req, res, -100, "생년월일 형식은 yyyymmdd 입니다.", false);
                 }
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                dns_data = dns_data?.result[0];
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                dns_data = dns_data[0][0];
                 if (!dns_data) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
                 dns_data['operator_list'] = getOperatorList(dns_data);
 
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
                 }
@@ -104,8 +105,8 @@ const authV1Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                dns_data = dns_data?.result[0];
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                dns_data = dns_data[0][0];
                 if (!dns_data) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -113,8 +114,8 @@ const authV1Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", false);
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
                 }
@@ -161,14 +162,14 @@ const authV1Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                dns_data = dns_data?.result[0];
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                dns_data = dns_data[0][0];
                 if (!dns_data) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
                 dns_data['operator_list'] = getOperatorList(dns_data);
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
                 }
@@ -227,14 +228,14 @@ const authV1Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                dns_data = dns_data?.result[0];
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                dns_data = dns_data[0][0];
                 if (!dns_data) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
                 dns_data['operator_list'] = getOperatorList(dns_data);
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "존재하지 않는 가맹점 mid 입니다.", false)
                 }

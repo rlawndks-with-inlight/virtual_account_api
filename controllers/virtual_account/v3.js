@@ -6,6 +6,7 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, findBlackList, generateRandomString, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
+import { readPool } from "../../config/db-pool.js";
 const table_name = 'virtual_accounts';
 //코리아결제활용
 const virtualAccountV3Ctrl = {
@@ -30,8 +31,8 @@ const virtualAccountV3Ctrl = {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
                 let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -44,8 +45,8 @@ const virtualAccountV3Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", {});
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
                 }
@@ -91,8 +92,8 @@ const virtualAccountV3Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
@@ -105,8 +106,8 @@ const virtualAccountV3Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", {});
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
                 }
@@ -163,8 +164,8 @@ const virtualAccountV3Ctrl = {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -217,8 +218,8 @@ const virtualAccountV3Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
@@ -231,12 +232,12 @@ const virtualAccountV3Ctrl = {
                 guid: '',
             };
             let virtual_account_id = 0;
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                 phone_num,
                 birth,
                 account,
             ])
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
 
             if (virtual_account) {
                 if (virtual_account?.status == 0) {
@@ -349,8 +350,8 @@ const virtualAccountV3Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand?.result[0];
+            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+            brand = brand[0][0];
             if (!brand) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
@@ -362,8 +363,8 @@ const virtualAccountV3Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+            mcht = mcht[0][0];
             if (!mcht) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
@@ -372,11 +373,11 @@ const virtualAccountV3Ctrl = {
             }
             let data = {};
 
-            let virtual_account = await pool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND deposit_tid=? AND is_delete=0`, [
+            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND deposit_tid=? AND is_delete=0`, [
                 brand?.id,
                 tid,
             ]);
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
             if (!virtual_account) {
                 return response(req, res, -100, "유저를 찾을 수 없습니다.", false)
             }

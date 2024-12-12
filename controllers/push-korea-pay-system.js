@@ -1,4 +1,5 @@
 'use strict';
+import { readPool } from "../config/db-pool.js";
 import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
@@ -28,8 +29,8 @@ const pushKoreaPaySystemCtrl = {
                 udf1,
                 udf2,
             } = req.body;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             let virtual_account_sql = `SELECT id FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0  `;
             let virtual_account_values = [
@@ -42,8 +43,8 @@ const pushKoreaPaySystemCtrl = {
                 virtual_account_sql += ` AND deposit_acct_name=? `;
                 virtual_account_values.push(name)
             }
-            let virtual_account = await pool.query(virtual_account_sql, virtual_account_values);
-            virtual_account = virtual_account?.result[0];
+            let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
+            virtual_account = virtual_account[0][0];
             let obj = {
                 brand_id: dns_data?.id,
                 deposit_bank_code: withdrawBankCd,
@@ -60,8 +61,8 @@ const pushKoreaPaySystemCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.mid=${udf1} `;
-            let mcht = await pool.query(mcht_sql);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(mcht_sql);
+            mcht = mcht[0][0];
             obj['mcht_id'] = mcht?.id;
             obj['user_id'] = mcht?.id;
             if (virtual_account) {
@@ -111,8 +112,8 @@ const pushKoreaPaySystemCtrl = {
                 stlFeeVat = 0,
                 resultMsg,
             } = response;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} AND is_delete=0 AND status=0  `;
             let virtual_account_values = [
@@ -124,16 +125,16 @@ const pushKoreaPaySystemCtrl = {
                 virtual_account_sql += ` AND deposit_acct_name=? `;
                 virtual_account_values.push(sender)
             }
-            let virtual_account = await pool.query(virtual_account_sql, virtual_account_values);
-            virtual_account = virtual_account?.result[0];
+            let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
+            virtual_account = virtual_account[0][0];
 
             let mcht_columns = [
                 `users.*`,
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
-            let mcht = await pool.query(mcht_sql);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(mcht_sql);
+            mcht = mcht[0][0];
 
             let trx_id = vactId;
             let deposit_bank_code = virtual_account?.deposit_bank_code
@@ -178,11 +179,11 @@ const pushKoreaPaySystemCtrl = {
             }
             let deposit_id = 0;
             if (trx_id) {
-                let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                     trx_id,
                     mcht?.brand_id,
                 ])
-                exist_deposit = exist_deposit?.result[0];
+                exist_deposit = exist_deposit[0][0];
                 if (!exist_deposit) {
                     let result = await insertQuery(`deposits`, obj);
                     deposit_id = result?.result?.insertId;
@@ -226,21 +227,21 @@ const pushKoreaPaySystemCtrl = {
                 resultMsg,
                 amount,
             } = req.body;
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
-            dns_data = dns_data?.result[0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
 
-            let user = await pool.query(`SELECT * FROM users WHERE id=?`, [
+            let user = await readPool.query(`SELECT * FROM users WHERE id=?`, [
                 parseInt(trackId.split('-')[1] ?? 0),
             ])
-            user = user?.result[0];
+            user = user[0][0];
 
 
-            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                 trxId,
                 dns_data?.id,
             ])
-            exist_deposit = exist_deposit?.result[0];
+            exist_deposit = exist_deposit[0][0];
             let withdraw_id = exist_deposit?.id ?? 0;
             let withdraw_status = status == '출금완료' ? 0 : 10;
             let top_office_amount = status == '출금완료' ? (exist_deposit?.top_office_amount || dns_data?.withdraw_head_office_fee) : 0;

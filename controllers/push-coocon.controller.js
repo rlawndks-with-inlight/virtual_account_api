@@ -5,6 +5,7 @@ import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";
 import { emitSocket } from "../utils.js/socket/index.js";
 import { insertLog } from "../utils.js/util.js";
+import { readPool } from "../config/db-pool.js";
 //노티 받기
 const pushCooconCtrl = {
     deposit: async (req, res, next) => {
@@ -35,11 +36,11 @@ const pushCooconCtrl = {
             } = data;
             //console.log(data)
             if (trx_code == '1300') {
-                let dns_data = await pool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
+                let dns_data = await readPool.query(`SELECT * FROM brands WHERE withdraw_trt_inst_code=? AND withdraw_virtual_acct_num=?`, [
                     corp_code,
                     virtual_acct_num
                 ]);
-                dns_data = dns_data?.result[0];
+                dns_data = dns_data[0][0];
                 trx_id = date + time + trx_id;
                 let insert_obj = {
                     brand_id: dns_data?.id,
@@ -56,8 +57,8 @@ const pushCooconCtrl = {
                     trx_id: trx_id,
                     is_type_withdraw_acct: 1,
                 }
-                let deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
-                deposit = deposit?.result[0];
+                let deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=${dns_data?.id}`, [trx_id]);
+                deposit = deposit[0][0];
                 if (deposit) {
                     return res.send('0000');
                 }

@@ -9,6 +9,7 @@ import logger from "../../utils.js/winston/index.js";
 import crypto from 'crypto';
 import { sendTelegramBot } from "../../utils.js/telegram/index.js";
 import { emitSocket } from "../../utils.js/socket/index.js";
+import { readPool } from "../../config/db-pool.js";
 
 export const makeSignValueSha256 = (text) => {
     let api_sign_val = crypto.createHash('sha256').update(text).digest('hex');
@@ -43,8 +44,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -76,8 +77,8 @@ const giftCardV1Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", false);
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
@@ -87,12 +88,12 @@ const giftCardV1Ctrl = {
                 let data = {
                     tid: '',
                 };
-                let member = await pool.query(`SELECT id, ci, guid FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT id, ci, guid FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND birth=? AND is_delete=0`, [
                     name,
                     phone_num,
                     birth,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (member) {
                     if (member?.guid) {
                         return response(req, res, -100, "이미 등록된 회원입니다.", false)
@@ -188,8 +189,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -201,19 +202,19 @@ const giftCardV1Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", false);
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                     return response(req, res, -100, "상품권 발급 불가한 가맹점 입니다.", false)
                 }
-                let member = await pool.query(`SELECT id, step, ci FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT id, step, ci FROM members WHERE brand_id=${brand?.id} AND name=? AND phone_num=? AND is_delete=0`, [
                     name,
                     phone_num,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "휴대폰인증을 요청해 주세요.", false)
                 }
@@ -261,8 +262,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -274,8 +275,8 @@ const giftCardV1Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", false);
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
@@ -286,10 +287,10 @@ const giftCardV1Ctrl = {
                 if (black_item) {
                     return response(req, res, -100, "블랙리스트 유저입니다.", false);
                 }
-                let member = await pool.query(`SELECT * FROM members WHERE brand_id=${brand?.id} AND ci=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT * FROM members WHERE brand_id=${brand?.id} AND ci=? AND is_delete=0`, [
                     ci,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "휴대폰인증을 완료해 주세요.", false)
                 }
@@ -339,8 +340,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -352,18 +353,18 @@ const giftCardV1Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", false);
                 }
-                let mcht = await pool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
                 if (!mcht) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0) {
                     return response(req, res, -100, "상품권 발급 불가한 가맹점 입니다.", false)
                 }
-                let member = await pool.query(`SELECT id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
                     guid,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "계좌 인증요청을 해주세요.", false)
                 }
@@ -407,8 +408,8 @@ const giftCardV1Ctrl = {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
 
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -425,10 +426,10 @@ const giftCardV1Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let member = await pool.query(`SELECT id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
                     guid,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "존재하지 않는 회원입니다.", false)
                 }
@@ -472,8 +473,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -482,10 +483,10 @@ const giftCardV1Ctrl = {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
-                let member = await pool.query(`SELECT id, name, phone_num, mcht_id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT id, name, phone_num, mcht_id FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
                     guid,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "존재하지 않는 회원입니다.", false)
                 }
@@ -505,8 +506,8 @@ const giftCardV1Ctrl = {
                 ]
                 let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
                 mcht_sql += ` WHERE users.id=${member?.mcht_id} `;
-                let mcht = await pool.query(mcht_sql);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(mcht_sql);
+                mcht = mcht[0][0];
                 let insert_auth_logs = await insertQuery(`phone_auth_histories`, {
                     brand_id: brand?.id,
                     mcht_id: mcht?.id,
@@ -536,8 +537,8 @@ const giftCardV1Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
                 }
-                let brand = await pool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand?.result[0];
+                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
                 if (!brand) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", false);
                 }
@@ -546,10 +547,10 @@ const giftCardV1Ctrl = {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
-                let member = await pool.query(`SELECT * FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
+                let member = await readPool.query(`SELECT * FROM members WHERE brand_id=${brand?.id} AND guid=? AND is_delete=0`, [
                     guid,
                 ])
-                member = member?.result[0];
+                member = member[0][0];
                 if (!member) {
                     return response(req, res, -110, "존재하지 않는 회원입니다.", false)
                 }
@@ -570,8 +571,8 @@ const giftCardV1Ctrl = {
                 ]
                 let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
                 mcht_sql += ` WHERE users.id=${member?.mcht_id} `;
-                let mcht = await pool.query(mcht_sql);
-                mcht = mcht?.result[0];
+                let mcht = await readPool.query(mcht_sql);
+                mcht = mcht[0][0];
                 const {
                     tid,
                     amount,
@@ -593,11 +594,11 @@ const giftCardV1Ctrl = {
                     ...deposit_setting,
                 }
                 let deposit_id = 0;
-                let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                     tid,
                     mcht?.brand_id
                 ])
-                exist_deposit = exist_deposit?.result[0];
+                exist_deposit = exist_deposit[0][0];
                 if (exist_deposit) {
                     deposit_id = exist_deposit?.id;
                     let result = await updateQuery(`deposits`, obj, deposit_id);

@@ -8,6 +8,7 @@ import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
+import { readPool } from "../config/db-pool.js";
 
 // AES 암호화 설정
 const algorithm = 'aes-256-cbc'; // AES-256 알고리즘으로 변경
@@ -48,15 +49,15 @@ const pushIcbCtrl = {
                 realDepoNm,
             } = req.body;
             //trx_amt , guid, tid,
-            let dns_data = await pool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
                 mid,
             ]);
-            dns_data = dns_data?.result[0];
+            dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             realDepoAcntNo = decrypt(realDepoAcntNo, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             realDepoNm = decrypt(realDepoNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
-            let virtual_account = await pool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
             req.body = {
@@ -65,7 +66,7 @@ const pushIcbCtrl = {
                 realDepoAcntNo,
                 realDepoNm,
             }
-            virtual_account = virtual_account?.result[0];
+            virtual_account = virtual_account[0][0];
 
 
 
@@ -74,8 +75,8 @@ const pushIcbCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
-            let mcht = await pool.query(mcht_sql);
-            mcht = mcht?.result[0];
+            let mcht = await readPool.query(mcht_sql);
+            mcht = mcht[0][0];
 
             let trx_id = partnerTrxNo;
             let amount = parseInt(realTrxAmt);
@@ -109,11 +110,11 @@ const pushIcbCtrl = {
             }
             let deposit_id = 0;
 
-            let exist_deposit = await pool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                 trx_id,
                 mcht?.brand_id
             ])
-            exist_deposit = exist_deposit?.result[0];
+            exist_deposit = exist_deposit[0][0];
             if (exist_deposit) {
                 deposit_id = exist_deposit?.id;
                 let result = await updateQuery(`deposits`, obj, deposit_id);
