@@ -8,7 +8,7 @@ import { paytusApi } from "./paytus.js";
 
 const getDnsData = async (data_, dns_data_) => {
     let dns_data = await selectQuerySimple('brands', dns_data_?.id);
-    dns_data = dns_data?.result[0];
+    dns_data = dns_data[0];
     let data = data_;
     data['dns_data'] = dns_data;
     return data;

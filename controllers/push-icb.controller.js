@@ -121,7 +121,7 @@ const pushIcbCtrl = {
             } else {
                 exist_deposit = {};
                 let result = await insertQuery(`deposits`, obj);
-                deposit_id = result?.result?.insertId;
+                deposit_id = result?.insertId;
             }
             if (!(deposit_id > 0)) {
                 insertResponseLog(req, '9999');

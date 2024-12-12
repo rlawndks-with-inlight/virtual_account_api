@@ -166,7 +166,7 @@ const virtualAccountV1Ctrl = {
                     ceo_name,
                     company_phone_num,
                 });
-                virtual_account_id = insert_virtual_account?.result?.insertId;
+                virtual_account_id = insert_virtual_account?.insertId;
                 data.guid = api_result.data?.guid;
             }
 

@@ -186,7 +186,7 @@ const pushKoreaPaySystemCtrl = {
                 exist_deposit = exist_deposit[0][0];
                 if (!exist_deposit) {
                     let result = await insertQuery(`deposits`, obj);
-                    deposit_id = result?.result?.insertId;
+                    deposit_id = result?.insertId;
                 }
             }
             sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));

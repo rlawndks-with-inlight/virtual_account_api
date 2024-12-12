@@ -399,7 +399,7 @@ export function findParents(data, item) {
 }
 export const getDnsData = async (dns_data_) => {
     let dns_data = await selectQuerySimple('brands', dns_data_?.id);
-    dns_data = dns_data?.result[0];
+    dns_data = dns_data[0];
     dns_data['theme_css'] = JSON.parse(dns_data?.theme_css ?? '{}');
     dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
     dns_data['level_obj'] = JSON.parse(dns_data?.level_obj ?? '{}');

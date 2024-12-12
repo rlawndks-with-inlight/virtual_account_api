@@ -221,7 +221,7 @@ const withdrawV3Ctrl = {
             }
             let withdraw_id = 0;
             let result = await insertQuery(`deposits`, deposit_obj);
-            withdraw_id = result?.result?.insertId;
+            withdraw_id = result?.insertId;
             //인설트후 체크
             let settle_amount_2 = await readPool.query(settle_amount_sql);
             settle_amount_2 = settle_amount_2[0][0]?.settle_amount ?? 0;

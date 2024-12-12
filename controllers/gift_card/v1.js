@@ -137,7 +137,7 @@ const giftCardV1Ctrl = {
                     let update_member = await updateQuery(`members`, user_obj, member_id);
                 } else {
                     let insert_member = await insertQuery(`members`, user_obj);
-                    member_id = insert_member?.result?.insertId;
+                    member_id = insert_member?.insertId;
                 }
 
                 let api_result = await corpApi.user.create({
@@ -605,7 +605,7 @@ const giftCardV1Ctrl = {
                 } else {
                     exist_deposit = {};
                     let result = await insertQuery(`deposits`, obj);
-                    deposit_id = result?.result?.insertId;
+                    deposit_id = result?.insertId;
                 }
                 if (!(deposit_id > 0)) {
                     insertResponseLog(req, '9999');

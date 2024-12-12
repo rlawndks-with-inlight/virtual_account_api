@@ -283,7 +283,7 @@ const virtualAccountV3Ctrl = {
                     virtual_user_name,
                 });
                 data.guid = guid;
-                virtual_account_id = insert_virtual_account?.result?.insertId;
+                virtual_account_id = insert_virtual_account?.insertId;
             }
             let api_result2 = await corpApi.user.account({
                 pay_type: 'deposit',

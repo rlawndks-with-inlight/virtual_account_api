@@ -2,6 +2,7 @@ import { pool } from '../config/db.js';
 import 'dotenv/config';
 import when from 'when';
 import { getNumberByPercent } from './util.js';
+import { readPool, writePool } from '../config/db-pool.js';
 
 export const insertQuery = async (table, obj) => {
     let keys = Object.keys(obj);
@@ -14,8 +15,8 @@ export const insertQuery = async (table, obj) => {
     let values = keys.map(key => {
         return obj[key]
     });
-    let result = await pool.query(`INSERT INTO ${table} (${keys.join()}) VALUES (${question_list.join()})`, values);
-    return result;
+    let result = await writePool.query(`INSERT INTO ${table} (${keys.join()}) VALUES (${question_list.join()})`, values);
+    return result[0];
 }
 export const insertQueryMultiRow = async (table, list) => {// 개발예정
     let keys = Object.keys(obj);
@@ -28,8 +29,8 @@ export const insertQueryMultiRow = async (table, list) => {// 개발예정
     let values = keys.map(key => {
         return obj[key]
     });
-    let result = await pool.query(`INSERT INTO ${table} (${keys.join()}) VALUES (${question_list.join()})`, values);
-    return result;
+    let result = await writePool.query(`INSERT INTO ${table} (${keys.join()}) VALUES (${question_list.join()})`, values);
+    return result[0];
 }
 export const deleteQuery = async (table, where_obj, delete_true) => {
     let keys = Object.keys(where_obj);
@@ -44,8 +45,8 @@ export const deleteQuery = async (table, where_obj, delete_true) => {
     if (delete_true) {
         sql = `DELETE FROM ${table} WHERE ${where_list.join('AND')}`
     }
-    let result = await pool.query(sql);
-    return result;
+    let result = await writePool.query(sql);
+    return result[0];
 }
 export const updateQuery = async (table, obj, id, id_column) => {
     let keys = Object.keys(obj);
@@ -58,12 +59,12 @@ export const updateQuery = async (table, obj, id, id_column) => {
     let values = keys.map(key => {
         return obj[key]
     });
-    let result = await pool.query(`UPDATE ${table} SET ${question_list.join()} WHERE ${id_column || 'id'}=${id}`, values);
-    return result;
+    let result = await writePool.query(`UPDATE ${table} SET ${question_list.join()} WHERE ${id_column || 'id'}=${id}`, values);
+    return result[0];
 }
 export const selectQuerySimple = async (table, id) => {
-    let result = await pool.query(`SELECT * FROM ${table} WHERE id=${id}`);
-    return result;
+    let result = await readPool.query(`SELECT * FROM ${table} WHERE id=${id}`);
+    return result[0];
 }
 export const selectQueryByColumn = async (table, column = {}) => {
     let sql = `SELECT * FROM ${table} `;
@@ -79,8 +80,8 @@ export const selectQueryByColumn = async (table, column = {}) => {
     }
     console.log(sql)
     console.log(values)
-    let result = await pool.query(sql, values);
-    return result;
+    let result = await readPool.query(sql, values);
+    return result[0];
 }
 export const getTableNameBySelectQuery = (sql) => {// select query 가지고 불러올 메인 table명 불러오기 select * from user as asd
     let sql_split_list = sql.split(' FROM ')[1].split(' ');
@@ -117,7 +118,7 @@ export const getSelectQuery = async (sql_, columns, query, add_sql_list = []) =>
     for (var i = 0; i < sql_list.length; i++) {
         result_list.push({
             table: sql_list[i].table,
-            content: (await pool.query(sql_list[i].sql))
+            content: (await readPool.query(sql_list[i].sql))
         });
     }
 
@@ -130,7 +131,7 @@ export const getSelectQuery = async (sql_, columns, query, add_sql_list = []) =>
         page_size,
     }
     for (var i = 0; i < result.length; i++) {
-        obj[result[i].table] = result[i]?.content?.result
+        obj[result[i].table] = result[i]?.content[0]
     }
     return settingSelectQueryObj(obj);
 }
@@ -161,7 +162,7 @@ export const getMultipleQueryByWhen = async (sql_list) => {
     for (var i = 0; i < sql_list.length; i++) {
         result_list.push({
             table: sql_list[i].table,
-            content: (await pool.query(sql_list[i].sql))
+            content: (await writePool.query(sql_list[i].sql))
         });
     }
     for (var i = 0; i < result_list.length; i++) {
@@ -170,7 +171,7 @@ export const getMultipleQueryByWhen = async (sql_list) => {
     let result = (await when(result_list));
     let data = {};
     for (var i = 0; i < result.length; i++) {
-        data[result[i].table] = result[i]?.content?.result
+        data[result[i].table] = result[i]?.content[0]
     }
     return data;
 }

@@ -22,7 +22,7 @@ export const emitSocket = async (item) => {
                 message,
                 link,
             })
-            data['id'] = result?.result?.insertId;
+            data['id'] = result?.insertId;
             data['message'] = message;
             data['link'] = link;
         } else if (method == 'withdraw_request') {
@@ -36,7 +36,7 @@ export const emitSocket = async (item) => {
                 message,
                 link,
             })
-            data['id'] = result?.result?.insertId;
+            data['id'] = result?.insertId;
             data['message'] = message;
             data['link'] = link;
         }
