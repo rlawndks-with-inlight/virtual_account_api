@@ -71,12 +71,12 @@ const pushKoreaPaySystemCtrl = {
                 let result = await insertQuery('virtual_accounts', obj);
             }
 
-            insertResponseLog(req, '0000');
-            return res.status(200).send('0000');
+            insertResponseLog(req, 'OK');
+            return res.status(200).send('OK');
         } catch (err) {
             console.log(err)
-            insertResponseLog(req, '9999');
-            return res.status(500).send('9999');
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
         } finally {
 
         }
@@ -201,12 +201,12 @@ const pushKoreaPaySystemCtrl = {
                 brand_id: dns_data?.id,
                 data: bell_data
             })
-            insertResponseLog(req, '0000');
-            return res.status(200).send('0000');
+            insertResponseLog(req, 'OK');
+            return res.status(200).send('OK');
         } catch (err) {
             console.log(err)
-            insertResponseLog(req, '9999');
-            return res.status(500).send('9999');
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
         } finally {
 
         }
@@ -289,12 +289,12 @@ const pushKoreaPaySystemCtrl = {
             }
 
 
-            insertResponseLog(req, '0000');
-            return res.status(200).send('0000');
+            insertResponseLog(req, 'OK');
+            return res.status(200).send('OK');
         } catch (err) {
             console.log(err)
-            insertResponseLog(req, '9999');
-            return res.status(500).send('9999');
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
         } finally {
 
         }
