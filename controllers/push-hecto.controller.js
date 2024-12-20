@@ -1,5 +1,4 @@
 'use strict';
-import { pool } from "../config/db.js";
 import 'dotenv/config';
 import { insertQuery } from '../utils.js/query-util.js'
 import corpApi from "../utils.js/corp-util/index.js";

@@ -1,6 +1,5 @@
 'use strict';
 import { readPool } from "../config/db-pool.js";
-import { pool } from "../config/db.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, selectQueryByColumn, updateQuery } from "../utils.js/query-util.js";

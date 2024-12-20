@@ -1,4 +1,3 @@
-import { pool } from '../config/db.js';
 import 'dotenv/config';
 import when from 'when';
 import { getNumberByPercent } from './util.js';

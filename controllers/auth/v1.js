@@ -1,6 +1,5 @@
 'use strict';
 import { readPool } from "../../config/db-pool.js";
-import db, { pool } from "../../config/db.js";
 import { hectoApi } from "../../utils.js/corp-util/hecto.js";
 import { insertQuery } from "../../utils.js/query-util.js";
 import { checkDns, checkLevel, commarNumber, getOperatorList, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";

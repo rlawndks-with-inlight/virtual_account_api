@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import util from 'util';
-import { pool } from "../config/db.js";
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import { readSync } from 'fs';
