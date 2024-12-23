@@ -466,9 +466,9 @@ export const getMotherDeposit = async (decode_dns) => {
         `SUM(mcht_amount) AS total_mcht_amount`,
         `SUM(CASE WHEN withdraw_status=0 THEN 0 ELSE mcht_amount END) AS total_attempt_mcht_withdraw_amount`,
         `SUM(CASE WHEN pay_type=25 THEN mcht_amount ELSE 0 END) AS total_manager_mcht_give_amount`,
-        `(SELECT SUM(amount) FROM deposits WHERE pay_type=0 AND deposit_status=0 AND brand_id=${decode_dns?.id}) AS total_deposit_amount`,
-        `(SELECT COUNT(*) FROM deposits WHERE pay_type=0 AND deposit_status=0 AND brand_id=${decode_dns?.id}) AS total_deposit_count`,
-        `(SELECT COUNT(*) FROM deposits WHERE pay_type IN (5, 20) AND withdraw_status=0 AND brand_id=${decode_dns?.id}) AS total_withdraw_count`,
+        `SUM(CASE WHEN (pay_type=0 AND deposit_status=0) THEN amount ELSE 0 END) AS total_deposit_amount`,
+        `SUM(CASE WHEN (pay_type=0 AND deposit_status=0) THEN 1 ELSE 0 END) AS total_deposit_count`,
+        `SUM(CASE WHEN (pay_type IN (5, 20) AND withdraw_status=0) THEN 1 ELSE 0 END) AS total_withdraw_count`,
     ]
     for (var i = 0; i < operator_list.length; i++) {
         sum_columns.push(`SUM(sales${operator_list[i].num}_amount) AS total_sales${operator_list[i].num}_amount`);
