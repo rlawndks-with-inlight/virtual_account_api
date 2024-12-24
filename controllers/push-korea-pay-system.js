@@ -188,7 +188,17 @@ const pushKoreaPaySystemCtrl = {
                     deposit_id = result?.insertId;
                 }
             }
-            sendTelegramBot(dns_data, `${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+            let telegram_message = '';
+            telegram_message += `${dns_data?.name}\n`;
+            telegram_message += `${mcht?.nickname}\n`;
+            telegram_message += `입금금액: ${commarNumber(amount)}원\n`;
+            if (virtual_account?.virtual_user_name) {
+                telegram_message += `회원아이디: ${virtual_account?.virtual_user_name}\n`;
+            }
+            telegram_message += `입금자명: ${virtual_account?.deposit_acct_name}\n`;
+            telegram_message += `입금일시: ${trans_date} ${trans_time}\n`;
+
+            sendTelegramBot(dns_data, telegram_message, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             let bell_data = {
                 amount,
                 user_id: mcht?.id,
