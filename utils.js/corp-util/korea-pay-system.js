@@ -149,7 +149,7 @@ export const koreaPaySystemApi = {
                     phoneNo: phone_num,
                     ci,
                     name: deposit_acct_name,
-                    holderName: deposit_acct_name,
+                    holderName: (dns_data?.virtual_front_nickname ?? "") + deposit_acct_name,
                     regType: user_type,
                     trackId: guid,
                     totalAuthNo: tid,
