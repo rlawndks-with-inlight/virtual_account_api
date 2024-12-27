@@ -114,7 +114,7 @@ const pushKoreaPaySystemCtrl = {
             let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-            let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} AND is_delete=0 AND status=0  `;
+            let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} `;
             let virtual_account_values = [
             ]
             if (trackId) {
