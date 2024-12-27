@@ -117,7 +117,6 @@ const pushKoreaPaySystemCtrl = {
             let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} `;
             let virtual_account_values = [
             ]
-            /*
             if (trackId) {
                 virtual_account_sql += ` AND guid=? `;
                 virtual_account_values.push(trackId)
@@ -125,13 +124,15 @@ const pushKoreaPaySystemCtrl = {
                 virtual_account_sql += ` AND deposit_acct_name=? `;
                 virtual_account_values.push(sender)
             }
+            /*
+            //임시
+             virtual_account_sql += ` AND virtual_acct_num=? `;
+             virtual_account_sql += ` AND deposit_acct_name=? `;
+             virtual_account_values.push(account);
+             virtual_account_values.push(sender);
+             //임시
             */
-            //임시
-            virtual_account_sql += ` AND virtual_acct_num=? `;
-            virtual_account_sql += ` AND deposit_acct_name=? `;
-            virtual_account_values.push(account);
-            virtual_account_values.push(sender);
-            //임시
+
 
             let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
             virtual_account = virtual_account[0][0];
