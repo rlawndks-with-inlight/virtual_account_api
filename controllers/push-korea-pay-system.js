@@ -263,7 +263,7 @@ const pushKoreaPaySystemCtrl = {
             exist_deposit = exist_deposit[0][0];
             let dns_data = {};
             if (exist_deposit) {
-                dns_data = await readPool.query(`SELECT * FROM brands WHERE brand_id=?`, [exist_deposit?.brand_id]);
+                dns_data = await readPool.query(`SELECT * FROM brands WHERE id=?`, [exist_deposit?.brand_id]);
                 dns_data = dns_data[0][0];
             } else {
                 dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
