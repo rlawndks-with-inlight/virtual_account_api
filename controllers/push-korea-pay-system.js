@@ -111,9 +111,15 @@ const pushKoreaPaySystemCtrl = {
                 stlFeeVat = 0,
                 resultMsg,
             } = response;
-            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+                trackId,
+            ]);
+            virtual_account = virtual_account[0][0];
+
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
+            /*
             let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} `;
             let virtual_account_values = [
             ]
@@ -123,7 +129,9 @@ const pushKoreaPaySystemCtrl = {
             } else {
                 virtual_account_sql += ` AND deposit_acct_name=? `;
                 virtual_account_values.push(sender)
-            }
+            } 
+            */
+
             /*
             //임시
              virtual_account_sql += ` AND virtual_acct_num=? `;
@@ -133,9 +141,11 @@ const pushKoreaPaySystemCtrl = {
              //임시
             */
 
-
+            /*
             let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
-            virtual_account = virtual_account[0][0];
+            virtual_account = virtual_account[0][0];  
+            */
+
 
             let mcht_columns = [
                 `users.*`,
@@ -246,8 +256,19 @@ const pushKoreaPaySystemCtrl = {
                 resultMsg,
                 amount,
             } = req.body;
-            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
-            dns_data = dns_data[0][0];
+
+            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+                trxId,
+            ])
+            exist_deposit = exist_deposit[0][0];
+            let dns_data = {};
+            if (exist_deposit) {
+                dns_data = await readPool.query(`SELECT * FROM brands WHERE brand_id=?`, [exist_deposit?.brand_id]);
+                dns_data = dns_data[0][0];
+            } else {
+                dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+                dns_data = dns_data[0][0];
+            }
             dns_data['operator_list'] = getOperatorList(dns_data);
 
             let user = await readPool.query(`SELECT * FROM users WHERE id=?`, [
@@ -256,11 +277,7 @@ const pushKoreaPaySystemCtrl = {
             user = user[0][0];
 
 
-            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
-                trxId,
-                dns_data?.id,
-            ])
-            exist_deposit = exist_deposit[0][0];
+
             let withdraw_id = exist_deposit?.id ?? 0;
             let withdraw_status = status == '출금완료' ? 0 : 10;
             let top_office_amount = status == '출금완료' ? (exist_deposit?.top_office_amount || dns_data?.withdraw_head_office_fee) : 0;
