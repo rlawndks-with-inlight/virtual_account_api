@@ -2,8 +2,10 @@ import axios from 'axios';
 import 'dotenv/config';
 import crypto from 'crypto';
 import https from 'https';
+import { makeObjKeysLowerCase } from '../function.js';
 
 const API_URL = process.env.API_ENV == 'production' ? "api.bankners.com" : "stgapi.bankners.com";
+const BEARER_API_URL = process.env.API_ENV == 'production' ? "https://on-api.epayday.co.kr" : "https://stgon-api.epayday.co.kr";
 
 const makeHeaderData = (dns_data, pay_type, decode_user) => {
     let cur_time = new Date().getTime();
@@ -72,7 +74,6 @@ const postRequest = async (uri, query, headers_data, method = 'POST') => {
         req.end();
     });
 }
-
 
 export const banknersApi = {
     user: {
@@ -199,9 +200,24 @@ export const banknersApi = {
                     real_auth_no: user_type == 'PERSON' ? birth : business_num,
                     acnt_holder: deposit_acct_name
                 }
-                query = makeBody(query, dns_data, pay_type)
-                let result = await postRequest('/api/user/account', query, makeHeaderData(dns_data, pay_type, decode_user));
-                console.log(result)
+                let result = undefined;
+                if (dns_data?.deposit_process_type == 1) {
+                    result = await axios.post(`${BEARER_API_URL}/api/bank/v1/verify`, {
+                        Mid: dns_data?.deposit_api_id,
+                        trxNo: tid,
+                        authNo: vrf_word,
+                    });
+                    console.log(result)
+                    if (result?.status == 200) {
+                        result = result?.data ?? {};
+                    }
+                    result = makeObjKeysLowerCase(result);
+                    console.log(result)
+                } else {
+                    query = makeBody(query, dns_data, pay_type)
+                    result = await postRequest('/api/user/account', query, makeHeaderData(dns_data, pay_type, decode_user));
+                }
+
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -669,8 +685,26 @@ export const banknersApi = {
                     idntt_no: birth.substring(2, 8) + acct_back_one_num,
                     auth_usage_cd: type,
                 }
-                query = makeBody(query, dns_data, pay_type)
-                let result = await postRequest('/api/cp/auth', query, makeHeaderData(dns_data, pay_type, decode_user));
+                let result = undefined;
+                if (dns_data?.deposit_process_type == 1) {
+                    result = await axios.post(`${BEARER_API_URL}/api/user/v1/phone/verify`, {
+                        Mid: dns_data?.deposit_api_id,
+                        name: name,
+                        ssn7: birth + acct_back_one_num,
+                        mobileCo: tel_com.replace('0', ''),
+                        mobileNo: phone_num,
+                    });
+                    if (result?.status == 200) {
+                        result = result?.data ?? {};
+                    }
+                    result = makeObjKeysLowerCase(result);
+                    result.data = {
+                        tid: result?.message,
+                    }
+                } else {
+                    query = makeBody(query, dns_data, pay_type)
+                    result = await postRequest('/api/cp/auth', query, makeHeaderData(dns_data, pay_type, decode_user));
+                }
                 if (result?.code != '0000') {
                     return {
                         code: -100,
@@ -703,12 +737,28 @@ export const banknersApi = {
                     dns_data, pay_type, decode_user,
                     tid, vrf_word,
                 } = data;
+                console.log(data)
                 let query = {
                     tid: tid,
                     auth_no: vrf_word,
                 }
-                query = makeBody(query, dns_data, pay_type)
-                let result = await postRequest('/api/cp/verify', query, makeHeaderData(dns_data, pay_type, decode_user));
+                let result = undefined;
+                if (dns_data?.deposit_process_type == 1) {
+                    result = await axios.post(`${BEARER_API_URL}/api/user/v1/phone/result`, {
+                        Mid: dns_data?.deposit_api_id,
+                        trxNo: tid,
+                        authNo: vrf_word,
+                    });
+                    console.log(result)
+                    if (result?.status == 200) {
+                        result = result?.data ?? {};
+                    }
+                    result = makeObjKeysLowerCase(result);
+                    console.log(result)
+                } else {
+                    query = makeBody(query, dns_data, pay_type)
+                    result = await postRequest('/api/cp/verify', query, makeHeaderData(dns_data, pay_type, decode_user));
+                }
                 if (result?.code != '0000') {
                     return {
                         code: -100,

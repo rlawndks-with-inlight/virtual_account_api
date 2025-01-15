@@ -52,6 +52,11 @@ const virtualAccountV3Ctrl = {
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
+                let ing_virtual_account = await readPool.query(`SELECT id FROM ${table_name} WHERE phone_num=? AND status=5`, [phone_num]);
+                ing_virtual_account = ing_virtual_account[0][0];
+                if (ing_virtual_account) {
+                    return response(req, res, -100, "이미 진행중인 건이 존재합니다. 본사에 문의해 주세요.", {});
+                }
                 let phone_request = await corpApi.sms.push({
                     dns_data: brand,
                     pay_type: 'deposit',

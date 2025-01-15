@@ -101,3 +101,11 @@ export const getUserDepositFee = (item, user_level, operator_list = [], deposit_
     // }
     return result;
 }
+export const makeObjKeysLowerCase = (obj = {}) => {
+    let keys = Object.keys(obj);
+    let result = {};
+    for (var i = 0; i < keys.length; i++) {
+        result[keys[i].toLowerCase()] = obj[keys[i]];
+    }
+    return result;
+}

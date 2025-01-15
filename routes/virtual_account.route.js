@@ -15,6 +15,19 @@ router
 router
     .route('/v1/issuance')
     .post(virtualAccountV1Ctrl.issuance)
+
+router
+    .route('/v1/phone/request')
+    .post(virtualAccountV1Ctrl.phone.request)
+router
+    .route('/v1/phone/check')
+    .post(virtualAccountV1Ctrl.phone.check)
+router
+    .route('/v1/acct/request')
+    .post(virtualAccountV1Ctrl.acct.request)
+router
+    .route('/v1/acct/check')
+    .post(virtualAccountV1Ctrl.acct.check)
 //v2
 router
     .route('/v2/account')
