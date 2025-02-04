@@ -518,6 +518,7 @@ const virtualAccountV1Ctrl = {
                     deposit_acct_name,
                     user_type,
                     virtual_user_name,
+                    tid,
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -547,9 +548,6 @@ const virtualAccountV1Ctrl = {
                     return response(req, res, -100, "유저타입 에러", false)
                 }
 
-                console.log(name)
-                console.log(deposit_bank_code)
-                console.log(deposit_acct_num)
                 if (
                     !name ||
                     !deposit_bank_code ||
@@ -611,6 +609,7 @@ const virtualAccountV1Ctrl = {
                     bank_code: deposit_bank_code,
                     acct_num: deposit_acct_num,
                     name: name,
+                    tid,
                 })
                 console.log(api_result)
                 if (api_result?.code != 100) {

@@ -16,12 +16,10 @@ const virtualAccountV4Ctrl = {
                 api_key,
                 mid,
                 user_type,
-
-                phone_num,
                 deposit_acct_name,
-
                 deposit_bank_code,
                 deposit_acct_num,
+                phone_num
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -58,15 +56,18 @@ const virtualAccountV4Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND deposit_acct_name=? AND is_delete=0 AND brand_id=${brand?.id} `, [
-                    deposit_acct_num,
-                    deposit_acct_name,
+                virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+                    phone_num,
                 ])
                 virtual_account = virtual_account[0][0];
+                if (virtual_account?.status == 0) {
+                    return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
+                }
                 if (brand?.deposit_process_type == 0) {
                     if (virtual_account?.phone_check != 1) {
                         return response(req, res, -100, "휴대폰인증을 완료해 주세요.", false)
                     }
+                    /*
                     let is_exist_account = await corpApi.account.info({
                         pay_type: 'deposit',
                         dns_data: brand,
@@ -81,7 +82,9 @@ const virtualAccountV4Ctrl = {
                     let update_virtual_account = await updateQuery(`${table_name}`, {
                         deposit_bank_code: deposit_bank_code,
                         deposit_acct_num: deposit_acct_num,
-                    }, virtual_account?.id);
+                    }, virtual_account?.id);  
+                    */
+
                 }
 
 
@@ -100,7 +103,30 @@ const virtualAccountV4Ctrl = {
             } else {
                 return response(req, res, -100, "잘못된 유저타입 입니다.", false)
             }
-            console.log(virtual_account)
+            if (brand?.deposit_process_type == 0) {
+                let update_virtual_account = await updateQuery(`${table_name}`, {
+                    deposit_acct_check: 0,
+                    deposit_bank_code,
+                    deposit_acct_num,
+                    deposit_acct_name,
+                }, virtual_account?.id);
+                let api_result = await corpApi.user.account({
+                    dns_data: brand,
+                    pay_type: 'deposit',
+                    decode_user: mcht,
+                    ci: virtual_account?.ci,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    name: deposit_acct_name,
+                })
+                if (api_result?.code != 100) {
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
+                let update_virtual_account2 = await updateQuery(`${table_name}`, {
+                    deposit_acct_check: 1,
+                }, virtual_account?.id);
+            }
+
             let api_result2 = await corpApi.vaccount({
                 pay_type: 'deposit',
                 dns_data: brand,
@@ -351,9 +377,7 @@ const virtualAccountV4Ctrl = {
                     return response(req, res, -100, "유저타입 에러", false)
                 }
 
-                console.log(name)
-                console.log(deposit_bank_code)
-                console.log(deposit_acct_num)
+
                 if (
                     !name ||
                     !deposit_bank_code ||
@@ -415,7 +439,7 @@ const virtualAccountV4Ctrl = {
                     acct_num: deposit_acct_num,
                     name: name,
                 })
-                console.log(api_result)
+
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
@@ -494,6 +518,89 @@ const virtualAccountV4Ctrl = {
                     deposit_acct_check: 1,
                 }, virtual_account?.id);
                 return response(req, res, 100, "success", api_result?.data)
+            } catch (err) {
+                console.log(err)
+                return response(req, res, -200, "서버 에러 발생", false)
+            }
+        },
+        name: async (req_, res, next) => {//
+            let req = req_;
+            try {
+                let {
+                    api_key,
+                    mid,
+                    name,
+                    deposit_bank_code,
+                    deposit_acct_num,
+                    user_type,
+                    virtual_user_name,
+                    phone_num,
+                } = req.body;
+                if (!api_key) {
+                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                }
+                let brand = await readPool.query(`SELECT id FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0];
+                if (!brand) {
+                    return response(req, res, -100, "api key가 잘못되었습니다.", false);
+                }
+                brand = await getDnsData(brand);
+                if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
+                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                }
+                req.body.brand_id = brand?.id;
+                if (!mid) {
+                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                }
+                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0];
+                if (!mcht) {
+                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", false);
+                }
+                if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
+                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                }
+
+
+                if (
+                    !name ||
+                    !deposit_bank_code ||
+                    !deposit_acct_num
+                ) {
+                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                }
+                let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+                    phone_num,
+                ])
+                virtual_account = virtual_account[0][0];
+                if (virtual_account?.status == 0) {
+                    return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
+                } else {
+                    if (brand?.deposit_process_type == 1) {//무기명 타입일때
+
+                    }
+                }
+
+                let api_result = await corpApi.user.account({
+                    dns_data: brand,
+                    pay_type: 'deposit',
+                    decode_user: mcht,
+                    ci: virtual_account?.ci,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    name: name,
+                })
+                let update_virtual_account = await updateQuery(`${table_name}`, {
+                    deposit_acct_check: 1,
+                    deposit_bank_code,
+                    deposit_acct_num,
+                    deposit_acct_name: name,
+                }, virtual_account?.id);
+                if (api_result?.code != 100) {
+                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                }
+                return response(req, res, 100, "success", api_result?.data)
+
             } catch (err) {
                 console.log(err)
                 return response(req, res, -200, "서버 에러 발생", false)

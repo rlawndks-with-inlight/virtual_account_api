@@ -35,7 +35,7 @@ export const icbApi = {
                     timestamp,
                     memKey: ci,
                 }
-                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/balance/getInfo`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v3/merchant/balance/getInfo`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
                 if (response?.code != 200) {
@@ -78,11 +78,10 @@ export const icbApi = {
                 timestamp,
                 memKey: ci,
             }
-            let uri = `/v1/pg/publishVirtAcnt`;
+            let uri = `/v3/member/publish/virtAcnt`;
             if (dns_data?.deposit_process_type == 1) {
                 uri = `/v2/merchant/member/publish/virtAcnt`;
             }
-            console.log(query)
             let { data: response } = await axios.post(`${API_URL}${uri}`, query, {
                 headers: getDefaultHeader(dns_data, pay_type, timestamp)
             });
@@ -221,13 +220,14 @@ export const icbApi = {
                     depoAcntNo: acct_num,
                     depoNm: name,
                 }
-                let uri = `/v1/pg/acntCert/request`;
+                let uri = `/v3/member/acntCert/realName/request`;
                 if (dns_data?.deposit_process_type == 1) {
                     uri = `/v2/merchant/member/acntCert/request`;
                 }
                 let { data: response } = await axios.post(`${API_URL}${uri}`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
+
                 if (response?.code != 200) {
                     return {
                         code: -100,
@@ -239,7 +239,7 @@ export const icbApi = {
                     code: 100,
                     message: response?.message,
                     data: {
-                        tid: response?.data?.acntCertTrxNo,
+                        tid: response?.data?.acntCertTrxNo || `${new Date()}${bank_code}${acct_num}`,
                     },
                 };
 
@@ -329,7 +329,7 @@ export const icbApi = {
                     depoAcntNo: acct_num,
                     depoNm: name,
                 }
-                let uri = `/v1/pg/withdrawAcntCert`;
+                let uri = `/v3/member/getInfo`;
                 if (dns_data?.deposit_process_type == 1) {
                     uri = `/v2/merchant/member/acntCert`;
                 }
@@ -387,12 +387,10 @@ export const icbApi = {
                     telComCd: tel_com,
                     telNo: phone_num,
                 }
-                console.log(query);
-                console.log(getDefaultHeader(dns_data, pay_type, timestamp));
-                let { data: response } = await axios.post(`${API_URL}/v1/pg/hpCert/request`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/request`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
-                console.log(response)
+
                 if (response?.code != 200) {
                     return {
                         code: -100,
@@ -437,8 +435,7 @@ export const icbApi = {
                     hpCertCd: vrf_word,
                     hpCertTrxNo: tid,
                 }
-                console.log(ci)
-                let { data: response } = await axios.post(`${API_URL}/v1/pg/hpCert/confirm`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/confirm`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
                 if (response?.code != 200) {
@@ -483,8 +480,7 @@ export const icbApi = {
                     trxAmt: amount,
                     partnerTrxNo: trx_id,
                 }
-                console.log(getDefaultHeader(dns_data, pay_type, timestamp))
-                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/request/amt`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v3/member/settle/request/amt`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
                 if (response?.code != 200) {
@@ -527,7 +523,7 @@ export const icbApi = {
                     memKey: ci,
                     partnerTrxNos: tid,
                 }
-                let { data: response } = await axios.post(`${API_URL}/v1/merchant/settle/member/inquiry`, query, {
+                let { data: response } = await axios.post(`${API_URL}/v3/merchant/settle/inquiry`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
                 let status = 10;

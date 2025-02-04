@@ -184,7 +184,8 @@ export const banknersApi = {
                 let {
                     dns_data, pay_type, decode_user,
                     deposit_bank_code, deposit_acct_num, deposit_acct_name, guid,
-                    birth, business_num, user_type
+                    birth, business_num, user_type,
+                    tid,
                 } = data;
                 if (user_type == 0) {
                     user_type = 'PERSON';
@@ -202,12 +203,14 @@ export const banknersApi = {
                 }
                 let result = undefined;
                 if (dns_data?.deposit_process_type == 1) {
+                    console.log(tid)
                     result = await axios.post(`${BEARER_API_URL}/api/bank/v1/verify`, {
-                        Mid: dns_data?.deposit_api_id,
+                        mid: dns_data?.deposit_api_id,
+                        bankCd: deposit_bank_code,
+                        depoNm: deposit_acct_name,
+                        depoAcntNo: deposit_acct_num,
                         trxNo: tid,
-                        authNo: vrf_word,
                     });
-                    console.log(result)
                     if (result?.status == 200) {
                         result = result?.data ?? {};
                     }
