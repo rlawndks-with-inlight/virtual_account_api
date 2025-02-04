@@ -71,9 +71,6 @@ router
     .route('/v4/check')
     .post(virtualAccountV4Ctrl.acct.check)
 router
-    .route('/v4/name')
-    .post(virtualAccountV4Ctrl.acct.name)
-router
     .route('/v4/issuance')
     .post(virtualAccountV4Ctrl.issuance)
 
