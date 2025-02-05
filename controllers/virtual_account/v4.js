@@ -119,6 +119,7 @@ const virtualAccountV4Ctrl = {
                     acct_num: deposit_acct_num,
                     name: deposit_acct_name,
                 })
+
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }

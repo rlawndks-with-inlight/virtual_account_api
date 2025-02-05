@@ -7,12 +7,14 @@ const API_URL = process.env.API_ENV == 'production' ? "https://www.i-connect.co.
 const getDefaultHeader = (dns_data, pay_type, timestamp) => {
     let mid = dns_data[`${pay_type}_api_id`];
     let secretkey = dns_data[`${pay_type}_sign_key`];
+
     const TEXT_A = `${mid}${secretkey}${timestamp}`;
     const SALT = secretkey;
     const TEXT_B = `${TEXT_A}${SALT}`;
     const hash = crypto.createHash('sha256');
     hash.update(TEXT_B, 'utf8');
     const TEXT_C = hash.digest('hex');
+
     // TEXT_B 생성
     return {
         'mid': mid,
@@ -387,6 +389,7 @@ export const icbApi = {
                     telComCd: tel_com,
                     telNo: phone_num,
                 }
+                console.log(getDefaultHeader(dns_data, pay_type, timestamp))
                 let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/request`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
