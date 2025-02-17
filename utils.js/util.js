@@ -527,6 +527,7 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
             let sales_parent_brand = await readPool.query(`SELECT level_obj FROM brands WHERE id=${dns_data?.sales_parent_id}`);
             sales_parent_brand = sales_parent_brand[0][0];
             let total_operator_list = getOperatorList(sales_parent_brand);
+            console.log(total_operator_list)
             for (var i = 0; i < total_operator_list.length; i++) {
                 if (dns_data[`top_offer${operator_list[i]?.num}_id`] > 0) {
                     let fee = getUserFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_fee, true);
