@@ -7,7 +7,7 @@ import when from 'when';
 import _ from 'lodash';
 import axios from 'axios';
 import { getMultipleQueryByWhen, selectQuerySimple, updateQuery } from './query-util.js';
-import { getUserDepositFee, getUserWithDrawFee, returnMoment } from './function.js';
+import { getUserDepositFee, getUserFee, getUserWithDrawFee, returnMoment } from './function.js';
 import logger from './winston/index.js';
 import corpApi from './corp-util/index.js';
 import { readPool, writePool } from '../config/db-pool.js';
@@ -521,7 +521,22 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
     let result = {};
     result['amount'] = amount;
     let operator_list = getOperatorList(dns_data);
+
     if (user?.level == 10) {
+        if (dns_data?.sales_parent_id > 0) {
+            let sales_parent_brand = await readPool.query(`SELECT level_obj FROM brands WHERE id=${dns_data?.sales_parent_id}`);
+            sales_parent_brand = sales_parent_brand[0][0];
+            let total_operator_list = getOperatorList(sales_parent_brand);
+            for (var i = 0; i < total_operator_list.length; i++) {
+                if (dns_data[`top_offer${operator_list[i]?.num}_id`] > 0) {
+                    let fee = getUserFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_fee, true);
+                    let deposit_fee_amount = getUserDepositFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_deposit_fee, true);
+                    result[`top_offer${operator_list[i]?.num}_id`] = dns_data[`top_offer${operator_list[i]?.num}_id`];
+                    result[`top_offer${operator_list[i]?.num}_fee`] = dns_data[`top_offer${operator_list[i]?.num}_fee`];
+                    result[`top_offer${operator_list[i]?.num}_amount`] = deposit_fee_amount + amount * fee / 100;
+                }
+            }
+        }
         result['mcht_id'] = user?.id;
         let mcht_columns = [
             `merchandise_columns.mcht_fee`
@@ -612,6 +627,19 @@ export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data
     result['expect_amount'] = result['amount'];
     result['withdraw_fee'] = user?.withdraw_fee;
     if (user?.level == 10) {
+        if (dns_data?.sales_parent_id > 0) {
+            let sales_parent_brand = await readPool.query(`SELECT level_obj FROM brands WHERE id=${dns_data?.sales_parent_id}`);
+            sales_parent_brand = sales_parent_brand[0][0];
+            let total_operator_list = getOperatorList(sales_parent_brand);
+            for (var i = 0; i < total_operator_list.length; i++) {
+                if (dns_data[`top_offer${operator_list[i]?.num}_id`] > 0) {
+                    let withdraw_fee_amount = getUserWithDrawFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_withdraw_fee, true);
+                    result[`top_offer${operator_list[i]?.num}_id`] = dns_data[`top_offer${operator_list[i]?.num}_id`];
+                    result[`top_offer${operator_list[i]?.num}_fee`] = dns_data[`top_offer${operator_list[i]?.num}_fee`];
+                    result[`top_offer${operator_list[i]?.num}_amount`] = withdraw_fee_amount;
+                }
+            }
+        }
         let mcht_columns = [
             `merchandise_columns.mcht_fee`
         ]

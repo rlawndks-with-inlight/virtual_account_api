@@ -209,10 +209,8 @@ const virtualAccountV4Ctrl = {
                 }
                 let ci = `${brand?.id}${new Date().getTime()}` + phone_num + birth;
                 let virtual_account_id = 0;
-                let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_name=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+                let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     phone_num,
-                    birth,
-                    name,
                 ])
                 virtual_account = virtual_account[0][0];
                 if (virtual_account?.status == 0) {
