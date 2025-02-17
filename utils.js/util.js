@@ -534,6 +534,9 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
                     let deposit_fee_amount = getUserDepositFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_deposit_fee, true);
                     result[`top_offer${operator_list[i]?.num}_id`] = dns_data[`top_offer${operator_list[i]?.num}_id`];
                     result[`top_offer${operator_list[i]?.num}_fee`] = dns_data[`top_offer${operator_list[i]?.num}_fee`];
+                    console.log(deposit_fee_amount)
+                    console.log(fee)
+                    console.log(amount)
                     result[`top_offer${operator_list[i]?.num}_amount`] = deposit_fee_amount + amount * fee / 100;
                 }
             }
