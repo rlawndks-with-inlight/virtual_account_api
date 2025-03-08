@@ -528,15 +528,13 @@ export const setDepositAmountSetting = async (amount = 0, user_ = {}, dns_data =
             let sales_parent_brand = await readPool.query(`SELECT level_obj FROM brands WHERE id=${dns_data?.sales_parent_id}`);
             sales_parent_brand = sales_parent_brand[0][0];
             let total_operator_list = getOperatorList(sales_parent_brand);
-            console.log(total_operator_list)
             for (var i = 0; i < total_operator_list.length; i++) {
-                console.log(dns_data[`top_offer${operator_list[i]?.num}_id`])
-                if (dns_data[`top_offer${operator_list[i]?.num}_id`] > 0) {
-                    let fee = getUserFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_fee, true);
-                    let deposit_fee_amount = getUserDepositFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_deposit_fee, true);
-                    result[`top_offer${operator_list[i]?.num}_id`] = dns_data[`top_offer${operator_list[i]?.num}_id`];
-                    result[`top_offer${operator_list[i]?.num}_fee`] = dns_data[`top_offer${operator_list[i]?.num}_fee`];
-                    result[`top_offer${operator_list[i]?.num}_amount`] = parseFloat(deposit_fee_amount ?? 0) + parseFloat(amount * (fee ?? 0) / 100);
+                if (dns_data[`top_offer${total_operator_list[i]?.num}_id`] > 0) {
+                    let fee = getUserFee(dns_data, total_operator_list[i]?.value, total_operator_list, dns_data?.sales_parent_fee, true);
+                    let deposit_fee_amount = getUserDepositFee(dns_data, total_operator_list[i]?.value, total_operator_list, dns_data?.sales_parent_deposit_fee, true);
+                    result[`top_offer${total_operator_list[i]?.num}_id`] = dns_data[`top_offer${total_operator_list[i]?.num}_id`];
+                    result[`top_offer${total_operator_list[i]?.num}_fee`] = dns_data[`top_offer${total_operator_list[i]?.num}_fee`];
+                    result[`top_offer${total_operator_list[i]?.num}_amount`] = parseFloat(deposit_fee_amount ?? 0) + parseFloat(amount * (fee ?? 0) / 100);
                 }
             }
         }
@@ -634,14 +632,13 @@ export const setWithdrawAmountSetting = async (amount_ = 0, user_ = {}, dns_data
             let sales_parent_brand = await readPool.query(`SELECT level_obj FROM brands WHERE id=${dns_data?.sales_parent_id}`);
             sales_parent_brand = sales_parent_brand[0][0];
             let total_operator_list = getOperatorList(sales_parent_brand);
-            console.log(total_operator_list)
             for (var i = 0; i < total_operator_list.length; i++) {
-                if (dns_data[`top_offer${operator_list[i]?.num}_id`] > 0) {
-                    console.log(dns_data[`top_offer${operator_list[i]?.num}_id`])
-                    let withdraw_fee_amount = getUserWithDrawFee(dns_data, operator_list[i]?.value, operator_list, dns_data?.sales_parent_withdraw_fee, true);
-                    result[`top_offer${operator_list[i]?.num}_id`] = dns_data[`top_offer${operator_list[i]?.num}_id`];
-                    result[`top_offer${operator_list[i]?.num}_fee`] = dns_data[`top_offer${operator_list[i]?.num}_fee`];
-                    result[`top_offer${operator_list[i]?.num}_amount`] = withdraw_fee_amount;
+                if (dns_data[`top_offer${total_operator_list[i]?.num}_id`] > 0) {
+                    console.log(dns_data[`top_offer${total_operator_list[i]?.num}_id`])
+                    let withdraw_fee_amount = getUserWithDrawFee(dns_data, total_operator_list[i]?.value, total_operator_list, dns_data?.sales_parent_withdraw_fee, true);
+                    result[`top_offer${total_operator_list[i]?.num}_id`] = dns_data[`top_offer${total_operator_list[i]?.num}_id`];
+                    result[`top_offer${total_operator_list[i]?.num}_fee`] = dns_data[`top_offer${total_operator_list[i]?.num}_fee`];
+                    result[`top_offer${total_operator_list[i]?.num}_amount`] = withdraw_fee_amount;
                 }
             }
         }
