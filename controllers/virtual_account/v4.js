@@ -411,6 +411,7 @@ const virtualAccountV4Ctrl = {
                     business_num,
                     user_type,
                 })
+                console.log(is_exist_account)
                 if (is_exist_account?.code != 100) {
                     return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
                 }
@@ -441,7 +442,7 @@ const virtualAccountV4Ctrl = {
                     name: name,
                     business_num,
                 })
-
+                console.log(api_result)
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
