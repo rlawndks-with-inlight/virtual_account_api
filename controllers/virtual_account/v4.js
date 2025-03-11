@@ -398,23 +398,21 @@ const virtualAccountV4Ctrl = {
 
                     }
                 }
-
-                if (!virtual_account) {
-                    let is_exist_account = await corpApi.account.info({
-                        pay_type: 'deposit',
-                        dns_data: brand,
-                        ci: ci,
-                        bank_code: deposit_bank_code,
-                        acct_num: deposit_acct_num,
-                        name: name,
-                        business_num,
-                        user_type,
-                    })
-                    if (is_exist_account?.code != 100) {
-                        return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
-                    }
-                } else {
+                if (virtual_account) {
                     ci = virtual_account?.ci;
+                }
+                let is_exist_account = await corpApi.account.info({
+                    pay_type: 'deposit',
+                    dns_data: brand,
+                    ci: ci,
+                    bank_code: deposit_bank_code,
+                    acct_num: deposit_acct_num,
+                    name: name,
+                    business_num,
+                    user_type,
+                })
+                if (is_exist_account?.code != 100) {
+                    return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
                 }
                 let obj = {
                     brand_id: brand?.id,
@@ -430,7 +428,6 @@ const virtualAccountV4Ctrl = {
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
                 } else {
-                    ci = virtual_account?.ci;
                     let update_virtual_account = await updateQuery(`${table_name}`, obj, virtual_account?.id);
                 }
 
