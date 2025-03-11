@@ -212,6 +212,8 @@ export const icbApi = {
                     bank_code,
                     acct_num,
                     name,
+                    business_num,
+                    user_type,
                 } = data;
                 let timestamp = await returnMoment().replaceAll(' ', '').replaceAll('-', '').replaceAll(':', '')
 
@@ -222,7 +224,10 @@ export const icbApi = {
                     depoAcntNo: acct_num,
                     depoNm: name,
                 }
-                let uri = `/v3/member/acntCert/realName/request`;
+                if (user_type != 0) {
+                    query['bizNo'] = business_num;
+                }
+                let uri = `/v3/member/deposit/acntCert/request`;
                 if (dns_data?.deposit_process_type == 1) {
                     uri = `/v2/merchant/member/acntCert/request`;
                 }
@@ -279,7 +284,7 @@ export const icbApi = {
                     acntCertTrxDt: date,
                     acntCertTrxNo: tid,
                 }
-                let uri = `/v1/pg/acntCert/confirm`;
+                let uri = `/v3/member/deposit/acntCert/confirm`;
                 if (dns_data?.deposit_process_type == 1) {
                     uri = `/v2/merchant/member/acntCert/confirm`;
                 }
@@ -322,6 +327,8 @@ export const icbApi = {
                     bank_code,
                     acct_num,
                     name,
+                    business_num,
+                    user_type,
                 } = data;
                 let timestamp = await returnMoment().replaceAll(' ', '').replaceAll('-', '').replaceAll(':', '')
                 let query = {
@@ -331,13 +338,18 @@ export const icbApi = {
                     depoAcntNo: acct_num,
                     depoNm: name,
                 }
-                let uri = `/v3/member/getInfo`;
+                if (user_type != 0) {
+                    query[`bizDiv`] = '02';
+                    query[`bizNo`] = business_num;
+                }
+                let uri = `/v3/member/acntCert/realName/request`;
                 if (dns_data?.deposit_process_type == 1) {
-                    uri = `/v2/merchant/member/acntCert`;
+                    uri = `/v2/merchant/member/acntCert/request`;
                 }
                 let { data: response } = await axios.post(`${API_URL}${uri}`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
+
                 if (response?.code != 200) {
                     return {
                         code: -100,
@@ -348,12 +360,13 @@ export const icbApi = {
                 return {
                     code: 100,
                     message: response?.message,
-                    data: {},
+                    data: {
+                        tid: response?.data?.acntCertTrxNo || `${new Date()}${bank_code}${acct_num}`,
+                    },
                 };
 
             } catch (err) {
                 console.log(err)
-                console.log(err?.response)
                 return {
                     code: -200,
                     message: '',

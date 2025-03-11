@@ -19,7 +19,8 @@ const virtualAccountV4Ctrl = {
                 deposit_acct_name,
                 deposit_bank_code,
                 deposit_acct_num,
-                phone_num
+                phone_num,
+                business_num,
             } = req.body;
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -95,22 +96,21 @@ const virtualAccountV4Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_bank_code=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
-                    deposit_bank_code,
+                virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     deposit_acct_num,
                 ])
                 virtual_account = virtual_account[0][0];
             } else {
                 return response(req, res, -100, "잘못된 유저타입 입니다.", false)
             }
-            if (brand?.deposit_process_type == 0) {
+            if (brand?.deposit_process_type == 0 && user_type == 0) {
                 let update_virtual_account = await updateQuery(`${table_name}`, {
                     deposit_acct_check: 0,
                     deposit_bank_code,
                     deposit_acct_num,
                     deposit_acct_name,
                 }, virtual_account?.id);
-                let api_result = await corpApi.user.account({
+                let api_result = await corpApi.account.info({
                     dns_data: brand,
                     pay_type: 'deposit',
                     decode_user: mcht,
@@ -118,8 +118,8 @@ const virtualAccountV4Ctrl = {
                     bank_code: deposit_bank_code,
                     acct_num: deposit_acct_num,
                     name: deposit_acct_name,
+                    user_type,
                 })
-
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
@@ -347,6 +347,7 @@ const virtualAccountV4Ctrl = {
                     deposit_acct_name,
                     user_type,
                     virtual_user_name,
+                    business_num,
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -406,10 +407,14 @@ const virtualAccountV4Ctrl = {
                         bank_code: deposit_bank_code,
                         acct_num: deposit_acct_num,
                         name: name,
+                        business_num,
+                        user_type,
                     })
                     if (is_exist_account?.code != 100) {
                         return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
                     }
+                } else {
+                    ci = virtual_account?.ci;
                 }
                 let obj = {
                     brand_id: brand?.id,
@@ -437,6 +442,7 @@ const virtualAccountV4Ctrl = {
                     bank_code: deposit_bank_code,
                     acct_num: deposit_acct_num,
                     name: name,
+                    business_num,
                 })
 
                 if (api_result?.code != 100) {
@@ -492,8 +498,7 @@ const virtualAccountV4Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_bank_code=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
-                    deposit_bank_code,
+                let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     deposit_acct_num,
                 ])
                 virtual_account = virtual_account[0][0];
@@ -579,7 +584,6 @@ const virtualAccountV4Ctrl = {
 
                     }
                 }
-
                 let api_result = await corpApi.user.account({
                     dns_data: brand,
                     pay_type: 'deposit',
