@@ -1,5 +1,5 @@
 'use strict';
-import { readPool } from "../config/db-pool.js";
+import { readPool, writePool } from "../config/db-pool.js";
 import corpApi from "../utils.js/corp-util/index.js";
 import { checkIsManagerUrl } from "../utils.js/function.js";
 import { insertQuery, selectQueryByColumn, updateQuery } from "../utils.js/query-util.js";
@@ -28,7 +28,7 @@ const pushKoreaPaySystemCtrl = {
                 udf1,
                 udf2,
             } = req.body;
-            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+            let dns_data = await writePool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             let virtual_account_sql = `SELECT id FROM virtual_accounts WHERE tid=? AND brand_id=${dns_data?.id} AND is_delete=0 AND status=0  `;
@@ -42,7 +42,7 @@ const pushKoreaPaySystemCtrl = {
                 virtual_account_sql += ` AND deposit_acct_name=? `;
                 virtual_account_values.push(name)
             }
-            let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
+            let virtual_account = await writePool.query(virtual_account_sql, virtual_account_values);
             virtual_account = virtual_account[0][0];
             let obj = {
                 brand_id: dns_data?.id,
@@ -60,7 +60,7 @@ const pushKoreaPaySystemCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.mid=${udf1} `;
-            let mcht = await readPool.query(mcht_sql);
+            let mcht = await writePool.query(mcht_sql);
             mcht = mcht[0][0];
             obj['mcht_id'] = mcht?.id;
             obj['user_id'] = mcht?.id;
@@ -111,12 +111,12 @@ const pushKoreaPaySystemCtrl = {
                 stlFeeVat = 0,
                 resultMsg,
             } = response;
-            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+            let virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 trackId,
             ]);
             virtual_account = virtual_account[0][0];
 
-            let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
+            let dns_data = await writePool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
             /*
@@ -142,7 +142,7 @@ const pushKoreaPaySystemCtrl = {
             */
 
             /*
-            let virtual_account = await readPool.query(virtual_account_sql, virtual_account_values);
+            let virtual_account = await writePool.query(virtual_account_sql, virtual_account_values);
             virtual_account = virtual_account[0][0];  
             */
 
@@ -152,7 +152,7 @@ const pushKoreaPaySystemCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
-            let mcht = await readPool.query(mcht_sql);
+            let mcht = await writePool.query(mcht_sql);
             mcht = mcht[0][0];
 
             let trx_id = vactId;
@@ -198,7 +198,7 @@ const pushKoreaPaySystemCtrl = {
             }
             let deposit_id = 0;
             if (trx_id) {
-                let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                let exist_deposit = await writePool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
                     trx_id,
                     mcht?.brand_id,
                 ])
@@ -257,21 +257,21 @@ const pushKoreaPaySystemCtrl = {
                 amount,
             } = req.body;
 
-            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
+            let exist_deposit = await writePool.query(`SELECT * FROM deposits WHERE trx_id=?`, [
                 trxId,
             ])
             exist_deposit = exist_deposit[0][0];
             let dns_data = {};
             if (exist_deposit) {
-                dns_data = await readPool.query(`SELECT * FROM brands WHERE id=?`, [exist_deposit?.brand_id]);
+                dns_data = await writePool.query(`SELECT * FROM brands WHERE id=?`, [exist_deposit?.brand_id]);
                 dns_data = dns_data[0][0];
             } else {
-                dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
+                dns_data = await writePool.query(`SELECT * FROM brands WHERE deposit_api_id=?`, [mchtId]);
                 dns_data = dns_data[0][0];
             }
             dns_data['operator_list'] = getOperatorList(dns_data);
 
-            let user = await readPool.query(`SELECT * FROM users WHERE id=?`, [
+            let user = await writePool.query(`SELECT * FROM users WHERE id=?`, [
                 parseInt(trackId.split('-')[1] ?? 0),
             ])
             user = user[0][0];

@@ -379,8 +379,6 @@ const virtualAccountV4Ctrl = {
                 if (![1, 2].includes(parseInt(user_type)) && brand?.deposit_process_type == 0) {
                     return response(req, res, -100, "유저타입 에러", false)
                 }
-
-
                 if (
                     !name ||
                     !deposit_bank_code ||
