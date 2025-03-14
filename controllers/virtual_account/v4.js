@@ -216,6 +216,9 @@ const virtualAccountV4Ctrl = {
                 if (virtual_account?.status == 0) {
                     return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
                 }
+                if (virtual_account) {
+                    ci = virtual_account?.ci;
+                }
                 let obj = {
                     brand_id: brand?.id,
                     mcht_id: mcht?.id,
@@ -560,7 +563,6 @@ const virtualAccountV4Ctrl = {
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
-
 
                 if (
                     !name ||
