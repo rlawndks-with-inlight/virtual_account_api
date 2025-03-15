@@ -5,7 +5,8 @@ import { deleteQuery, getSelectQuery, insertQuery, selectQuerySimple, updateQuer
 import { checkDns, checkLevel, findBlackList, generateRandomString, getDnsData, isItemBrandIdSameDnsId, response, settingFiles } from "../../utils.js/util.js";
 import 'dotenv/config';
 import logger from "../../utils.js/winston/index.js";
-import { readPool } from "../../config/db-pool.js";
+import { readPool, writePool } from "../../config/db-pool.js";
+import redisCtrl from "../../redis/index.js";
 const table_name = 'virtual_accounts';
 //코리아결제활용
 const virtualAccountV3Ctrl = {
@@ -30,12 +31,20 @@ const virtualAccountV3Ctrl = {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
                 let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand[0][0];
-                if (!brand) {
+
+                let brand = await redisCtrl.get(`dns_data_${api_key}`);
+                if (brand) {
+                    brand = JSON.parse(brand ?? "{}");
+                } else {
+                    brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                    brand = brand[0][0] ?? {};
+                    await redisCtrl.set(`dns_data_${api_key}`, JSON.stringify(brand), 60);
+                }
+
+                if (!brand?.id) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
-                brand = await getDnsData(brand);
+                brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
@@ -44,15 +53,21 @@ const virtualAccountV3Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", {});
                 }
-                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht[0][0];
-                if (!mcht) {
+                let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
+                if (mcht) {
+                    mcht = JSON.parse(mcht ?? '{}');
+                } else {
+                    mcht = await writePool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                    mcht = mcht[0][0] ?? {};
+                    await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
+                }
+                if (!mcht?.id) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
-                let ing_virtual_account = await readPool.query(`SELECT id FROM ${table_name} WHERE phone_num=? AND status=5 AND brand_id=${brand?.id} AND is_delete=0`, [phone_num]);
+                let ing_virtual_account = await writePool.query(`SELECT id FROM ${table_name} WHERE phone_num=? AND status=5 AND brand_id=${brand?.id} AND is_delete=0`, [phone_num]);
                 ing_virtual_account = ing_virtual_account[0][0];
                 if (ing_virtual_account) {
                     return response(req, res, -100, "이미 진행중인 건이 존재합니다. 본사에 문의해 주세요.", {});
@@ -96,12 +111,19 @@ const virtualAccountV3Ctrl = {
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", {});
                 }
-                let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-                brand = brand[0][0];
-                if (!brand) {
+                let brand = await redisCtrl.get(`dns_data_${api_key}`);
+                if (brand) {
+                    brand = JSON.parse(brand ?? "{}");
+                } else {
+                    brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                    brand = brand[0][0] ?? {};
+                    await redisCtrl.set(`dns_data_${api_key}`, JSON.stringify(brand), 60);
+                }
+
+                if (!brand?.id) {
                     return response(req, res, -100, "api key가 잘못되었습니다.", {});
                 }
-                brand = await getDnsData(brand);
+                brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                     return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
                 }
@@ -110,9 +132,15 @@ const virtualAccountV3Ctrl = {
                 if (!mid) {
                     return response(req, res, -100, "가맹점을 선택해 주세요.", {});
                 }
-                let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-                mcht = mcht[0][0];
-                if (!mcht) {
+                let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
+                if (mcht) {
+                    mcht = JSON.parse(mcht ?? '{}');
+                } else {
+                    mcht = await writePool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                    mcht = mcht[0][0] ?? {};
+                    await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
+                }
+                if (!mcht?.id) {
                     return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
@@ -168,12 +196,19 @@ const virtualAccountV3Ctrl = {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
             let email = `${Math.random().toString(16).substring(2, 8)}@naver.com`
-            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand[0][0];
-            if (!brand) {
+            let brand = await redisCtrl.get(`dns_data_${api_key}`);
+            if (brand) {
+                brand = JSON.parse(brand ?? "{}");
+            } else {
+                brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0] ?? {};
+                await redisCtrl.set(`dns_data_${api_key}`, JSON.stringify(brand), 60);
+            }
+
+            if (!brand?.id) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-            brand = await getDnsData(brand);
+            brand = await getDnsData(brand, true);
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
@@ -222,9 +257,15 @@ const virtualAccountV3Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht[0][0];
-            if (!mcht) {
+            let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
+            if (mcht) {
+                mcht = JSON.parse(mcht ?? '{}');
+            } else {
+                mcht = await writePool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0] ?? {};
+                await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
+            }
+            if (!mcht?.id) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
@@ -236,7 +277,7 @@ const virtualAccountV3Ctrl = {
                 guid: '',
             };
             let virtual_account_id = 0;
-            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+            let virtual_account = await writePool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                 phone_num,
                 birth,
                 account,
@@ -354,12 +395,19 @@ const virtualAccountV3Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, "api key를 입력해주세요.", {});
             }
-            let brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
-            brand = brand[0][0];
-            if (!brand) {
+            let brand = await redisCtrl.get(`dns_data_${api_key}`);
+            if (brand) {
+                brand = JSON.parse(brand ?? "{}");
+            } else {
+                brand = await readPool.query(`SELECT * FROM brands WHERE api_key=?`, [api_key]);
+                brand = brand[0][0] ?? {};
+                await redisCtrl.set(`dns_data_${api_key}`, JSON.stringify(brand), 60);
+            }
+
+            if (!brand?.id) {
                 return response(req, res, -100, "api key가 잘못되었습니다.", {});
             }
-            brand = await getDnsData(brand);
+            brand = await getDnsData(brand, true);
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
                 return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", {});
             }
@@ -367,9 +415,15 @@ const virtualAccountV3Ctrl = {
             if (!mid) {
                 return response(req, res, -100, "가맹점을 선택해 주세요.", {});
             }
-            let mcht = await readPool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
-            mcht = mcht[0][0];
-            if (!mcht) {
+            let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
+            if (mcht) {
+                mcht = JSON.parse(mcht ?? '{}');
+            } else {
+                mcht = await writePool.query(`SELECT * FROM users WHERE mid=? AND level=10 AND brand_id=${brand?.id}`, [mid]);
+                mcht = mcht[0][0] ?? {};
+                await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
+            }
+            if (!mcht?.id) {
                 return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
@@ -377,7 +431,7 @@ const virtualAccountV3Ctrl = {
             }
             let data = {};
 
-            let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND deposit_tid=? AND is_delete=0`, [
+            let virtual_account = await writePool.query(`SELECT * FROM ${table_name} WHERE brand_id=? AND deposit_tid=? AND is_delete=0`, [
                 brand?.id,
                 tid,
             ]);

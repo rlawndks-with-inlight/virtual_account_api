@@ -12,6 +12,7 @@ import logger from './winston/index.js';
 import corpApi from './corp-util/index.js';
 import { readPool, writePool } from '../config/db-pool.js';
 import { Console } from 'console';
+import redisCtrl from '../redis/index.js';
 
 const randomBytesPromise = util.promisify(crypto.randomBytes);
 const pbkdf2Promise = util.promisify(crypto.pbkdf2);
@@ -397,17 +398,28 @@ export function findParents(data, item) {
         return [...findParents(data, parent[0]), ...parent]
     }
 }
-export const getDnsData = async (dns_data_) => {
-    let dns_data = await selectQuerySimple('brands', dns_data_?.id);
-    dns_data = dns_data[0];
+export const getDnsData = async (dns_data_, not_get_brand = false) => {
+    let dns_data = {};
+    if (not_get_brand) {
+        dns_data = dns_data_;
+    } else {
+        dns_data = await selectQuerySimple('brands', dns_data_?.id);
+        dns_data = dns_data[0];
+    }
     dns_data['theme_css'] = JSON.parse(dns_data?.theme_css ?? '{}');
     dns_data['setting_obj'] = JSON.parse(dns_data?.setting_obj ?? '{}');
     dns_data['level_obj'] = JSON.parse(dns_data?.level_obj ?? '{}');
     dns_data['bizppurio_obj'] = JSON.parse(dns_data?.bizppurio_obj ?? '{}');
     dns_data['operator_list'] = getOperatorList(dns_data);
 
-    let brands = await readPool.query(`SELECT id, parent_id FROM brands `);
-    brands = brands[0];
+    let brands = await redisCtrl.get(`brands`);
+    if (brands) {
+        brands = JSON.parse(brands ?? "[]");
+    } else {
+        brands = await readPool.query(`SELECT id, parent_id FROM brands`);
+        brands = brands[0];
+        await redisCtrl.set(`brands`, JSON.stringify(brands), 60);
+    }
     let childrens = findChildIds(brands, dns_data?.id);
     childrens.push(dns_data?.id)
     let parents = findParents(brands, dns_data)
