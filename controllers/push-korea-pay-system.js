@@ -111,10 +111,28 @@ const pushKoreaPaySystemCtrl = {
                 stlFeeVat = 0,
                 resultMsg,
             } = response;
-            let virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
-                trackId,
-            ]);
-            virtual_account = virtual_account[0][0];
+            let virtual_account = {};
+            let refer_deposit_id = 0;
+            if (trxType == 'deposit') {
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+                    trackId,
+                ]);
+                virtual_account = virtual_account[0][0];
+            } else if (trxType == 'depositback') {
+                let virtual_account_id = await writePool.query(`SELECT id, virtual_account_id FROM deposits WHERE trx_id=?`, [rootVactId]);
+                virtual_account_id = virtual_account_id[0][0];
+                if (!virtual_account_id) {
+                    insertResponseLog(req, 'FAIL');
+                    return res.status(500).send('FAIL');
+                }
+                refer_deposit_id = virtual_account_id?.id;
+                virtual_account_id = virtual_account_id?.virtual_account_id;
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE id=?`, [
+                    virtual_account_id,
+                ]);
+                virtual_account = virtual_account[0][0];
+            }
+
 
             let dns_data = await writePool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
@@ -167,8 +185,8 @@ const pushKoreaPaySystemCtrl = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
                 virtual_account_id: virtual_account?.id ?? 0,
-                amount: (trxType == 'deposit' || trxType == 'depositback') ? amount : 0,
-                expect_amount: trxType == 'depositback' ? (-1) * amount : amount,
+                amount: amount,
+                expect_amount: amount,
                 deposit_bank_code,
                 deposit_acct_num,
                 deposit_acct_name,
@@ -178,9 +196,13 @@ const pushKoreaPaySystemCtrl = {
                 trans_date,
                 trans_time,
                 top_office_amount: parseInt(stlFee) + parseInt(stlFeeVat),
+                deposit_id: refer_deposit_id,
+                is_cancel: trxType == 'depositback' ? 1 : 0,
             };
+
             if (trxType == 'deposit' || trxType == 'depositback') {
                 let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
+                /*
                 if (trxType == 'depositback') {
                     let deposit_setting_keys = Object.keys(deposit_setting);
                     for (var i = 0; i < deposit_setting_keys.length; i++) {
@@ -189,6 +211,8 @@ const pushKoreaPaySystemCtrl = {
                         }
                     }
                 }
+                */
+
                 obj = {
                     ...obj,
                     head_office_fee: dns_data?.head_office_fee,
