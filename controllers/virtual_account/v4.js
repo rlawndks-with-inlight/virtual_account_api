@@ -62,7 +62,10 @@ const virtualAccountV4Ctrl = {
             if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                 return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
-
+            let black_item = await findBlackList(deposit_acct_num, 0, brand);
+            if (black_item) {
+                return response(req, res, -100, "블랙리스트 유저입니다.", false);
+            }
             let virtual_account = {};
             if (user_type == 0) {
                 if (
@@ -429,6 +432,10 @@ const virtualAccountV4Ctrl = {
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
                     return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                }
+                let black_item = await findBlackList(deposit_acct_num, 0, brand);
+                if (black_item) {
+                    return response(req, res, -100, "블랙리스트 유저입니다.", false);
                 }
                 if (![1, 2].includes(parseInt(user_type)) && brand?.deposit_process_type == 0) {
                     return response(req, res, -100, "유저타입 에러", false)
