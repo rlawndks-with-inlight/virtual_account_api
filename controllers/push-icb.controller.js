@@ -101,6 +101,7 @@ const pushIcbCtrl = {
                 trans_date,
                 trans_time,
                 deposit_status: 0,
+                is_delete: 0
             };
             let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
             obj = {
