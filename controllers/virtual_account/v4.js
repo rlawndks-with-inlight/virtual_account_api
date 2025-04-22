@@ -250,6 +250,8 @@ const virtualAccountV4Ctrl = {
                 if (virtual_account) {
                     ci = virtual_account?.ci;
                 }
+                let is_new_phone = virtual_account ? 0 : 1;
+
                 let obj = {
                     brand_id: brand?.id,
                     mcht_id: mcht?.id,
@@ -264,6 +266,7 @@ const virtualAccountV4Ctrl = {
                     phone_num: phone_num,
                     ci: ci,
                     virtual_user_name,
+                    is_new_phone,
                 }
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
@@ -281,7 +284,9 @@ const virtualAccountV4Ctrl = {
                     ntv_frnr: ntv_frnr,
                     tel_com: tel_com,
                     phone_num: phone_num,
+                    is_new_phone,
                 })
+
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
@@ -367,6 +372,7 @@ const virtualAccountV4Ctrl = {
                     ci: virtual_account?.ci,
                     vrf_word,
                     tid,
+                    is_new_phone,
                 })
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)

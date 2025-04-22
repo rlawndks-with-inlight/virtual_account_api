@@ -389,6 +389,7 @@ export const icbApi = {
                     ntv_frnr,
                     tel_com,
                     phone_num,
+                    is_new_phone = 1,
                 } = data;
                 let timestamp = await returnMoment().replaceAll(' ', '').replaceAll('-', '').replaceAll(':', '')
 
@@ -401,6 +402,7 @@ export const icbApi = {
                     localTp: ntv_frnr,
                     telComCd: tel_com,
                     telNo: phone_num,
+                    recertYn: is_new_phone == 1 ? 'N' : 'Y',
                 }
                 console.log(getDefaultHeader(dns_data, pay_type, timestamp))
                 let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/request`, query, {
@@ -441,6 +443,7 @@ export const icbApi = {
                     phone_num,
                     vrf_word,
                     tid,
+                    is_new_phone = 1
                 } = data;
                 let timestamp = await returnMoment().replaceAll(' ', '').replaceAll('-', '').replaceAll(':', '')
 
@@ -450,6 +453,7 @@ export const icbApi = {
                     telNo: phone_num,
                     hpCertCd: vrf_word,
                     hpCertTrxNo: tid,
+                    recertYn: is_new_phone == 1 ? 'N' : 'Y',
                 }
                 let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/confirm`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
