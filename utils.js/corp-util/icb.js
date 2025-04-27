@@ -214,6 +214,7 @@ export const icbApi = {
                     name,
                     business_num,
                     user_type,
+                    is_new_acct,
                 } = data;
                 let timestamp = await returnMoment().replaceAll(' ', '').replaceAll('-', '').replaceAll(':', '')
 
@@ -223,9 +224,13 @@ export const icbApi = {
                     bankCd: bank_code,
                     depoAcntNo: acct_num,
                     depoNm: name,
+                    recertYn: is_new_acct == 1 ? 'N' : 'Y',
                 }
                 if (user_type != 0) {
                     query['bizNo'] = business_num;
+                    query[`bizDiv`] = '02';
+                } else {
+                    query[`bizDiv`] = '01';
                 }
                 let uri = `/v3/member/deposit/acntCert/request`;
                 if (dns_data?.deposit_process_type == 1) {
@@ -234,7 +239,6 @@ export const icbApi = {
                 let { data: response } = await axios.post(`${API_URL}${uri}`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
-
                 if (response?.code != 200) {
                     return {
                         code: -100,
@@ -270,6 +274,7 @@ export const icbApi = {
                     acct_num,
                     tid,
                     vrf_word,
+                    is_new_acct,
                 } = data;
                 let return_moment = returnMoment();
                 let date = return_moment.split(' ')[0].replaceAll('-', '');
@@ -283,6 +288,7 @@ export const icbApi = {
                     acntCertCd: vrf_word,
                     acntCertTrxDt: date,
                     acntCertTrxNo: tid,
+                    recertYn: is_new_acct == 1 ? 'N' : 'Y',
                 }
                 let uri = `/v3/member/deposit/acntCert/confirm`;
                 if (dns_data?.deposit_process_type == 1) {
@@ -404,7 +410,6 @@ export const icbApi = {
                     telNo: phone_num,
                     recertYn: is_new_phone == 1 ? 'N' : 'Y',
                 }
-                console.log(getDefaultHeader(dns_data, pay_type, timestamp))
                 let { data: response } = await axios.post(`${API_URL}/v3/member/hpCert/request`, query, {
                     headers: getDefaultHeader(dns_data, pay_type, timestamp)
                 });
