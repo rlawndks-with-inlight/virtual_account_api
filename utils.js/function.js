@@ -33,7 +33,15 @@ export const differenceTwoDate = (f_d_, s_d_) => {//두날짜의 시간차
     let day = (f_d - s_d) / (1000 * 3600 * 24);
     return day;
 }
-
+export const differenceSecondTwoDate = (f_d_, s_d_) => {//두날짜의 시간차
+    let f_d = new Date(f_d_).getTime();//큰시간
+    let s_d = new Date(s_d_).getTime();//작은시간
+    let second = (f_d - s_d) / (1000);
+    let minute = (f_d - s_d) / (1000 * 60);
+    let hour = (f_d - s_d) / (1000 * 3600);
+    let day = (f_d - s_d) / (1000 * 3600 * 24);
+    return second;
+}
 export const getUserFee = (item, user_level, operator_list = [], head_office_fee, is_oper_dns) => {
     let top_fee = head_office_fee;
     let level = 40;

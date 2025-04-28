@@ -257,7 +257,6 @@ const virtualAccountV4Ctrl = {
                 if (virtual_account) {
                     ci = virtual_account?.ci;
                 }
-                let is_new_phone = virtual_account ? 0 : 1;
 
                 let obj = {
                     brand_id: brand?.id,
@@ -273,7 +272,6 @@ const virtualAccountV4Ctrl = {
                     phone_num: phone_num,
                     ci: ci,
                     virtual_user_name,
-                    is_new_phone,
                     last_auth_request_date: returnMoment(),
                 }
 
@@ -288,7 +286,7 @@ const virtualAccountV4Ctrl = {
                     ntv_frnr: ntv_frnr,
                     tel_com: tel_com,
                     phone_num: phone_num,
-                    is_new_phone,
+                    recert_yn: 'N',
                 })
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
@@ -381,7 +379,7 @@ const virtualAccountV4Ctrl = {
                     ci: virtual_account?.ci,
                     vrf_word,
                     tid,
-                    is_new_phone: virtual_account?.is_new_phone,
+                    recert_yn: 'N',
                 })
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
@@ -497,6 +495,7 @@ const virtualAccountV4Ctrl = {
                     name: name,
                     business_num,
                     user_type,
+                    recert_yn: 'N',
                 })
                 if (is_exist_account?.code != 100) {
                     return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
@@ -511,7 +510,7 @@ const virtualAccountV4Ctrl = {
                     deposit_acct_num: deposit_acct_num,
                     ci: ci,
                     virtual_user_name,
-                    is_new_acct: virtual_account?.is_new_acct == 1 ? 2 : 0,
+                    last_acct_auth_request_date: returnMoment(),
                 }
 
                 let api_result = await corpApi.user.account({
@@ -524,7 +523,7 @@ const virtualAccountV4Ctrl = {
                     name: name,
                     business_num,
                     user_type,
-                    is_new_acct: virtual_account?.is_new_acct == 1 ? 1 : 0,
+                    recert_yn: 'N',
                 })
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
@@ -551,6 +550,7 @@ const virtualAccountV4Ctrl = {
                     tid,
                     deposit_bank_code,
                     deposit_acct_num,
+                    date,
                 } = req.body;
                 if (!api_key) {
                     return response(req, res, -100, "api key를 입력해주세요.", false);
@@ -604,7 +604,6 @@ const virtualAccountV4Ctrl = {
                 if (!virtual_account) {
                     return response(req, res, -100, "1원인증요청을 먼저 진행해 주세요.", false)
                 }
-                console.log(virtual_account)
                 let api_result = await corpApi.user.account_verify({
                     dns_data: brand,
                     pay_type: 'deposit',
@@ -614,13 +613,15 @@ const virtualAccountV4Ctrl = {
                     acct_num: deposit_acct_num,
                     tid: tid,
                     vrf_word: vrf_word,
-                    is_new_acct: virtual_account?.is_new_acct == 2 ? 1 : 0,
+                    recert_yn: 'N',
+                    date,
                 })
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
                 let update_virtual_account = await updateQuery(`${table_name}`, {
                     deposit_acct_check: 1,
+                    last_acct_auth_date: returnMoment(),
                 }, virtual_account?.id);
                 return response(req, res, 100, "success", api_result?.data)
             } catch (err) {
