@@ -252,7 +252,9 @@ const virtualAccountV4Ctrl = {
                 ])
                 virtual_account = virtual_account[0][0];
                 if (virtual_account?.status == 0) {
-                    return response(req, res, -105, "이미 발급된 가상계좌가 존재합니다.", false)
+                    return response(req, res, -105, "이미 발급된 가상계좌가 존재합니다.", {
+                        ci: virtual_account?.ci,
+                    })
                 }
                 if (virtual_account) {
                     ci = virtual_account?.ci;
