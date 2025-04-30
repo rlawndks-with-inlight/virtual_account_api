@@ -514,6 +514,7 @@ const virtualAccountV4Ctrl = {
                     deposit_acct_num: deposit_acct_num,
                     ci: ci,
                     virtual_user_name,
+                    business_num,
                     last_acct_auth_request_date: returnMoment(),
                 }
 
