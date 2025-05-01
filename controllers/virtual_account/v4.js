@@ -166,6 +166,7 @@ const virtualAccountV4Ctrl = {
                 virtual_acct_num: api_result2.data?.virtual_acct_num,
                 guid: virtual_account?.ci,
                 status: 0,
+                mcht_id: mcht?.id,
                 last_auth_date: returnMoment(),
                 last_acct_auth_date: returnMoment(),
             }, virtual_account?.id);
