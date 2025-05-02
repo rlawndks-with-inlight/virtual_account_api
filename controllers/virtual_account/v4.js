@@ -296,6 +296,12 @@ const virtualAccountV4Ctrl = {
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
+                let auth_history = await insertQuery('auth_histories', {
+                    mcht_id: mcht?.id,
+                    phone_num: phone_num,
+                    brand_id: brand?.id,
+                    auth_type: 0,
+                });
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
                 } else {
@@ -534,6 +540,12 @@ const virtualAccountV4Ctrl = {
                 if (api_result?.code != 100) {
                     return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
                 }
+                let auth_history = await insertQuery('auth_histories', {
+                    mcht_id: mcht?.id,
+                    acct_num: deposit_acct_num,
+                    brand_id: brand?.id,
+                    auth_type: 1,
+                });
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
                 } else {
