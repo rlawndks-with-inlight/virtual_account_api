@@ -8,6 +8,7 @@ import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList
 import 'dotenv/config';
 import crypto from 'crypto';
 import { readPool } from "../config/db-pool.js";
+import logger from "../utils.js/winston/index.js";
 
 // AES 암호화 설정
 const algorithm = 'aes-256-cbc'; // AES-256 알고리즘으로 변경
@@ -23,6 +24,12 @@ function decrypt(encryptedData, keyBase64, ivBase64) {
         return decrypted;
     } catch (err) {
         console.error('Decryption error:', err);
+        logger.error(JSON.stringify({
+            err: 'Decryption error:' + err,
+            encryptedData,
+            keyBase64,
+            ivBase64,
+        }))
         return null;
     }
 }
