@@ -54,7 +54,7 @@ const pushIcbCtrl = {
                 realDepoAcntNo,
                 realDepoNm,
             } = req.body;
-            logger.info(JSON.stringify(req.body))
+            logger.info(JSON.stringify(req.body));
             //trx_amt , guid, tid,
             let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
                 mid,
@@ -64,6 +64,7 @@ const pushIcbCtrl = {
             memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             realDepoAcntNo = decrypt(realDepoAcntNo, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
             realDepoNm = decrypt(realDepoNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
+
             let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
                 memKey,
             ]);
@@ -74,7 +75,6 @@ const pushIcbCtrl = {
                 realDepoNm,
             }
             virtual_account = virtual_account[0][0];
-
 
 
             let mcht_columns = [
