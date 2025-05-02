@@ -151,7 +151,10 @@ const virtualAccountV4Ctrl = {
             } 
             */
 
-
+            let is_exist_account = await redisCtrl.addNumber(`vaccount_${virtual_account?.ci}`, 1, 10);
+            if (is_exist_account > 1) {
+                return response(req, res, -100, "아직 처리중인 건이 존재합니다.", false)
+            }
             let api_result2 = await corpApi.vaccount({
                 pay_type: 'deposit',
                 dns_data: brand,
