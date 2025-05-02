@@ -54,6 +54,7 @@ const pushIcbCtrl = {
                 realDepoAcntNo,
                 realDepoNm,
             } = req.body;
+            logger.info(JSON.stringify(req.body))
             //trx_amt , guid, tid,
             let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
                 mid,
