@@ -251,7 +251,7 @@ const virtualAccountV4Ctrl = {
                 ) {
                     return response(req, res, -100, "필수값을 입력해 주세요.", false);
                 }
-                let ci = `${brand?.id}${new Date().getTime()}` + phone_num + birth;
+                let ci = `${brand?.id}${new Date().getTime()}` + phone_num + birth + mcht?.id;
                 let virtual_account_id = 0;
                 let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     phone_num,
