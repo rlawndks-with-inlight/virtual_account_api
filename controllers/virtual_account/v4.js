@@ -305,6 +305,7 @@ const virtualAccountV4Ctrl = {
                     brand_id: brand?.id,
                     auth_type: 0,
                 });
+                obj.phone_tid = api_result?.data?.tid;
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
                 } else {
@@ -549,6 +550,7 @@ const virtualAccountV4Ctrl = {
                     brand_id: brand?.id,
                     auth_type: 1,
                 });
+                obj.deposit_acct_tid = api_result?.data?.tid;
                 if (!virtual_account) {
                     let insert_virtual_account = await insertQuery(`${table_name}`, obj);
                 } else {
