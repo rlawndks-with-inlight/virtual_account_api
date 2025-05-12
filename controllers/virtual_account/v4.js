@@ -9,6 +9,7 @@ import { readPool, writePool } from "../../config/db-pool.js";
 import redisCtrl from "../../redis/index.js";
 const table_name = 'virtual_accounts';
 //icb
+const ADMIN_MSG = '관리자 메세지: '
 const virtualAccountV4Ctrl = {
     issuance: async (req_, res, next) => {// 발급
         let req = req_;
@@ -24,7 +25,7 @@ const virtualAccountV4Ctrl = {
                 business_num,
             } = req.body;
             if (!api_key) {
-                return response(req, res, -100, "api key를 입력해주세요.", false);
+                return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
             }
 
             let brand = await redisCtrl.get(`dns_data_${api_key}`);
@@ -37,16 +38,16 @@ const virtualAccountV4Ctrl = {
             }
 
             if (!brand?.id) {
-                return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
             }
             brand = await getDnsData(brand, true);
             brand = await getDnsData(brand);
             if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
             }
             req.body.brand_id = brand?.id;
             if (!mid) {
-                return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
             }
             let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
             if (mcht) {
@@ -57,14 +58,14 @@ const virtualAccountV4Ctrl = {
                 await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
             }
             if (!mcht?.id) {
-                return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
             }
             if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
             }
             let black_item = await findBlackList(deposit_acct_num, 0, brand);
             if (black_item) {
-                return response(req, res, -100, "블랙리스트 유저입니다.", false);
+                return response(req, res, -100, ADMIN_MSG + "블랙리스트 유저입니다.", false);
             }
             let virtual_account = {};
             if (user_type == 0) {
@@ -73,21 +74,21 @@ const virtualAccountV4Ctrl = {
                     !deposit_acct_num ||
                     !deposit_acct_name
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     phone_num,
                 ])
                 virtual_account = virtual_account[0][0];
                 if (virtual_account?.status == 0) {
-                    return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "이미 발급된 가상계좌가 존재합니다.", false)
                 }
                 if (brand?.deposit_process_type == 0) {
                     if (virtual_account?.phone_check != 1) {
-                        return response(req, res, -100, "휴대폰인증을 완료해 주세요.", false)
+                        return response(req, res, -100, ADMIN_MSG + "휴대폰인증을 완료해 주세요.", false)
                     }
                     if (virtual_account?.deposit_acct_check != 1) {
-                        return response(req, res, -100, "계좌인증을 완료해 주세요.", false)
+                        return response(req, res, -100, ADMIN_MSG + "계좌인증을 완료해 주세요.", false)
                     }
                     /*
                     let is_exist_account = await corpApi.account.info({
@@ -99,7 +100,7 @@ const virtualAccountV4Ctrl = {
                         name: virtual_account?.deposit_acct_name,
                     })
                     if (is_exist_account?.code != 100) {
-                        return response(req, res, -100, (is_exist_account?.message || "서버 에러 발생"), false)
+                        return response(req, res, -100,ADMIN_MSG + (is_exist_account?.message || "서버 에러 발생"), false)
                     }
                     let update_virtual_account = await updateQuery(`${table_name}`, {
                         deposit_bank_code: deposit_bank_code,
@@ -115,14 +116,14 @@ const virtualAccountV4Ctrl = {
                     !deposit_bank_code ||
                     !deposit_acct_num
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     deposit_acct_num,
                 ])
                 virtual_account = virtual_account[0][0];
             } else {
-                return response(req, res, -100, "잘못된 유저타입 입니다.", false)
+                return response(req, res, -100, ADMIN_MSG + "잘못된 유저타입 입니다.", false)
             }
             /*
             if (brand?.deposit_process_type == 0 && user_type == 0) {
@@ -143,7 +144,7 @@ const virtualAccountV4Ctrl = {
                     user_type,
                 })
                 if (api_result?.code != 100) {
-                    return response(req, res, -100, (api_result?.message || "서버 에러 발생"), false)
+                    return response(req, res, -100,ADMIN_MSG + (api_result?.message || "서버 에러 발생"), false)
                 }
                 let update_virtual_account2 = await updateQuery(`${table_name}`, {
                     deposit_acct_check: 1,
@@ -153,7 +154,7 @@ const virtualAccountV4Ctrl = {
 
             let is_exist_account = await redisCtrl.addNumber(`vaccount_${virtual_account?.ci}`, 1, 10);
             if (is_exist_account > 1) {
-                return response(req, res, -100, "아직 처리중인 건이 존재합니다.", false)
+                return response(req, res, -100, ADMIN_MSG + "아직 처리중인 건이 존재합니다.", false)
             }
             let api_result2 = await corpApi.vaccount({
                 pay_type: 'deposit',
@@ -201,7 +202,7 @@ const virtualAccountV4Ctrl = {
                     is_certification,
                 } = req.body;
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
                 }
 
                 let brand = await redisCtrl.get(`dns_data_${api_key}`);
@@ -214,15 +215,15 @@ const virtualAccountV4Ctrl = {
                 }
 
                 if (!brand?.id) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
                 }
                 brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                    return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
                 if (!mid) {
-                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
                 }
                 let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
                 if (mcht) {
@@ -233,13 +234,13 @@ const virtualAccountV4Ctrl = {
                     await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
                 }
                 if (!mcht?.id) {
-                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (user_type != 0) {
-                    return response(req, res, -100, "유저타입 에러", false)
+                    return response(req, res, -100, ADMIN_MSG + "유저타입 에러", false)
                 }
                 if (
                     !birth ||
@@ -249,7 +250,7 @@ const virtualAccountV4Ctrl = {
                     !tel_com ||
                     !phone_num
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 let ci = `${brand?.id}${new Date().getTime()}` + phone_num + birth + mcht?.id;
                 let virtual_account_id = 0;
@@ -263,7 +264,7 @@ const virtualAccountV4Ctrl = {
                             ci: virtual_account?.ci,
                         })
                     } else {
-                        return response(req, res, -100, "타가맹점 발급건이 존재합니다.", false)
+                        return response(req, res, -100, ADMIN_MSG + "타가맹점 발급건이 존재합니다.", false)
                     }
                 }
                 if (virtual_account) {
@@ -336,7 +337,7 @@ const virtualAccountV4Ctrl = {
                     is_certification,
                 } = req.body;
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
                 }
                 let brand = await redisCtrl.get(`dns_data_${api_key}`);
                 if (brand) {
@@ -348,15 +349,15 @@ const virtualAccountV4Ctrl = {
                 }
 
                 if (!brand?.id) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
                 }
                 brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                    return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
                 if (!mid) {
-                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
                 }
                 let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
                 if (mcht) {
@@ -367,10 +368,10 @@ const virtualAccountV4Ctrl = {
                     await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
                 }
                 if (!mcht?.id) {
-                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (
                     !phone_num ||
@@ -379,7 +380,7 @@ const virtualAccountV4Ctrl = {
                     !birth ||
                     !name
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND birth=? AND deposit_acct_name=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     phone_num,
@@ -388,7 +389,7 @@ const virtualAccountV4Ctrl = {
                 ])
                 virtual_account = virtual_account[0][0];
                 if (virtual_account?.phone_check == 1) {
-                    return response(req, res, -100, "이미 휴대폰 인증이 완료되었습니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "이미 휴대폰 인증이 완료되었습니다.", false)
                 }
                 let api_result = await corpApi.sms.check({
                     dns_data: brand,
@@ -431,7 +432,7 @@ const virtualAccountV4Ctrl = {
                     phone_num,
                 } = req.body;
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
                 }
                 let brand = await redisCtrl.get(`dns_data_${api_key}`);
                 if (brand) {
@@ -443,15 +444,15 @@ const virtualAccountV4Ctrl = {
                 }
 
                 if (!brand?.id) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
                 }
                 brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                    return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
                 if (!mid) {
-                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
                 }
                 let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
                 if (mcht) {
@@ -462,24 +463,24 @@ const virtualAccountV4Ctrl = {
                     await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
                 }
                 if (!mcht?.id) {
-                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 let black_item = await findBlackList(deposit_acct_num, 0, brand);
                 if (black_item) {
-                    return response(req, res, -100, "블랙리스트 유저입니다.", false);
+                    return response(req, res, -100, ADMIN_MSG + "블랙리스트 유저입니다.", false);
                 }
                 if (![0, 1, 2].includes(parseInt(user_type)) && brand?.deposit_process_type == 0) {
-                    return response(req, res, -100, "유저타입 에러", false)
+                    return response(req, res, -100, ADMIN_MSG + "유저타입 에러", false)
                 }
                 if (
                     !name ||
                     !deposit_bank_code ||
                     !deposit_acct_num
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 let ci = `${brand?.id}${new Date().getTime()}` + deposit_bank_code + deposit_acct_num;
                 let virtual_account = undefined;
@@ -496,7 +497,7 @@ const virtualAccountV4Ctrl = {
                     virtual_account = virtual_account[0][0];
                 }
                 if (virtual_account?.status == 0) {
-                    return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "이미 발급된 가상계좌가 존재합니다.", false)
                 } else {
                     if (brand?.deposit_process_type == 1) {//무기명 타입일때
 
@@ -580,7 +581,7 @@ const virtualAccountV4Ctrl = {
                     date,
                 } = req.body;
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
                 }
                 let brand = await redisCtrl.get(`dns_data_${api_key}`);
                 if (brand) {
@@ -592,15 +593,15 @@ const virtualAccountV4Ctrl = {
                 }
 
                 if (!brand?.id) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
                 }
                 brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                    return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
                 if (!mid) {
-                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
                 }
                 let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
                 if (mcht) {
@@ -611,10 +612,10 @@ const virtualAccountV4Ctrl = {
                     await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
                 }
                 if (!mcht?.id) {
-                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
                 if (
                     !vrf_word ||
@@ -622,14 +623,14 @@ const virtualAccountV4Ctrl = {
                     !deposit_bank_code ||
                     !deposit_acct_num
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     deposit_acct_num,
                 ])
                 virtual_account = virtual_account[0][0];
                 if (!virtual_account) {
-                    return response(req, res, -100, "1원인증요청을 먼저 진행해 주세요.", false)
+                    return response(req, res, -100, ADMIN_MSG + "1원인증요청을 먼저 진행해 주세요.", false)
                 }
                 let api_result = await corpApi.user.account_verify({
                     dns_data: brand,
@@ -670,7 +671,7 @@ const virtualAccountV4Ctrl = {
                     phone_num,
                 } = req.body;
                 if (!api_key) {
-                    return response(req, res, -100, "api key를 입력해주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
                 }
                 let brand = await redisCtrl.get(`dns_data_${api_key}`);
                 if (brand) {
@@ -682,15 +683,15 @@ const virtualAccountV4Ctrl = {
                 }
 
                 if (!brand?.id) {
-                    return response(req, res, -100, "api key가 잘못되었습니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "api key가 잘못되었습니다.", {});
                 }
                 brand = await getDnsData(brand, true);
                 if (brand?.setting_obj?.is_virtual_acct_inspect == 1) {
-                    return response(req, res, -100, "점검중입니다. 본사에게 문의하세요", false);
+                    return response(req, res, -100, ADMIN_MSG + "점검중입니다. 본사에게 문의하세요", false);
                 }
                 req.body.brand_id = brand?.id;
                 if (!mid) {
-                    return response(req, res, -100, "가맹점을 선택해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "가맹점을 선택해 주세요.", false);
                 }
                 let mcht = await redisCtrl.get(`mcht_${mid}_${brand?.id}`);
                 if (mcht) {
@@ -701,10 +702,10 @@ const virtualAccountV4Ctrl = {
                     await redisCtrl.set(`mcht_${mid}_${brand?.id}`, JSON.stringify(mcht), 60);
                 }
                 if (!mcht?.id) {
-                    return response(req, res, -100, "정상적인 가맹점이 아닙니다.", {});
+                    return response(req, res, -100, ADMIN_MSG + "정상적인 가맹점이 아닙니다.", {});
                 }
                 if ((mcht?.virtual_acct_link_status ?? 0) != 0 || mcht?.is_delete == 1) {
-                    return response(req, res, -100, "가상계좌 발급 불가한 가맹점 입니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "가상계좌 발급 불가한 가맹점 입니다.", false)
                 }
 
                 if (
@@ -712,14 +713,14 @@ const virtualAccountV4Ctrl = {
                     !deposit_bank_code ||
                     !deposit_acct_num
                 ) {
-                    return response(req, res, -100, "필수값을 입력해 주세요.", false);
+                    return response(req, res, -100, ADMIN_MSG + "필수값을 입력해 주세요.", false);
                 }
                 let virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
                     phone_num,
                 ])
                 virtual_account = virtual_account[0][0];
                 if (virtual_account?.status == 0) {
-                    return response(req, res, -100, "이미 발급된 가상계좌가 존재합니다.", false)
+                    return response(req, res, -100, ADMIN_MSG + "이미 발급된 가상계좌가 존재합니다.", false)
                 } else {
                     if (brand?.deposit_process_type == 1) {//무기명 타입일때
 
