@@ -6,6 +6,7 @@ import pushKoreaPaySystemCtrl from '../controllers/push-korea-pay-system.js';
 import pushPopbillCtrl from '../controllers/push-popbill.controller.js';
 import pushHectoCtrl from '../controllers/push-hecto.controller.js';
 import pushIcbCtrl from '../controllers/push-icb.controller.js';
+import pushWingGlobalCtrl from '../controllers/push-wing-global.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //뱅크너스
@@ -49,5 +50,9 @@ router
 router
     .route('/icb')
     .post(pushIcbCtrl.deposit);
+//wingglobal
+router
+    .route('/winglobal')
+    .post(pushWingGlobalCtrl.deposit);
 
 export default router;

@@ -5,6 +5,7 @@ import { hectoApi } from "./hecto.js";
 import { icbApi } from "./icb.js";
 import { koreaPaySystemApi } from "./korea-pay-system.js";
 import { paytusApi } from "./paytus.js";
+import { wingGlobalApi } from "./wing-global.js";
 
 const getDnsData = async (data_, dns_data_) => {
     let dns_data = await selectQuerySimple('brands', dns_data_?.id);
@@ -229,6 +230,9 @@ const corpApi = {
             if (corp_type == 7) {
                 result = await icbApi.account.info(data);
             }
+            if (corp_type == 8) {
+                result = await wingGlobalApi.account.info(data);
+            }
             return result;
         },
     },
@@ -286,6 +290,9 @@ const corpApi = {
             if (corp_type == 7) {
                 result = await icbApi.balance.info(data);
             }
+            if (corp_type == 8) {
+                result = await wingGlobalApi.balance.info(data);
+            }
             return result;
         },
     },
@@ -334,6 +341,9 @@ const corpApi = {
         }
         if (corp_type == 7) {
             result = await icbApi.vaccount(data);
+        }
+        if (corp_type == 8) {
+            result = await wingGlobalApi.vaccount(data);
         }
         return result;
     },
@@ -433,6 +443,9 @@ const corpApi = {
             if (corp_type == 7) {
                 result = await icbApi.withdraw.request(data);
             }
+            if (corp_type == 8) {
+                result = await wingGlobalApi.withdraw.request(data);
+            }
             return result;
         },
         request_check: async (data_) => {//출금요청
@@ -460,6 +473,9 @@ const corpApi = {
             }
             if (corp_type == 7) {
                 result = await icbApi.withdraw.request_check(data);
+            }
+            if (corp_type == 8) {
+                result = await wingGlobalApi.withdraw.request_check(data);
             }
             return result;
         },
