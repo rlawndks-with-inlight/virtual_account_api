@@ -7,7 +7,7 @@ import { sendTelegramBot } from "../utils.js/telegram/index.js";
 import { checkDns, checkLevel, commarNumber, getNumberByPercent, getOperatorList, insertResponseLog, response, setDepositAmountSetting, setWithdrawAmountSetting } from "../utils.js/util.js";
 import 'dotenv/config';
 import crypto from 'crypto';
-import { readPool } from "../config/db-pool.js";
+import { readPool, writePool } from "../config/db-pool.js";
 import logger from "../utils.js/winston/index.js";
 import axios from "axios";
 
@@ -107,28 +107,15 @@ const pushWingGlobalCtrl = {
                 amount,
             } = req.body;
 
-            const {
-                retry,
-                issueId,
-                rootVactId,
-                trackId = "",
-                udf1,
-                udf2,
-                stlDay,
-                stlAmount,
-                stlFee = 0,
-                stlFeeVat = 0,
-                resultMsg,
-            } = req.body;
             let virtual_account = {};
             let refer_deposit_id = 0;
-            if (trxType == 'deposit') {
-                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
-                    trackId,
+            if (trxType == '입금') {
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE virtual_acct_num=?`, [
+                    account,
                 ]);
                 virtual_account = virtual_account[0][0];
-            } else if (trxType == 'depositback') {
-                let virtual_account_id = await writePool.query(`SELECT id, virtual_account_id FROM deposits WHERE trx_id=?`, [rootVactId]);
+            } else if (trxType == '취소') {
+                let virtual_account_id = await writePool.query(`SELECT id, virtual_account_id FROM deposits WHERE trx_id=?`, [vactId]);
                 virtual_account_id = virtual_account_id[0][0];
                 if (!virtual_account_id) {
                     insertResponseLog(req, 'FAIL');
@@ -141,38 +128,11 @@ const pushWingGlobalCtrl = {
                 ]);
                 virtual_account = virtual_account[0][0];
             }
-
+            console.log(virtual_account)
 
             let dns_data = await writePool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-            /*
-            let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} `;
-            let virtual_account_values = [
-            ]
-            if (trackId) {
-                virtual_account_sql += ` AND guid=? `;
-                virtual_account_values.push(trackId)
-            } else {
-                virtual_account_sql += ` AND deposit_acct_name=? `;
-                virtual_account_values.push(sender)
-            } 
-            */
-
-            /*
-            //임시
-             virtual_account_sql += ` AND virtual_acct_num=? `;
-             virtual_account_sql += ` AND deposit_acct_name=? `;
-             virtual_account_values.push(account);
-             virtual_account_values.push(sender);
-             //임시
-            */
-
-            /*
-            let virtual_account = await writePool.query(virtual_account_sql, virtual_account_values);
-            virtual_account = virtual_account[0][0];  
-            */
-
 
             let mcht_columns = [
                 `users.*`,
@@ -201,15 +161,13 @@ const pushWingGlobalCtrl = {
                 deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
-                note: resultMsg || '',
                 trans_date,
                 trans_time,
-                top_office_amount: parseInt(stlFee) + parseInt(stlFeeVat),
                 deposit_id: refer_deposit_id,
-                is_cancel: trxType == 'depositback' ? 1 : 0,
+                is_cancel: trxType == '취소' ? 1 : 0,
             };
 
-            if (trxType == 'deposit' || trxType == 'depositback') {
+            if (trxType == '입금' || trxType == '취소') {
                 let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
                 /*
                 if (trxType == 'depositback') {

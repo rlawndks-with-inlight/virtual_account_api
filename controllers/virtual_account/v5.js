@@ -147,6 +147,8 @@ const virtualAccountV5Ctrl = {
                 phone_num: phone_num,
                 birth: birth,
                 status: 5,
+                deposit_bank_code: deposit_bank_code,
+                deposit_acct_num: deposit_acct_num,
                 deposit_acct_name: deposit_acct_name,
                 gender: gender,
                 phone_num: phone_num,
