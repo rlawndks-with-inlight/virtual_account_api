@@ -9,6 +9,7 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import { readPool } from "../config/db-pool.js";
 import logger from "../utils.js/winston/index.js";
+import axios from "axios";
 
 // AES 암호화 설정
 const algorithm = 'aes-256-cbc'; // AES-256 알고리즘으로 변경
@@ -35,46 +36,142 @@ function decrypt(encryptedData, keyBase64, ivBase64) {
 }
 
 const pushWingGlobalCtrl = {
-    deposit: async (req_, res, next) => {
-        let req = req_;
+    auth: async (req, res, next) => {
         try {
+            let token_version_id = "";
+            let enc_data = "";
+            let integrity_value = "";
+            const { auth_user_name } = req.params;
+            if (req.method == 'POST') {
+                token_version_id = req.body?.token_version_id;
+                enc_data = req.body?.enc_data;
+                integrity_value = req.body?.integrity_value;
+            } else if (req.method == 'GET') {
+                token_version_id = req.query?.token_version_id;
+                enc_data = req.query?.enc_data;
+                integrity_value = req.query?.integrity_value;
+            } else {
+                insertResponseLog(req, 'FAIL');
+                return res.status(500).send('FAIL');
+            }
+            enc_data = enc_data.replaceAll('%2B', '+');
+            let { data: resp } = await axios.post(`https://na.winglobalpay.com/api/v1/reqNiceDecData`, {
+                tokenVersionId: token_version_id,
+                encData: enc_data,
+                integrityValue: integrity_value,
+            },
+                {
+                    'Authorization': 'pk_1c3a-37cb75-b5f-ee034',
+                    'Content-Type': 'application/json; charset=utf-8',
+                })
+            if (resp?.flag != 'success') {
+                insertResponseLog(req, 'FAIL');
+                return res.status(500).send('FAIL');
+            }
+            resp = resp?.resDataMap;
+            let mcht = await readPool.query(`SELECT * FROM users WHERE auth_user_name=? AND level=10`, [auth_user_name]);
+            mcht = mcht[0][0];
+            let dns_data = await readPool.query(`SELECT * FROM brands WHERE id=${mcht?.brand_id}`);
+            dns_data = dns_data[0][0];
 
-            let {
-                mid,
-                memKey,
-                trxNo,
-                partnerTrxNo,
+            let query = {
+                deposit_acct_name: resp?.name,
+                phone_num: resp?.mobileno,
+                birth: resp?.birthdate,
+                gender: resp?.gender,
+                mid: mcht?.mid,
+            }
+            query = new URLSearchParams(query).toString();
+            res.redirect(`https://${dns_data?.dns}/virtual-account/${mcht?.mid}?${query}`);
+        } catch (err) {
+            console.log(err)
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
+        } finally {
+
+        }
+    },
+    deposit: async (req, res, next) => {
+        try {
+            const {
+                trxDay,
+                trxTime,
+                trxType,
+                vactId,
+                tmnId,
+                mchtId,
+                vactType,
                 bankCd,
-                virtAcntNo,
-                depositNm,
-                payCmpDts,
-                realTrxAmt,
-
-                realBankCd,
-                realDepoAcntNo,
-                realDepoNm,
+                account,
+                sender,
+                amount,
             } = req.body;
-            logger.info(JSON.stringify(req.body));
-            //trx_amt , guid, tid,
-            let dns_data = await readPool.query(`SELECT * FROM brands WHERE deposit_api_id=? AND deposit_corp_type=7`, [
-                mid,
-            ]);
+
+            const {
+                retry,
+                issueId,
+                rootVactId,
+                trackId = "",
+                udf1,
+                udf2,
+                stlDay,
+                stlAmount,
+                stlFee = 0,
+                stlFeeVat = 0,
+                resultMsg,
+            } = req.body;
+            let virtual_account = {};
+            let refer_deposit_id = 0;
+            if (trxType == 'deposit') {
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
+                    trackId,
+                ]);
+                virtual_account = virtual_account[0][0];
+            } else if (trxType == 'depositback') {
+                let virtual_account_id = await writePool.query(`SELECT id, virtual_account_id FROM deposits WHERE trx_id=?`, [rootVactId]);
+                virtual_account_id = virtual_account_id[0][0];
+                if (!virtual_account_id) {
+                    insertResponseLog(req, 'FAIL');
+                    return res.status(500).send('FAIL');
+                }
+                refer_deposit_id = virtual_account_id?.id;
+                virtual_account_id = virtual_account_id?.virtual_account_id;
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE id=?`, [
+                    virtual_account_id,
+                ]);
+                virtual_account = virtual_account[0][0];
+            }
+
+
+            let dns_data = await writePool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
             dns_data['operator_list'] = getOperatorList(dns_data);
-            memKey = decrypt(memKey, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
-            realDepoAcntNo = decrypt(realDepoAcntNo, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
-            realDepoNm = decrypt(realDepoNm, dns_data?.deposit_sign_key, dns_data?.deposit_iv)
+            /*
+            let virtual_account_sql = `SELECT * FROM virtual_accounts WHERE brand_id=${dns_data?.id} `;
+            let virtual_account_values = [
+            ]
+            if (trackId) {
+                virtual_account_sql += ` AND guid=? `;
+                virtual_account_values.push(trackId)
+            } else {
+                virtual_account_sql += ` AND deposit_acct_name=? `;
+                virtual_account_values.push(sender)
+            } 
+            */
 
-            let virtual_account = await readPool.query(`SELECT * FROM virtual_accounts WHERE guid=?`, [
-                memKey,
-            ]);
-            req.body = {
-                ...req.body,
-                memKey,
-                realDepoAcntNo,
-                realDepoNm,
-            }
-            virtual_account = virtual_account[0][0];
+            /*
+            //임시
+             virtual_account_sql += ` AND virtual_acct_num=? `;
+             virtual_account_sql += ` AND deposit_acct_name=? `;
+             virtual_account_values.push(account);
+             virtual_account_values.push(sender);
+             //임시
+            */
+
+            /*
+            let virtual_account = await writePool.query(virtual_account_sql, virtual_account_values);
+            virtual_account = virtual_account[0][0];  
+            */
 
 
             let mcht_columns = [
@@ -82,73 +179,79 @@ const pushWingGlobalCtrl = {
             ]
             let mcht_sql = `SELECT ${mcht_columns.join()} FROM users `
             mcht_sql += ` WHERE users.id=${virtual_account?.mcht_id} `;
-            let mcht = await readPool.query(mcht_sql);
+            let mcht = await writePool.query(mcht_sql);
             mcht = mcht[0][0];
 
-            let trx_id = partnerTrxNo;
-            let amount = parseInt(realTrxAmt);
-            let deposit_bank_code = virtual_account?.deposit_bank_code;
-            let deposit_acct_num = virtual_account?.deposit_acct_num;
-            let deposit_acct_name = virtual_account?.deposit_acct_name;
+            let trx_id = vactId;
+            let deposit_bank_code = virtual_account?.deposit_bank_code
+            let deposit_acct_num = virtual_account?.deposit_acct_num
+            let deposit_acct_name = virtual_account?.deposit_acct_name
+
             let pay_type = 0;
-            let trans_date = `${payCmpDts.substring(0, 4)}-${payCmpDts.substring(4, 6)}-${payCmpDts.substring(6, 8)}`;
-            let trans_time = `${payCmpDts.substring(8, 10)}:${payCmpDts.substring(10, 12)}:${payCmpDts.substring(12, 14)}`;
+            let trans_date = `${trxDay.substring(0, 4)}-${trxDay.substring(4, 6)}-${trxDay.substring(6, 8)}`;
+            let trans_time = `${trxTime.substring(0, 2)}:${trxTime.substring(2, 4)}:${trxTime.substring(4, 6)}`;
             let obj = {
                 brand_id: mcht?.brand_id,
                 mcht_id: mcht?.id,
-                virtual_account_id: virtual_account?.id,
-                amount,
-                deposit_bank_code: realBankCd || deposit_bank_code,
-                deposit_acct_num: realDepoAcntNo || deposit_acct_num,
-                deposit_acct_name: realDepoNm || deposit_acct_name,
+                virtual_account_id: virtual_account?.id ?? 0,
+                amount: amount,
+                expect_amount: amount,
+                deposit_bank_code,
+                deposit_acct_num,
+                deposit_acct_name,
                 pay_type,
                 trx_id: trx_id,
-                head_office_fee: dns_data?.head_office_fee,
-                deposit_fee: mcht?.deposit_fee ?? 0,
-                is_hand: 0,
+                note: resultMsg || '',
                 trans_date,
                 trans_time,
-                deposit_status: 0,
-                is_delete: 0
+                top_office_amount: parseInt(stlFee) + parseInt(stlFeeVat),
+                deposit_id: refer_deposit_id,
+                is_cancel: trxType == 'depositback' ? 1 : 0,
             };
-            let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
-            obj = {
-                ...obj,
-                ...deposit_setting,
+
+            if (trxType == 'deposit' || trxType == 'depositback') {
+                let deposit_setting = await setDepositAmountSetting(amount, mcht, dns_data);
+                /*
+                if (trxType == 'depositback') {
+                    let deposit_setting_keys = Object.keys(deposit_setting);
+                    for (var i = 0; i < deposit_setting_keys.length; i++) {
+                        if (deposit_setting_keys[i].includes('amount')) {
+                            deposit_setting[deposit_setting_keys[i]] = (-1) * deposit_setting[deposit_setting_keys[i]];
+                        }
+                    }
+                }
+                */
+
+                obj = {
+                    ...obj,
+                    head_office_fee: dns_data?.head_office_fee,
+                    deposit_fee: mcht?.deposit_fee ?? 0,
+                    ...deposit_setting,
+                }
             }
             let deposit_id = 0;
+            if (trx_id) {
+                let exist_deposit = await writePool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
+                    trx_id,
+                    mcht?.brand_id,
+                ])
+                exist_deposit = exist_deposit[0][0];
+                if (!exist_deposit) {
+                    let result = await insertQuery(`deposits`, obj);
+                    deposit_id = result?.insertId;
+                }
+            }
+            let telegram_message = '';
+            telegram_message += `${dns_data?.name}\n`;
+            telegram_message += `${mcht?.nickname}\n`;
+            telegram_message += `입금금액: ${commarNumber(amount)}원\n`;
+            if (virtual_account?.virtual_user_name) {
+                telegram_message += `회원아이디: ${virtual_account?.virtual_user_name}\n`;
+            }
+            telegram_message += `입금자명: ${virtual_account?.deposit_acct_name}\n`;
+            telegram_message += `입금일시: ${trans_date} ${trans_time}\n`;
 
-            let exist_deposit = await readPool.query(`SELECT * FROM deposits WHERE trx_id=? AND brand_id=?`, [
-                trx_id,
-                mcht?.brand_id
-            ])
-            exist_deposit = exist_deposit[0][0];
-            if (exist_deposit) {
-                deposit_id = exist_deposit?.id;
-                let result = await updateQuery(`deposits`, obj, deposit_id);
-            } else {
-                exist_deposit = {};
-                let result = await insertQuery(`deposits`, obj);
-                deposit_id = result?.insertId;
-            }
-            if (!(deposit_id > 0)) {
-                insertResponseLog(req, '9999');
-                return res.send('9999');
-            }
-
-            let noti_process_obj = {}
-            noti_process_obj[`deposit_noti_status`] = 5;
-            let noti_data = {
-                amount,
-                bank_code: deposit_bank_code,
-                acct_num: deposit_acct_num,
-                acct_name: deposit_acct_name,
-                created_at: returnMoment(),
-                tid: trx_id,
-            }
-            noti_process_obj[`deposit_noti_obj`] = JSON.stringify(noti_data);
-            let update_mother_to_result = await updateQuery('deposits', noti_process_obj, deposit_id);
-            sendTelegramBot(dns_data, `${returnMoment()} ${dns_data?.name}\n${mcht?.nickname} ${virtual_account?.deposit_acct_name} 님이 ${commarNumber(amount)}원을 입금하였습니다.`, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
+            sendTelegramBot(dns_data, telegram_message, JSON.parse(mcht?.telegram_chat_ids ?? '[]'));
             let bell_data = {
                 amount,
                 user_id: mcht?.id,
@@ -160,13 +263,14 @@ const pushWingGlobalCtrl = {
                 brand_id: dns_data?.id,
                 data: bell_data
             })
-
-            insertResponseLog({ ...req }, '0000');
-            return res.send('0000');
+            insertResponseLog(req, 'OK');
+            return res.status(200).send('OK');
         } catch (err) {
             console.log(err)
-            insertResponseLog(req, '9999');
-            return res.send('9999');
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
+        } finally {
+
         }
     },
 

@@ -52,7 +52,11 @@ router
     .post(pushIcbCtrl.deposit);
 //wingglobal
 router
-    .route('/winglobal')
+    .route('/winglobal/auth/:auth_user_name')
+    .post(pushWingGlobalCtrl.auth)
+    .get(pushWingGlobalCtrl.auth);
+router
+    .route('/winglobal/deposit')
     .post(pushWingGlobalCtrl.deposit);
 
 export default router;

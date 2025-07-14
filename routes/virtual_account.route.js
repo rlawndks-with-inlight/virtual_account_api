@@ -3,6 +3,7 @@ import { virtualAccountV1Ctrl } from '../controllers/index.js';
 import virtualAccountV2Ctrl from '../controllers/virtual_account/v2.js';
 import virtualAccountV3Ctrl from '../controllers/virtual_account/v3.js';
 import virtualAccountV4Ctrl from '../controllers/virtual_account/v4.js';
+import virtualAccountV5Ctrl from '../controllers/virtual_account/v5.js';
 const router = express.Router(); // eslint-disable-line new-cap
 
 //v1
@@ -73,5 +74,12 @@ router
 router
     .route('/v4/issuance')
     .post(virtualAccountV4Ctrl.issuance)
+//
+router
+    .route('/v5/issuance')
+    .post(virtualAccountV5Ctrl.issuance)
+router
+    .route('/v5/nice')
+    .post(virtualAccountV5Ctrl.nice)
 
 export default router;
