@@ -128,7 +128,6 @@ const pushWingGlobalCtrl = {
                 ]);
                 virtual_account = virtual_account[0][0];
             }
-            console.log(virtual_account)
 
             let dns_data = await writePool.query(`SELECT * FROM brands WHERE id=${virtual_account?.brand_id}`);
             dns_data = dns_data[0][0];
@@ -231,7 +230,18 @@ const pushWingGlobalCtrl = {
 
         }
     },
+    deposit_mcht: async (req, res, next) => {
+        try {
+            insertResponseLog(req, 'OK');
+            return res.status(200).send('OK');
+        } catch (err) {
+            console.log(err)
+            insertResponseLog(req, 'FAIL');
+            return res.status(500).send('FAIL');
+        } finally {
 
+        }
+    },
 };
 
 export default pushWingGlobalCtrl;

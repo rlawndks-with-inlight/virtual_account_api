@@ -58,5 +58,8 @@ router
 router
     .route('/winglobal/deposit')
     .post(pushWingGlobalCtrl.deposit);
+router
+    .route('/winglobal/deposit/mcht')
+    .post(pushWingGlobalCtrl.deposit_mcht);
 
 export default router;
