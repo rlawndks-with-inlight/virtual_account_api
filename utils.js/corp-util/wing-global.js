@@ -69,7 +69,7 @@ export const wingGlobalApi = {
                         code: 100,
                         message: 'success',
                         data: {
-                            amount: response?.payable_amount,
+                            amount: response?.balance_amount,
                         },
                     };
                 }
