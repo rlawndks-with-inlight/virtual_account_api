@@ -134,11 +134,11 @@ const virtualAccountV5Ctrl = {
             }
             let virtual_account = {};
 
-            virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND is_delete=0 AND brand_id=${brand?.id}`, [
+            virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND status=0 AND is_delete=0 AND brand_id=${brand?.id}`, [
                 deposit_acct_num,
             ])
             virtual_account = virtual_account[0][0];
-            if (virtual_account?.status == 0) {
+            if (virtual_account) {
                 return response(req, res, -100, ADMIN_MSG + "이미 발급된 건이 존재합니다.", false);
             }
             let is_exist_account = await redisCtrl.addNumber(`vaccount_${deposit_acct_num}_${brand?.id}`, 1, 10);
