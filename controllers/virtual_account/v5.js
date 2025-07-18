@@ -141,7 +141,7 @@ const virtualAccountV5Ctrl = {
             if (virtual_account?.status == 0) {
                 return response(req, res, -100, ADMIN_MSG + "이미 발급된 건이 존재합니다.", false);
             }
-            let is_exist_account = await redisCtrl.addNumber(`vaccount_${virtual_account?.ci}`, 1, 10);
+            let is_exist_account = await redisCtrl.addNumber(`vaccount_${deposit_acct_num}_${brand?.id}`, 1, 10);
             if (is_exist_account > 1) {
                 return response(req, res, -100, ADMIN_MSG + "아직 처리중인 건이 존재합니다.", false)
             }
