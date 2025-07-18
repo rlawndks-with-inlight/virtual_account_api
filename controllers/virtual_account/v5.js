@@ -85,6 +85,13 @@ const virtualAccountV5Ctrl = {
             if (!api_key) {
                 return response(req, res, -100, ADMIN_MSG + "api key를 입력해주세요.", false);
             }
+            if (
+                !deposit_bank_code ||
+                !deposit_acct_name ||
+                !deposit_acct_num
+            ) {
+                return response(req, res, -100, ADMIN_MSG + "입금계좌 정보를 입력해주세요.", false);
+            }
 
             let brand = await redisCtrl.get(`dns_data_${api_key}`);
             if (brand) {
