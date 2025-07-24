@@ -110,7 +110,7 @@ const pushWingGlobalCtrl = {
             let virtual_account = {};
             let refer_deposit_id = 0;
             if (trxType == '입금') {
-                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE virtual_acct_num=?`, [
+                virtual_account = await writePool.query(`SELECT * FROM virtual_accounts WHERE virtual_acct_num=? AND is_delete=0`, [
                     account,
                 ]);
                 virtual_account = virtual_account[0][0];
