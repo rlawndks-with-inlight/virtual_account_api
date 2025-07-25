@@ -134,8 +134,8 @@ const virtualAccountV5Ctrl = {
             }
             let virtual_account = {};
 
-            virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE deposit_acct_num=? AND status=0 AND is_delete=0 AND brand_id=${brand?.id}`, [
-                deposit_acct_num,
+            virtual_account = await readPool.query(`SELECT * FROM ${table_name} WHERE phone_num=? AND status=0 AND is_delete=0 AND brand_id=${brand?.id}`, [
+                phone_num,
             ])
             virtual_account = virtual_account[0][0];
             if (virtual_account) {
