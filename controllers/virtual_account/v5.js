@@ -141,6 +141,20 @@ const virtualAccountV5Ctrl = {
             if (virtual_account) {
                 return response(req, res, -100, ADMIN_MSG + "이미 발급된 건이 존재합니다.", false);
             }
+
+            let check_account = await corpApi.account.info({
+                pay_type: 'deposit',
+                dns_data: brand,
+                decode_user: mcht,
+                bank_code: deposit_bank_code,
+                acct_num: deposit_acct_num,
+                birth: birth,
+            })
+            if (check_account.code != 100) {
+                return response(req, res, -110, (check_account?.message || "서버 에러 발생"), false)
+            }
+            deposit_acct_name = check_account?.data?.withdraw_acct_name;
+
             let is_exist_account = await redisCtrl.addNumber(`vaccount_${deposit_acct_num}_${brand?.id}`, 1, 10);
             if (is_exist_account > 1) {
                 return response(req, res, -100, ADMIN_MSG + "아직 처리중인 건이 존재합니다.", false)
