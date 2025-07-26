@@ -1,6 +1,6 @@
 import axios from "axios";
 import { returnMoment } from "../function.js";
-import { readPool } from "../../config/db-pool.js";
+import { readPool, writePool } from "../../config/db-pool.js";
 import { insertQuery } from "../query-util.js";
 import redisCtrl from "../../redis/index.js";
 
