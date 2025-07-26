@@ -48,7 +48,6 @@ const getCount = async (dns_data) => {
     }
     return String(count).padStart(6, '0');
 }
-
 export const wingGlobalApi = {
     balance: {
         info: async (data) => {
